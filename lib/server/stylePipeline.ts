@@ -24,10 +24,12 @@ function applyStyle(image: Sharp, mode: ProcessingMode): Sharp {
     case "corporate":
       // Sharp focus + cool professional tint (blue channel lift, red pulled
       // back slightly) + mild contrast for a formal corporate finish.
+      // Note: sharp applies `flatten` before `linear` regardless of call
+      // order, so the image is 3-band (RGB) when the tint runs.
       return image
         .sharpen({ sigma: 1.1 })
         .modulate({ brightness: 1.01, saturation: 0.88 })
-        .linear([0.97, 1.0, 1.05, 1.0], [0, 0, 8, 0]);
+        .linear([0.97, 1.0, 1.05], [0, 0, 8]);
   }
 }
 
