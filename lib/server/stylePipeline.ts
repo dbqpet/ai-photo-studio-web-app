@@ -6,10 +6,10 @@
  * of the face originates from the source photo.
  */
 
-import sharp from "sharp";
+import sharp, { type Sharp } from "sharp";
 import type { ProcessingMode } from "@/lib/types";
 
-function applyStyle(image: sharp.Sharp, mode: ProcessingMode): sharp.Sharp {
+function applyStyle(image: Sharp, mode: ProcessingMode): Sharp {
   switch (mode) {
     case "classic":
       // Clean natural lighting: neutral, faithful rendition.
