@@ -14,6 +14,8 @@ interface PreviewPanelProps {
   layout: SheetLayout;
   checkoutLoading: boolean;
   onCheckout: () => void;
+  /** Return to the specs step, keeping the uploaded photo. */
+  onBack: () => void;
   onStartOver: () => void;
 }
 
@@ -33,6 +35,7 @@ export default function PreviewPanel({
   layout,
   checkoutLoading,
   onCheckout,
+  onBack,
   onStartOver,
 }: PreviewPanelProps) {
   return (
@@ -80,6 +83,13 @@ export default function PreviewPanel({
           ) : (
             <>💳 Download High-Res (No Watermark) — $18 HKD</>
           )}
+        </button>
+        <button
+          type="button"
+          onClick={onBack}
+          className="rounded-2xl border border-sky-300 bg-sky-50 px-6 py-3 text-sm font-semibold text-sky-700 transition hover:bg-sky-100"
+        >
+          ← Back — change size, color or style
         </button>
         <button
           type="button"

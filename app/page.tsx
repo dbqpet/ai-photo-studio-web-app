@@ -152,6 +152,11 @@ export default function StudioPage() {
     }
   }, [result, preset, mode]);
 
+  const backToSpecs = useCallback(() => {
+    setProcessError(null);
+    setStep(2);
+  }, []);
+
   const startOver = useCallback(() => {
     setStep(1);
     setSourcePhoto(null);
@@ -303,6 +308,7 @@ export default function StudioPage() {
               layout={result.layout}
               checkoutLoading={checkoutLoading}
               onCheckout={checkout}
+              onBack={backToSpecs}
               onStartOver={startOver}
             />
           </section>
