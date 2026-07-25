@@ -81,20 +81,20 @@ export default function PreviewPanel({
               Redirecting to secure checkout…
             </>
           ) : (
-            <>💳 Download High-Res (No Watermark) — $18 HKD</>
+            <>💳 Unlock &amp; Download High-Res Photos — $18 HKD</>
           )}
         </button>
         <button
           type="button"
           onClick={onBack}
-          className="rounded-2xl border border-sky-300 bg-sky-50 px-6 py-3 text-sm font-semibold text-sky-700 transition hover:bg-sky-100"
+          className="rounded-2xl border border-slate-300 bg-transparent px-6 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
         >
-          ← Back — change size, color or style
+          ← Back to Edit (Size, Color, Style)
         </button>
         <button
           type="button"
           onClick={onStartOver}
-          className="rounded-2xl border border-slate-300 px-6 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+          className="self-center px-4 py-2 text-sm font-medium text-slate-400 underline-offset-4 transition hover:text-slate-600 hover:underline"
         >
           ↺ Start over with a new photo
         </button>
