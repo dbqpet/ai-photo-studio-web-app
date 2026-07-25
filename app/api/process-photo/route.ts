@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { removeBackground } from "@/lib/server/aiProviders";
+import { processCutout } from "@/lib/server/aiProviders";
 import { finalizeIdPhoto } from "@/lib/server/stylePipeline";
 import type { ProcessPhotoRequest, ProcessPhotoResponse, ProcessingMode } from "@/lib/types";
 
@@ -63,17 +63,22 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { png, provider } = await removeBackground(source);
+    const { png, provider, styleApplied, fallbackReason } = await processCutout(
+      source,
+      mode,
+    );
     const finalJpeg = await finalizeIdPhoto(png, {
       mode,
       backgroundColor,
       targetWidth,
       targetHeight,
+      skipStyle: styleApplied,
     });
     const response: ProcessPhotoResponse = {
       imageDataUrl: `data:image/jpeg;base64,${finalJpeg.toString("base64")}`,
       provider,
       mode,
+      fallbackReason,
     };
     return NextResponse.json(response);
   } catch (err) {

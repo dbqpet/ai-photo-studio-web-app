@@ -90,6 +90,28 @@ export async function cropToAspect(
   return canvas.toDataURL("image/jpeg", 0.95);
 }
 
+/**
+ * Downscale an image so its longest edge is at most `maxDim` pixels.
+ * Used to keep AI validation requests small and cheap.
+ */
+export async function downscaleDataUrl(
+  dataUrl: string,
+  maxDim = 800,
+): Promise<string> {
+  const img = await loadImage(dataUrl);
+  const { naturalWidth: w, naturalHeight: h } = img;
+  const scale = Math.min(1, maxDim / Math.max(w, h));
+  if (scale === 1) return dataUrl;
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(w * scale);
+  canvas.height = Math.round(h * scale);
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Canvas 2D context unavailable.");
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL("image/jpeg", 0.85);
+}
+
 /** Trigger a browser download of a data URL. */
 export function downloadDataUrl(dataUrl: string, filename: string): void {
   const a = document.createElement("a");

@@ -9,6 +9,8 @@ import type { AiProvider } from "@/lib/types";
 interface PreviewPanelProps {
   preset: PhotoSizePreset;
   provider: AiProvider;
+  /** Set when a configured AI provider failed and the mock engine took over. */
+  fallbackReason?: string;
   singlePreviewUrl: string;
   sheetPreviewUrl: string;
   layout: SheetLayout;
@@ -30,6 +32,7 @@ const PROVIDER_LABEL: Record<AiProvider, string> = {
 export default function PreviewPanel({
   preset,
   provider,
+  fallbackReason,
   singlePreviewUrl,
   sheetPreviewUrl,
   layout,
@@ -38,15 +41,29 @@ export default function PreviewPanel({
   onBack,
   onStartOver,
 }: PreviewPanelProps) {
+  const realAi = provider !== "mock";
+
   return (
     <div className="flex flex-col gap-6">
       <div className="grid gap-6 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
         <figure className="flex flex-col items-center gap-2">
-          <img
-            src={singlePreviewUrl}
-            alt={`Watermarked preview of the processed ${preset.label} photo`}
-            className="w-full max-w-56 rounded-lg border border-slate-200 shadow-md"
-          />
+          <div className="relative w-full max-w-56">
+            <img
+              src={singlePreviewUrl}
+              alt={`Watermarked preview of the processed ${preset.label} photo`}
+              className="w-full rounded-lg border border-slate-200 shadow-md"
+            />
+            <span
+              data-testid="ai-mode-badge"
+              className={`absolute left-2 top-2 rounded-full px-2.5 py-1 text-[11px] font-bold shadow ${
+                realAi
+                  ? "bg-emerald-600 text-white"
+                  : "bg-amber-400 text-amber-950"
+              }`}
+            >
+              {realAi ? "⚡ Real AI Mode" : "🧪 Mock Mode"}
+            </span>
+          </div>
           <figcaption className="text-xs text-slate-500">
             Single photo · {preset.description} @ 300 DPI
           </figcaption>
@@ -66,6 +83,9 @@ export default function PreviewPanel({
 
       <p className="rounded-lg bg-slate-100 px-3 py-2 text-xs text-slate-600">
         Processed by: {PROVIDER_LABEL[provider]}
+        {fallbackReason && (
+          <span className="mt-1 block text-amber-700">⚠️ {fallbackReason}</span>
+        )}
       </p>
 
       <div className="flex flex-col gap-3">
@@ -81,7 +101,12 @@ export default function PreviewPanel({
               Redirecting to secure checkout…
             </>
           ) : (
-            <>💳 Unlock &amp; Download High-Res Photos — $18 HKD</>
+            <>
+              <span className="sm:hidden">💳 Unlock High-Res — $18 HKD</span>
+              <span className="hidden sm:inline">
+                💳 Unlock &amp; Download High-Res Photos — $18 HKD
+              </span>
+            </>
           )}
         </button>
         <button

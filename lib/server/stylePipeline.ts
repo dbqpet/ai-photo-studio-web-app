@@ -39,6 +39,11 @@ export interface StylePipelineOptions {
   backgroundColor: string;
   targetWidth: number;
   targetHeight: number;
+  /**
+   * Skip the photometric style pass — used when a generative provider
+   * (Flux Kontext) has already applied the style upstream.
+   */
+  skipStyle?: boolean;
 }
 
 /**
@@ -49,8 +54,9 @@ export async function finalizeIdPhoto(
   cutoutPng: Buffer,
   options: StylePipelineOptions,
 ): Promise<Buffer> {
-  const { mode, backgroundColor, targetWidth, targetHeight } = options;
-  const styled = applyStyle(sharp(cutoutPng).ensureAlpha(), mode);
+  const { mode, backgroundColor, targetWidth, targetHeight, skipStyle } = options;
+  const base = sharp(cutoutPng).ensureAlpha();
+  const styled = skipStyle ? base : applyStyle(base, mode);
   return styled
     .flatten({ background: backgroundColor })
     .resize(targetWidth, targetHeight, { fit: "cover", position: "attention" })

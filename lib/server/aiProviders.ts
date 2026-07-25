@@ -1,43 +1,150 @@
 /**
- * Background-removal providers for the AI processing engine.
- *
- * Each provider receives the source photo and returns a PNG *cutout* of the
- * subject with a transparent background. Face identity is preserved by
- * design: providers only segment the subject — no generative model ever
- * redraws facial pixels. Styling is applied afterwards as deterministic
- * photometric adjustments (see stylePipeline.ts).
+ * AI providers for the processing engine.
  *
  * Provider selection (first configured key wins):
- *   1. FAL_KEY               → fal.ai BiRefNet segmentation
+ *   1. FAL_KEY               → fal.ai: Flux Kontext identity-preserving style
+ *                              pass (korean/corporate) + BiRefNet segmentation
  *   2. REPLICATE_API_TOKEN   → Replicate background remover
  *   3. REMOVE_BG_API_KEY     → remove.bg
  *   4. none                  → built-in mock (flood-fill matting) for local dev
+ *
+ * Face identity preservation: segmentation never touches pixels, and the
+ * Kontext style pass is instruction-based editing explicitly constrained to
+ * keep the face, features, expression and pose unchanged. When no generative
+ * pass runs, styles fall back to deterministic photometric adjustments
+ * (see stylePipeline.ts).
  */
 
 import sharp from "sharp";
 import type { AiProvider } from "@/lib/types";
 
+import type { ProcessingMode } from "@/lib/types";
+
 export interface CutoutResult {
   /** PNG buffer with transparent background. */
   png: Buffer;
   provider: AiProvider;
+  /** True when a generative style pass (Flux Kontext) was already applied. */
+  styleApplied: boolean;
+  /** Set when a configured provider failed and the mock engine took over. */
+  fallbackReason?: string;
 }
 
-export async function removeBackground(input: Buffer): Promise<CutoutResult> {
+/**
+ * Full provider pipeline for one photo:
+ *
+ *   1. (fal only, korean/corporate) Flux Kontext identity-preserving style
+ *      pass — instruction-based editing that keeps the face unchanged.
+ *   2. Subject segmentation (BiRefNet / Replicate / remove.bg / mock).
+ *
+ * If a configured provider fails at runtime (network, quota, exhausted
+ * balance…), the built-in mock engine takes over so the app keeps working,
+ * and the reason is reported to the UI.
+ */
+export async function processCutout(
+  input: Buffer,
+  mode: ProcessingMode,
+): Promise<CutoutResult> {
   if (process.env.FAL_KEY) {
-    return { png: await falRemoveBackground(input), provider: "fal" };
+    try {
+      let working = input;
+      let styleApplied = false;
+      if (mode !== "classic") {
+        working = await falStylePortrait(input, mode);
+        styleApplied = true;
+      }
+      const png = await falRemoveBackground(working);
+      return { png, provider: "fal", styleApplied };
+    } catch (err) {
+      console.error("[aiProviders] fal.ai pipeline failed, using mock:", err);
+      return {
+        png: await mockRemoveBackground(input),
+        provider: "mock",
+        styleApplied: false,
+        fallbackReason: `fal.ai unavailable (${err instanceof Error ? err.message : "unknown error"}) — processed with the built-in engine instead.`,
+      };
+    }
   }
   if (process.env.REPLICATE_API_TOKEN) {
-    return { png: await replicateRemoveBackground(input), provider: "replicate" };
+    try {
+      const png = await replicateRemoveBackground(input);
+      return { png, provider: "replicate", styleApplied: false };
+    } catch (err) {
+      console.error("[aiProviders] Replicate failed, using mock:", err);
+      return {
+        png: await mockRemoveBackground(input),
+        provider: "mock",
+        styleApplied: false,
+        fallbackReason: "Replicate unavailable — processed with the built-in engine instead.",
+      };
+    }
   }
   if (process.env.REMOVE_BG_API_KEY) {
-    return { png: await removeBgRemoveBackground(input), provider: "removebg" };
+    try {
+      const png = await removeBgRemoveBackground(input);
+      return { png, provider: "removebg", styleApplied: false };
+    } catch (err) {
+      console.error("[aiProviders] remove.bg failed, using mock:", err);
+      return {
+        png: await mockRemoveBackground(input),
+        provider: "mock",
+        styleApplied: false,
+        fallbackReason: "remove.bg unavailable — processed with the built-in engine instead.",
+      };
+    }
   }
-  return { png: await mockRemoveBackground(input), provider: "mock" };
+  return {
+    png: await mockRemoveBackground(input),
+    provider: "mock",
+    styleApplied: false,
+  };
+}
+
+/**
+ * Identity-preserving generative styling via FLUX.1 Kontext [pro].
+ *
+ * Kontext performs instruction-based edits while keeping the subject's
+ * facial identity intact; the prompts additionally pin the face, features,
+ * expression and pose so only lighting/tone/attire change.
+ */
+const KONTEXT_PROMPTS: Record<Exclude<ProcessingMode, "classic">, string> = {
+  korean:
+    "Relight this portrait with soft high-key Korean photo studio lighting, apply gentle natural skin smoothing and a refined bright studio tone. Keep the person's face, facial features, identity, expression, hairstyle and pose exactly the same. Do not change facial structure or proportions.",
+  corporate:
+    "Turn this portrait into a formal corporate headshot: crisp sharp focus, cool professional colour tone, and dress the person in formal dark business attire with a collared shirt. Keep the person's face, facial features, identity, expression, hairstyle and pose exactly the same. Do not change facial structure or proportions.",
+};
+
+async function falStylePortrait(
+  input: Buffer,
+  mode: Exclude<ProcessingMode, "classic">,
+): Promise<Buffer> {
+  const res = await fetch("https://fal.run/fal-ai/flux-pro/kontext", {
+    method: "POST",
+    headers: {
+      Authorization: `Key ${process.env.FAL_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      prompt: KONTEXT_PROMPTS[mode],
+      image_url: toDataUrl(input),
+      guidance_scale: 3.5,
+      num_images: 1,
+      output_format: "png",
+      safety_tolerance: "2",
+    }),
+  });
+  if (!res.ok) {
+    throw new Error(`Flux Kontext request failed (${res.status}): ${await res.text()}`);
+  }
+  const json = (await res.json()) as { images?: Array<{ url?: string }> };
+  const url = json.images?.[0]?.url;
+  if (!url) throw new Error("Flux Kontext returned no image.");
+  return fetchBinary(url);
 }
 
 function toDataUrl(buffer: Buffer): string {
-  return `data:image/png;base64,${buffer.toString("base64")}`;
+  const isJpeg = buffer[0] === 0xff && buffer[1] === 0xd8;
+  return `data:image/${isJpeg ? "jpeg" : "png"};base64,${buffer.toString("base64")}`;
 }
 
 async function fetchBinary(url: string): Promise<Buffer> {

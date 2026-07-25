@@ -52,6 +52,25 @@ export interface ProcessPhotoResponse {
   /** Which backend performed the background removal. */
   provider: AiProvider;
   mode: ProcessingMode;
+  /** Set when a configured AI provider failed and the mock engine took over. */
+  fallbackReason?: string;
+}
+
+export interface ValidatePhotoRequest {
+  /** Base64 data URL of the candidate photo (downscaled by the client). */
+  imageDataUrl: string;
+}
+
+export interface ValidatePhotoResponse {
+  /** False when GEMINI_API_KEY is not set and the check was skipped. */
+  configured: boolean;
+  /** Whether the photo is suitable for an ID photo. */
+  suitable: boolean;
+  personCount: number;
+  sunglassesOrCovered: boolean;
+  faceClearlyVisible: boolean;
+  /** Human-readable explanation, shown to the user when unsuitable. */
+  reason: string;
 }
 
 export interface CheckoutRequest {

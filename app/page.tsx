@@ -12,7 +12,7 @@ import {
   getBackgroundById,
   getPresetById,
 } from "@/constants/photoSizes";
-import { cropToAspect } from "@/lib/imageUtils";
+import { cropToAspect, downscaleDataUrl } from "@/lib/imageUtils";
 import { renderPrintSheet, type SheetLayout } from "@/lib/printLayout";
 import { applyWatermarkToCanvas, watermarkDataUrl } from "@/lib/watermark";
 import { storePendingPurchase } from "@/lib/purchaseStore";
@@ -23,12 +23,14 @@ import type {
   ProcessPhotoRequest,
   ProcessPhotoResponse,
   ProcessingMode,
+  ValidatePhotoResponse,
 } from "@/lib/types";
 
 type Step = 1 | 2 | 3;
 
 interface GeneratedResult {
   provider: AiProvider;
+  fallbackReason?: string;
   cleanSingle: string;
   cleanSheet: string;
   previewSingle: string;
@@ -55,17 +57,51 @@ export default function StudioPage() {
   const [processError, setProcessError] = useState<string | null>(null);
   const [result, setResult] = useState<GeneratedResult | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [aiChecking, setAiChecking] = useState(false);
+  const [aiCheckError, setAiCheckError] = useState<string | null>(null);
 
   const preset = useMemo(() => getPresetById(presetId)!, [presetId]);
   const background = useMemo(() => getBackgroundById(backgroundId)!, [backgroundId]);
 
-  const handlePhotoSelected = useCallback((dataUrl: string, warning?: string) => {
-    setSourcePhoto(dataUrl);
-    setResolutionWarning(warning);
-    setResult(null);
-    setProcessError(null);
-    setStep(2);
-  }, []);
+  const handlePhotoSelected = useCallback(
+    async (dataUrl: string, warning?: string) => {
+      setAiCheckError(null);
+      setAiChecking(true);
+      try {
+        // Mandatory smart pre-validation (Gemini) BEFORE any generative
+        // processing, so unsuitable photos never consume fal.ai credits.
+        const smallDataUrl = await downscaleDataUrl(dataUrl, 800);
+        const res = await fetch("/api/validate-photo", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageDataUrl: smallDataUrl }),
+        });
+        const verdict = (await res.json()) as ValidatePhotoResponse & {
+          error?: string;
+        };
+        if (!res.ok) throw new Error(verdict.error ?? "Validation failed.");
+        if (verdict.configured && !verdict.suitable) {
+          setAiCheckError(
+            verdict.reason ||
+              "Please upload a clear, single-person photo without sunglasses.",
+          );
+          return;
+        }
+      } catch (err) {
+        // Fail open: a validation outage should not block the product.
+        console.warn("Photo pre-validation unavailable:", err);
+      } finally {
+        setAiChecking(false);
+      }
+
+      setSourcePhoto(dataUrl);
+      setResolutionWarning(warning);
+      setResult(null);
+      setProcessError(null);
+      setStep(2);
+    },
+    [],
+  );
 
   const generate = useCallback(async () => {
     if (!sourcePhoto) return;
@@ -110,6 +146,7 @@ export default function StudioPage() {
 
       setResult({
         provider: json.provider,
+        fallbackReason: json.fallbackReason,
         cleanSingle: json.imageDataUrl,
         cleanSheet,
         previewSingle,
@@ -218,7 +255,27 @@ export default function StudioPage() {
               Face the camera straight on, in even lighting, ideally against a
               plain background.
             </p>
-            <PhotoInput onPhotoSelected={handlePhotoSelected} />
+            {aiCheckError && (
+              <p
+                data-testid="ai-check-error"
+                className="mb-4 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700"
+              >
+                🚫 {aiCheckError}
+              </p>
+            )}
+            {aiChecking ? (
+              <div className="flex aspect-[3/4] w-full flex-col items-center justify-center gap-3 rounded-2xl bg-slate-50 text-slate-500">
+                <span className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-sky-500" />
+                <span className="text-sm font-medium">
+                  Checking your photo with AI…
+                </span>
+                <span className="text-xs text-slate-400">
+                  Verifying one person, no sunglasses, clear face
+                </span>
+              </div>
+            ) : (
+              <PhotoInput onPhotoSelected={handlePhotoSelected} />
+            )}
           </section>
         )}
 
@@ -303,6 +360,7 @@ export default function StudioPage() {
             <PreviewPanel
               preset={preset}
               provider={result.provider}
+              fallbackReason={result.fallbackReason}
               singlePreviewUrl={result.previewSingle}
               sheetPreviewUrl={result.previewSheet}
               layout={result.layout}
