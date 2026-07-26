@@ -3,6 +3,8 @@
 /* eslint-disable @next/next/no-img-element -- previews are dynamic data URLs */
 
 import { useCallback, useMemo, useState } from "react";
+import LoginModal from "@/components/LoginModal";
+import PaywallModal from "@/components/PaywallModal";
 import PhotoInput from "@/components/PhotoInput";
 import SpecSelector from "@/components/SpecSelector";
 import PreviewPanel from "@/components/PreviewPanel";
@@ -15,6 +17,7 @@ import {
   getBackgroundById,
   resolvePhotoPreset,
 } from "@/constants/photoSizes";
+import { useAuth } from "@/hooks/useAuth";
 import { cropToAspect } from "@/lib/imageUtils";
 import { renderPrintSheet, type SheetLayout } from "@/lib/printLayout";
 import { applyWatermarkToCanvas, watermarkDataUrl } from "@/lib/watermark";
@@ -56,6 +59,17 @@ function clampMm(value: number): number {
 }
 
 export default function StudioPage() {
+  const {
+    user,
+    credits,
+    profileError,
+    needsDbSetup,
+    loading: authLoading,
+    refreshProfile,
+    signInWithGoogle,
+    signOut,
+  } = useAuth();
+
   const [step, setStep] = useState<Step>(1);
   const [sourcePhoto, setSourcePhoto] = useState<string | null>(null);
   const [resolutionWarning, setResolutionWarning] = useState<string | undefined>();
@@ -72,6 +86,8 @@ export default function StudioPage() {
   const [highDemand, setHighDemand] = useState(false);
   const [result, setResult] = useState<GeneratedResult | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [paywallOpen, setPaywallOpen] = useState(false);
 
   const preset = useMemo(
     () =>
@@ -113,8 +129,61 @@ export default function StudioPage() {
     [],
   );
 
+  const checkout = useCallback(async () => {
+    setCheckoutLoading(true);
+    try {
+      const body: CheckoutRequest = {
+        presetId: preset.id,
+        mode,
+        dimensionLabel: orderSummary.dimensionLabel,
+      };
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const json = (await res.json()) as CheckoutResponse & { error?: string };
+      if (!res.ok) throw new Error(json.error ?? "Checkout failed.");
+
+      if (result) {
+        await storePendingPurchase({
+          singleDataUrl: result.cleanSingle,
+          sheetDataUrl: result.cleanSheet,
+          presetLabel: preset.label,
+          style: mode,
+          summary: orderSummary,
+        });
+      }
+      window.location.href = json.url;
+    } catch (err) {
+      console.error("Checkout failed:", err);
+      setProcessError(
+        err instanceof Error
+          ? err.message
+          : "Checkout failed. Please try again.",
+      );
+      setCheckoutLoading(false);
+    }
+  }, [result, preset, mode, orderSummary]);
+
   const generate = useCallback(async () => {
     if (!sourcePhoto) return;
+
+    if (!user) {
+      setLoginOpen(true);
+      return;
+    }
+
+    if (credits !== null && credits <= 0) {
+      setPaywallOpen(true);
+      return;
+    }
+
+    if (user && profileError) {
+      setProcessError(profileError);
+      return;
+    }
+
     setProcessing(true);
     setProcessError(null);
     setHighDemand(false);
@@ -141,8 +210,18 @@ export default function StudioPage() {
       const json = (await res.json()) as ProcessPhotoResponse & {
         error?: string;
         highDemand?: boolean;
+        code?: string;
       };
+
       if (!res.ok) {
+        if (res.status === 401 || json.code === "NOT_AUTHENTICATED") {
+          setLoginOpen(true);
+          throw new Error(json.error ?? "Please sign in to generate.");
+        }
+        if (res.status === 402 || json.code === "NO_CREDITS") {
+          setPaywallOpen(true);
+          throw new Error(json.error ?? "You're out of free credits.");
+        }
         if (json.highDemand || res.status === 503) {
           setHighDemand(true);
           throw new Error(json.error ?? HIGH_DEMAND_MESSAGE);
@@ -178,6 +257,7 @@ export default function StudioPage() {
         backgroundColor: background.hex,
       });
       setStep(3);
+      await refreshProfile();
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Processing failed. Please try again.";
@@ -192,43 +272,17 @@ export default function StudioPage() {
     } finally {
       setProcessing(false);
     }
-  }, [sourcePhoto, preset, background, mode, backgroundMode]);
-
-  const checkout = useCallback(async () => {
-    if (!result) return;
-    setCheckoutLoading(true);
-    try {
-      const body: CheckoutRequest = {
-        presetId: preset.id,
-        mode,
-        dimensionLabel: orderSummary.dimensionLabel,
-      };
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const json = (await res.json()) as CheckoutResponse & { error?: string };
-      if (!res.ok) throw new Error(json.error ?? "Checkout failed.");
-
-      await storePendingPurchase({
-        singleDataUrl: result.cleanSingle,
-        sheetDataUrl: result.cleanSheet,
-        presetLabel: preset.label,
-        style: mode,
-        summary: orderSummary,
-      });
-      window.location.href = json.url;
-    } catch (err) {
-      console.error("Checkout failed:", err);
-      setProcessError(
-        err instanceof Error
-          ? err.message
-          : "Checkout failed. Please try again.",
-      );
-      setCheckoutLoading(false);
-    }
-  }, [result, preset, mode, orderSummary]);
+  }, [
+    sourcePhoto,
+    user,
+    credits,
+    profileError,
+    preset,
+    background,
+    mode,
+    backgroundMode,
+    refreshProfile,
+  ]);
 
   const backToSpecs = useCallback(() => {
     setProcessError(null);
@@ -246,13 +300,35 @@ export default function StudioPage() {
   return (
     <div className="flex flex-1 flex-col bg-slate-50">
       <header className="border-b border-slate-200 bg-white/80 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-5 py-4">
+        <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-3 px-5 py-4">
           <h1 className="text-lg font-bold tracking-tight text-slate-900">
             📸 AI Studio ID
           </h1>
-          <span className="rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-700">
-            ID photos in seconds
-          </span>
+          <div className="flex items-center gap-2">
+            {!authLoading && user && (
+              <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
+                {credits ?? 0} credit{(credits ?? 0) === 1 ? "" : "s"}
+              </span>
+            )}
+            {!authLoading && user ? (
+              <button
+                type="button"
+                onClick={() => void signOut()}
+                className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 transition hover:bg-slate-200"
+              >
+                Sign out
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setLoginOpen(true)}
+                disabled={authLoading}
+                className="rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-700 transition hover:bg-sky-200 disabled:opacity-60"
+              >
+                Sign in
+              </button>
+            )}
+          </div>
         </div>
       </header>
 
@@ -285,6 +361,28 @@ export default function StudioPage() {
             </div>
           ))}
         </nav>
+
+        {user && profileError && (
+          <div
+            className={`rounded-2xl px-4 py-3 text-sm ${
+              needsDbSetup
+                ? "border border-amber-200 bg-amber-50 text-amber-900"
+                : "bg-rose-50 text-rose-700"
+            }`}
+          >
+            {needsDbSetup ? "⚠️ " : ""}
+            {profileError}
+            {needsDbSetup && (
+              <p className="mt-2 text-xs">
+                Supabase → SQL Editor → paste the contents of{" "}
+                <code className="rounded bg-amber-100 px-1">
+                  supabase/migrations/001_profiles_and_credits.sql
+                </code>{" "}
+                → Run. Then refresh this page.
+              </p>
+            )}
+          </div>
+        )}
 
         {step === 1 && (
           <section className="rounded-3xl bg-white p-5 shadow-sm sm:p-7">
@@ -434,7 +532,7 @@ export default function StudioPage() {
 
             <button
               type="button"
-              onClick={generate}
+              onClick={() => void generate()}
               disabled={processing}
               className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-600 to-indigo-600 px-6 py-4 text-base font-bold text-white shadow-lg transition hover:from-sky-500 hover:to-indigo-500 disabled:opacity-60"
             >
@@ -447,6 +545,11 @@ export default function StudioPage() {
                 <>✨ Generate ID Photo</>
               )}
             </button>
+            {!user && !authLoading && (
+              <p className="mt-2 text-center text-xs text-slate-500">
+                Free account required · 2 free credits on sign-up
+              </p>
+            )}
           </section>
         )}
 
@@ -472,7 +575,7 @@ export default function StudioPage() {
               layout={result.layout}
               summary={orderSummary}
               checkoutLoading={checkoutLoading}
-              onCheckout={checkout}
+              onCheckout={() => void checkout()}
               onBack={backToSpecs}
               onStartOver={startOver}
             />
@@ -486,6 +589,31 @@ export default function StudioPage() {
           servers.
         </p>
       </footer>
+
+      <LoginModal
+        open={loginOpen}
+        onClose={() => setLoginOpen(false)}
+        onSignIn={async () => {
+          try {
+            await signInWithGoogle();
+          } catch (err) {
+            setProcessError(
+              err instanceof Error
+                ? err.message
+                : "Google sign-in failed. Please try again.",
+            );
+            setLoginOpen(false);
+          }
+        }}
+      />
+
+      <PaywallModal
+        open={paywallOpen}
+        onClose={() => setPaywallOpen(false)}
+        onCheckout={() => void checkout()}
+        checkoutLoading={checkoutLoading}
+        outOfCredits
+      />
     </div>
   );
 }

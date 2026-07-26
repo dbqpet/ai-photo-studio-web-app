@@ -12,7 +12,7 @@ const KOREAN_STUDIO_BACKGROUND =
   "Clean, soft-focus neutral light-grey or subtle off-white professional Korean photo studio backdrop.";
 
 const CORPORATE_STUDIO_BACKGROUND =
-  "soft studio lighting with a subtle gradient grey background";
+  "soft studio lighting with a subtle gradient light grey background";
 
 const HAIR_PRESERVATION =
   "Strictly preserve the original hairstyle and hair length (e.g., do NOT change short hair to long hair, or long hair to short hair). You may neaten, tidy, and polish the existing hair to look professional, but the core hairstyle, volume, and length MUST remain identical to the input photo.";

@@ -3,7 +3,9 @@
 /* eslint-disable @next/next/no-img-element -- previews are dynamic data URLs */
 
 import OrderSummaryCard from "@/components/OrderSummaryCard";
+import PriceAnchor from "@/components/PriceAnchor";
 import type { PhotoSizePreset } from "@/constants/photoSizes";
+import { PRICING } from "@/lib/pricing";
 import type { PurchaseSummary } from "@/lib/purchaseStore";
 import type { SheetLayout } from "@/lib/printLayout";
 import type { AiProvider } from "@/lib/types";
@@ -78,6 +80,13 @@ export default function PreviewPanel({
         Processed by: {PROVIDER_LABEL[provider]}
       </p>
 
+      <div className="rounded-2xl border border-rose-100 bg-rose-50/50 px-5 py-4">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          Unlock clean files
+        </p>
+        <PriceAnchor />
+      </div>
+
       <div className="flex flex-col gap-3">
         <button
           type="button"
@@ -91,12 +100,7 @@ export default function PreviewPanel({
               Redirecting to secure checkout…
             </>
           ) : (
-            <>
-              <span className="sm:hidden">💳 Unlock High-Res — $18 HKD</span>
-              <span className="hidden sm:inline">
-                💳 Unlock &amp; Download High-Res Photos — $18 HKD
-              </span>
-            </>
+            <>💳 {PRICING.checkoutCta}</>
           )}
         </button>
         <button

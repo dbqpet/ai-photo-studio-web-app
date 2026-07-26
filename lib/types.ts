@@ -61,6 +61,8 @@ export interface ProcessPhotoResponse {
   provider: AiProvider;
   mode: ProcessingMode;
   backgroundMode: BackgroundMode;
+  /** Remaining generation credits after a successful deduction (when auth is on). */
+  creditsRemaining?: number;
 }
 
 export interface ValidatePhotoRequest {

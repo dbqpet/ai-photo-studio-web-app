@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { processPhoto } from "@/lib/server/aiProviders";
+import {
+  requireGenerationCredit,
+  spendGenerationCredit,
+} from "@/lib/server/credits";
 import { isGeminiImageConfigured } from "@/lib/server/geminiImage";
 import {
   isGeminiConfigured,
   validatePhotoWithGemini,
 } from "@/lib/server/geminiValidate";
+import { createClient } from "@/lib/supabase/server";
 import {
   HIGH_DEMAND_MESSAGE,
   type BackgroundMode,
@@ -40,6 +45,13 @@ function isHighDemandError(err: unknown): boolean {
   );
 }
 
+function isSupabaseConfigured(): boolean {
+  return Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  );
+}
+
 export async function POST(req: NextRequest) {
   let body: ProcessPhotoRequest;
   try {
@@ -56,6 +68,18 @@ export async function POST(req: NextRequest) {
     targetWidth,
     targetHeight,
   } = body;
+
+  // Auth + credit gate — generation requires a logged-in user with credits > 0.
+  const supabase = isSupabaseConfigured() ? await createClient() : null;
+  if (supabase) {
+    const gate = await requireGenerationCredit(supabase);
+    if (!gate.ok) {
+      return NextResponse.json(
+        { error: gate.error, code: gate.code },
+        { status: gate.status },
+      );
+    }
+  }
 
   if (!isGeminiImageConfigured()) {
     return NextResponse.json(
@@ -138,11 +162,24 @@ export async function POST(req: NextRequest) {
       targetWidth,
       targetHeight,
     );
+
+    let remainingCredits: number | undefined;
+    if (supabase) {
+      const spend = await spendGenerationCredit(supabase);
+      if (!spend.ok) {
+        // Generation succeeded but credit spend raced to zero — still return the image.
+        console.error("[process-photo] credit spend failed after generation:", spend);
+      } else {
+        remainingCredits = spend.credits;
+      }
+    }
+
     const response: ProcessPhotoResponse = {
       imageDataUrl: `data:${mimeType};base64,${image.toString("base64")}`,
       provider,
       mode,
       backgroundMode,
+      creditsRemaining: remainingCredits,
     };
     return NextResponse.json(response);
   } catch (err) {

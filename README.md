@@ -9,7 +9,8 @@ A mobile-first AI ID photo web application built with **Next.js (App Router)**, 
 - **AI processing engine** (`/api/process-photo`) — **Gemini Nano Banana Pro exclusively** (`gemini-3-pro-image`). Retries with exponential backoff on high demand. Background modes: solid colour or full AI studio backdrop. Interactive crop (`react-easy-crop`) runs before processing. Facial identity is locked 100%.
 - **Optional Gemini pre-validation** (`/api/validate-photo`) — photos can be checked for one clear face (no sunglasses) before generation.
 - **4R print layout engine** (`lib/printLayout.ts`) — client-side Canvas that packs the maximum number of photos onto a 4×6in / 300 DPI sheet (1200×1800 or 1800×1200 px) with dashed cut guides.
-- **Watermarked previews & Stripe checkout** — repeating "AI Studio ID - Preview" watermark; `/api/checkout` creates a Stripe Checkout session ($18 HKD), `/api/webhook` records payment, and the success page verifies the session and triggers the instant clean high-res JPEG download.
+- **Google OAuth + free credits** — Supabase Auth (Google). First login creates a `profiles` row with **2 free credits**. Generate requires sign-in; each successful generation deducts 1 credit. Zero credits opens the anchored paywall.
+- **Watermarked previews & Stripe checkout** — repeating "AI Studio ID - Preview" watermark; `/api/checkout` creates a Stripe Checkout session (**$4.99 USD** launch special, anchored vs $12.99), `/api/webhook` records payment and grants credits, and the success page verifies the session and triggers the instant clean high-res JPEG download.
 
 ## Getting started
 
@@ -28,8 +29,13 @@ Open [http://localhost:3000](http://localhost:3000). Without API keys the app ru
 | `GEMINI_API_KEY` | Google Gemini key — **required** for Nano Banana Pro generation |
 | `GEMINI_MODEL` | Optional validation model override (default `gemini-flash-latest`) |
 | `GEMINI_IMAGE_MODEL` | Optional image model (default `gemini-3-pro-image` / Nano Banana Pro) |
-| `STRIPE_SECRET_KEY` | Stripe secret key — enables real checkout |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL (Google OAuth + profiles) |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Service role for webhook/mock credit grants (server only) |
+| `STRIPE_SECRET_KEY` | Stripe secret key — enables real checkout ($4.99 USD) |
 | `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret for `/api/webhook` |
+
+Apply `supabase/migrations/001_profiles_and_credits.sql` in the Supabase SQL editor, and enable the **Google** provider under Authentication → Providers. Set the redirect URL to `http://localhost:3000/auth/callback` (plus your production URL).
 
 ## Project structure
 
@@ -38,23 +44,30 @@ app/
   page.tsx                    # 3-step studio wizard (Photo → Specs → Preview)
   success/page.tsx            # post-payment verification + clean download
   api/process-photo/route.ts  # AI processing engine
-  api/checkout/route.ts       # Stripe Checkout session ($18 HKD)
+  api/checkout/route.ts       # Stripe Checkout session ($4.99 USD)
   api/verify-payment/route.ts # session verification for the success page
-  api/webhook/route.ts        # Stripe webhook (payment record)
+  api/webhook/route.ts        # Stripe webhook + credit grants
+  auth/callback/route.ts      # Supabase OAuth code exchange
 components/
   PhotoInput.tsx              # upload / camera tabs + validation
   CameraCapture.tsx           # WebRTC stream + oval face guide
   SpecSelector.tsx            # size, background and style pickers
-  PreviewPanel.tsx            # watermarked previews + checkout CTA
+  PreviewPanel.tsx            # watermarked previews + anchored checkout CTA
+  LoginModal.tsx              # Google sign-in gate for Generate
+  PaywallModal.tsx            # price-anchored unlock / out-of-credits paywall
 constants/photoSizes.ts       # document presets & background colours
 lib/
+  pricing.ts                  # launch-special price anchoring constants
   types.ts                    # shared TypeScript interfaces
   imageUtils.ts               # load / validate / aspect-crop helpers
   printLayout.ts              # 4R Canvas layout engine
   watermark.ts                # tiled preview watermark
   purchaseStore.ts            # IndexedDB bridge to the success page
+  supabase/                   # browser / server / admin clients
+  server/credits.ts           # auth + credit spend helpers
   server/aiProviders.ts       # Gemini-only processing pipeline
   server/geminiImage.ts       # Nano Banana Pro via @google/genai
   server/stylePrompts.ts      # Classic / Korean / Corporate prompts
   server/stylePipeline.ts     # legacy sharp helpers
+supabase/migrations/          # profiles table, triggers, credit RPCs
 ```

@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { PRICING } from "@/lib/pricing";
 import type { CheckoutRequest, CheckoutResponse } from "@/lib/types";
 import { getPresetById } from "@/constants/photoSizes";
+import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 
-/** Price of the high-res, watermark-free download: $18 HKD. */
-export const PRICE_HKD_CENTS = 1800;
+/** Launch-special price for the high-res, watermark-free download. */
+export const PRICE_USD_CENTS = PRICING.stripeUnitAmount;
 
 export async function POST(req: NextRequest) {
   let body: CheckoutRequest;
@@ -29,13 +31,32 @@ export async function POST(req: NextRequest) {
     "Custom dimensions";
   const presetId = preset?.id ?? body.presetId;
 
+  // Attach the signed-in user so the webhook can grant credits after payment.
+  let userId: string | undefined;
+  if (
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  ) {
+    try {
+      const supabase = await createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      userId = user?.id;
+    } catch (err) {
+      console.error("[checkout] could not read auth user:", err);
+    }
+  }
+
   const origin = req.nextUrl.origin;
   const secretKey = process.env.STRIPE_SECRET_KEY;
 
   // Mock fallback so the full flow is testable before Stripe is configured.
   if (!secretKey) {
     const response: CheckoutResponse = {
-      url: `${origin}/success?session_id=mock_session&mock=1`,
+      url: `${origin}/success?session_id=mock_session&mock=1${
+        userId ? `&user_id=${userId}` : ""
+      }`,
       mock: true,
     };
     return NextResponse.json(response);
@@ -49,16 +70,22 @@ export async function POST(req: NextRequest) {
         {
           quantity: 1,
           price_data: {
-            currency: "hkd",
-            unit_amount: PRICE_HKD_CENTS,
+            currency: PRICING.currency,
+            unit_amount: PRICE_USD_CENTS,
             product_data: {
-              name: "AI Studio ID — High-Res Photo Pack (No Watermark)",
-              description: `${dimensionLabel} · single photo + 4R print sheet, ${body.mode} style`,
+              name: PRICING.productName,
+              description: `${dimensionLabel} · single photo + 4R print sheet, ${body.mode} style · ${PRICING.badge}`,
             },
           },
         },
       ],
-      metadata: { presetId, mode: body.mode, dimensionLabel },
+      metadata: {
+        presetId,
+        mode: body.mode,
+        dimensionLabel,
+        ...(userId ? { userId } : {}),
+        creditsToGrant: String(PRICING.creditsPerPurchase),
+      },
       success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/?checkout=cancelled`,
     });

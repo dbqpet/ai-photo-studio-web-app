@@ -42,6 +42,7 @@ function SuccessContent() {
         }
         const pending = await readPendingPurchase();
         if (!pending) {
+          // Payment may be a credit top-up without a pending download pack.
           setStatus("missing");
           return;
         }
@@ -144,13 +145,14 @@ function SuccessContent() {
       {status === "missing" && (
         <>
           <span className="text-5xl" aria-hidden>
-            🗂️
+            ✅
           </span>
-          <h1 className="text-xl font-bold text-slate-900">Photos not found</h1>
+          <h1 className="text-xl font-bold text-slate-900">Payment successful!</h1>
           <p className="text-sm text-slate-600">
-            Your payment is confirmed, but the generated photos were not found
-            in this browser session. Please regenerate your photo — no new
-            payment is needed if you keep this page open and contact support.
+            Your purchase is confirmed and generation credits have been added
+            to your account. If you generated photos in this browser, reopen
+            the studio to continue — otherwise generate a new ID photo with
+            your refreshed credits.
           </p>
           <Link href="/" className="text-sm font-medium text-sky-600 hover:underline">
             ← Back to studio
