@@ -1,16 +1,19 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element -- purchase previews are data URLs */
+
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { downloadDataUrl } from "@/lib/imageUtils";
+import OrderSummaryCard from "@/components/OrderSummaryCard";
+import { downloadDataUrl, studioDownloadFilename } from "@/lib/imageUtils";
 import { readPendingPurchase, type PendingPurchase } from "@/lib/purchaseStore";
 import type { VerifyPaymentResponse } from "@/lib/types";
 
 type Status = "verifying" | "paid" | "unpaid" | "missing" | "error";
 
-function slugify(label: string): string {
-  return label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+function purchaseStyle(purchase: PendingPurchase): string {
+  return purchase.style || purchase.presetLabel || "photo";
 }
 
 function SuccessContent() {
@@ -37,16 +40,13 @@ function SuccessContent() {
           setStatus("unpaid");
           return;
         }
-        const pending = readPendingPurchase();
+        const pending = await readPendingPurchase();
         if (!pending) {
           setStatus("missing");
           return;
         }
         setPurchase(pending);
         setStatus("paid");
-        // Instant high-res download of the clean single photo.
-        const slug = slugify(pending.presetLabel);
-        downloadDataUrl(pending.singleDataUrl, `id-photo-${slug}-high-res.jpg`);
       } catch {
         if (!cancelled) setStatus("error");
       }
@@ -74,30 +74,46 @@ function SuccessContent() {
           </span>
           <h1 className="text-2xl font-bold text-slate-900">Payment successful!</h1>
           <p className="text-sm text-slate-600">
-            Your watermark-free high-res photo download has started. You can
-            also grab each file again below.
+            Your payment is confirmed. Tap a button below to download your
+            watermark-free high-res files.
           </p>
+          {purchase.summary && (
+            <OrderSummaryCard summary={purchase.summary} className="w-full" />
+          )}
+          {purchase.singleDataUrl?.startsWith("data:image/") && (
+            <img
+              src={purchase.singleDataUrl}
+              alt="Your ID photo"
+              className="mx-auto w-40 rounded-lg border border-slate-200 shadow-md"
+            />
+          )}
           <div className="grid w-full gap-3">
             <button
               type="button"
-              onClick={() =>
+              onClick={() => {
+                if (!purchase.singleDataUrl?.startsWith("data:image/")) return;
+                const isPng = purchase.singleDataUrl.startsWith("data:image/png");
                 downloadDataUrl(
                   purchase.singleDataUrl,
-                  `id-photo-${slugify(purchase.presetLabel)}-high-res.jpg`,
-                )
-              }
+                  studioDownloadFilename(
+                    purchaseStyle(purchase),
+                    isPng ? "png" : "jpg",
+                  ),
+                );
+              }}
               className="rounded-xl bg-sky-600 px-5 py-3.5 text-sm font-semibold text-white shadow transition hover:bg-sky-500"
             >
-              ⬇️ Download Single ID Photo (JPEG)
+              ⬇️ Download Single ID Photo
             </button>
             <button
               type="button"
-              onClick={() =>
+              onClick={() => {
+                if (!purchase.sheetDataUrl?.startsWith("data:image/")) return;
                 downloadDataUrl(
                   purchase.sheetDataUrl,
-                  `id-photo-${slugify(purchase.presetLabel)}-4r-sheet.jpg`,
-                )
-              }
+                  studioDownloadFilename(purchaseStyle(purchase), "jpg", "4r-sheet"),
+                );
+              }}
               className="rounded-xl bg-slate-800 px-5 py-3.5 text-sm font-semibold text-white shadow transition hover:bg-slate-700"
             >
               ⬇️ Download 4R Print Sheet (JPEG)

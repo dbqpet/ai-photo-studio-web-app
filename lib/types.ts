@@ -2,6 +2,13 @@
 
 export type ProcessingMode = "classic" | "korean" | "corporate";
 
+/**
+ * How the final photo background is produced.
+ * - solid: subject on the user-selected solid colour (opaque JPEG)
+ * - studio: full professional AI studio backdrop with depth / texture
+ */
+export type BackgroundMode = "solid" | "studio";
+
 export interface ProcessingModeOption {
   id: ProcessingMode;
   label: string;
@@ -14,7 +21,7 @@ export const PROCESSING_MODES: ProcessingModeOption[] = [
     id: "classic",
     label: "Classic Passport",
     description:
-      "Background removal, solid background replacement and clean natural lighting.",
+      "Clean natural lighting with a professional ID-photo finish.",
     icon: "🛂",
   },
   {
@@ -33,13 +40,15 @@ export const PROCESSING_MODES: ProcessingModeOption[] = [
   },
 ];
 
-export type AiProvider = "fal" | "replicate" | "removebg" | "mock";
+/** Gemini Nano Banana Pro is the exclusive image engine. */
+export type AiProvider = "gemini";
 
 export interface ProcessPhotoRequest {
   /** Base64 data URL of the (already cropped) source photo. */
   imageDataUrl: string;
   mode: ProcessingMode;
-  /** Hex background colour to composite behind the subject, e.g. "#FFFFFF". */
+  backgroundMode: BackgroundMode;
+  /** Hex background colour for solid mode, e.g. "#FFFFFF". */
   backgroundColor: string;
   /** Target output pixel dimensions (300 DPI print size). */
   targetWidth: number;
@@ -47,13 +56,11 @@ export interface ProcessPhotoRequest {
 }
 
 export interface ProcessPhotoResponse {
-  /** Base64 data URL (JPEG) of the fully processed ID photo. */
+  /** Base64 data URL (JPEG) of the processed ID photo. */
   imageDataUrl: string;
-  /** Which backend performed the background removal. */
   provider: AiProvider;
   mode: ProcessingMode;
-  /** Set when a configured AI provider failed and the mock engine took over. */
-  fallbackReason?: string;
+  backgroundMode: BackgroundMode;
 }
 
 export interface ValidatePhotoRequest {
@@ -76,6 +83,8 @@ export interface ValidatePhotoResponse {
 export interface CheckoutRequest {
   presetId: string;
   mode: ProcessingMode;
+  /** Human-readable dimension for Stripe / mock checkout copy. */
+  dimensionLabel?: string;
 }
 
 export interface CheckoutResponse {
@@ -89,3 +98,7 @@ export interface VerifyPaymentResponse {
   paid: boolean;
   mock: boolean;
 }
+
+/** Friendly copy when Gemini is busy / rate-limited / unavailable. */
+export const HIGH_DEMAND_MESSAGE =
+  "Our AI servers are currently in high demand. Please be patient — we're retrying your photo. This can take a little longer than usual.";

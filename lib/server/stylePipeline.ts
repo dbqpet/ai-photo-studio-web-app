@@ -40,8 +40,8 @@ export interface StylePipelineOptions {
   targetWidth: number;
   targetHeight: number;
   /**
-   * Skip the photometric style pass — used when a generative provider
-   * (Flux Kontext) has already applied the style upstream.
+   * Skip the photometric style pass — used when Nano Banana has already
+   * applied generative styling upstream (corporate mode).
    */
   skipStyle?: boolean;
 }

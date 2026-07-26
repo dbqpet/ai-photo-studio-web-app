@@ -2,7 +2,7 @@
 
 export const MIN_SOURCE_WIDTH = 600;
 export const MIN_SOURCE_HEIGHT = 600;
-export const MAX_UPLOAD_BYTES = 15 * 1024 * 1024;
+export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 
 export interface ImageValidation {
   ok: boolean;
@@ -112,12 +112,54 @@ export async function downscaleDataUrl(
   return canvas.toDataURL("image/jpeg", 0.85);
 }
 
-/** Trigger a browser download of a data URL. */
+/** `YYYYMMDD-HHmmss` timestamp for download filenames. */
+export function downloadTimestamp(date = new Date()): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return (
+    `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}` +
+    `-${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`
+  );
+}
+
+/**
+ * Unique download name, e.g. `studio-photo-classic-20260726-143015.png`
+ * or `studio-photo-classic-4r-sheet-20260726-143015.jpg`.
+ */
+export function studioDownloadFilename(
+  style: string,
+  extension: "png" | "jpg" | "jpeg" = "png",
+  suffix?: string,
+): string {
+  const styleSlug = style
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+  const ext = extension === "jpeg" ? "jpg" : extension;
+  const mid = suffix ? `${styleSlug}-${suffix}` : styleSlug;
+  return `studio-photo-${mid}-${downloadTimestamp()}.${ext}`;
+}
+
+/** Trigger a browser download of a data URL (uses Blob URLs for reliability). */
 export function downloadDataUrl(dataUrl: string, filename: string): void {
+  const comma = dataUrl.indexOf(",");
+  if (comma === -1) throw new Error("Invalid data URL.");
+  const header = dataUrl.slice(0, comma);
+  const base64 = dataUrl.slice(comma + 1);
+  const mime = /data:(.*?);base64/.exec(header)?.[1] ?? "image/jpeg";
+
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+
+  const blob = new Blob([bytes], { type: mime });
+  const objectUrl = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = dataUrl;
+  a.href = objectUrl;
   a.download = filename;
+  a.rel = "noopener";
   document.body.appendChild(a);
   a.click();
   a.remove();
+  // Revoke after a tick so the browser can start the download.
+  window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
 }

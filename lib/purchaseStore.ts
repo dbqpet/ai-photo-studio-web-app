@@ -1,31 +1,88 @@
 /**
- * Session storage bridge between the studio page and the post-payment
- * success page: the clean (watermark-free) renders are stashed here right
- * before redirecting to Stripe Checkout, and released after payment is
- * verified.
+ * Client-side storage bridge between the studio page and the post-payment
+ * success page. Clean (watermark-free) renders can be several MB as data URLs,
+ * which exceeds sessionStorage quota — IndexedDB is used instead.
  */
 
-const KEY_SINGLE = "aiStudioId.clean.single";
-const KEY_SHEET = "aiStudioId.clean.sheet";
-const KEY_LABEL = "aiStudioId.clean.label";
+const DB_NAME = "ai-studio-id";
+const DB_VERSION = 1;
+const STORE = "pending-purchase";
+const PENDING_KEY = "pending";
+
+export interface PurchaseSummary {
+  styleLabel: string;
+  backgroundLabel: string;
+  dimensionLabel: string;
+}
 
 export interface PendingPurchase {
   singleDataUrl: string;
   sheetDataUrl: string;
   /** Human-readable preset label, used in download filenames. */
   presetLabel: string;
+  /** Processing style id for timestamped download names (e.g. classic). */
+  style?: string;
+  /** Options shown on the checkout / success summary card. */
+  summary?: PurchaseSummary;
 }
 
-export function storePendingPurchase(purchase: PendingPurchase): void {
-  sessionStorage.setItem(KEY_SINGLE, purchase.singleDataUrl);
-  sessionStorage.setItem(KEY_SHEET, purchase.sheetDataUrl);
-  sessionStorage.setItem(KEY_LABEL, purchase.presetLabel);
+function openDb(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    if (typeof indexedDB === "undefined") {
+      reject(new Error("IndexedDB is not available."));
+      return;
+    }
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onerror = () => reject(req.error ?? new Error("IndexedDB open failed."));
+    req.onsuccess = () => resolve(req.result);
+    req.onupgradeneeded = (event) => {
+      const db = (event.target as IDBOpenDBRequest).result;
+      if (!db.objectStoreNames.contains(STORE)) {
+        db.createObjectStore(STORE);
+      }
+    };
+  });
 }
 
-export function readPendingPurchase(): PendingPurchase | null {
-  const singleDataUrl = sessionStorage.getItem(KEY_SINGLE);
-  const sheetDataUrl = sessionStorage.getItem(KEY_SHEET);
-  const presetLabel = sessionStorage.getItem(KEY_LABEL) ?? "id-photo";
-  if (!singleDataUrl || !sheetDataUrl) return null;
-  return { singleDataUrl, sheetDataUrl, presetLabel };
+export async function storePendingPurchase(purchase: PendingPurchase): Promise<void> {
+  const db = await openDb();
+  await new Promise<void>((resolve, reject) => {
+    const tx = db.transaction(STORE, "readwrite");
+    tx.objectStore(STORE).put(purchase, PENDING_KEY);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error ?? new Error("IndexedDB write failed."));
+  });
+  db.close();
+}
+
+export async function readPendingPurchase(): Promise<PendingPurchase | null> {
+  try {
+    const db = await openDb();
+    const purchase = await new Promise<PendingPurchase | null>((resolve, reject) => {
+      const tx = db.transaction(STORE, "readonly");
+      const req = tx.objectStore(STORE).get(PENDING_KEY);
+      req.onsuccess = () => resolve((req.result as PendingPurchase | undefined) ?? null);
+      req.onerror = () => reject(req.error ?? new Error("IndexedDB read failed."));
+    });
+    db.close();
+    return purchase;
+  } catch (err) {
+    console.warn("[purchaseStore] read failed:", err);
+    return null;
+  }
+}
+
+export async function clearPendingPurchase(): Promise<void> {
+  try {
+    const db = await openDb();
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(STORE, "readwrite");
+      tx.objectStore(STORE).delete(PENDING_KEY);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error ?? new Error("IndexedDB delete failed."));
+    });
+    db.close();
+  } catch {
+    // Non-fatal cleanup.
+  }
 }

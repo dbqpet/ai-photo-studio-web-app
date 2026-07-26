@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import CameraCapture from "./CameraCapture";
+import CropEditor from "./CropEditor";
 import {
   MAX_UPLOAD_BYTES,
   fileToDataUrl,
@@ -10,28 +11,33 @@ import {
 
 interface PhotoInputProps {
   onPhotoSelected: (dataUrl: string, warning?: string) => void;
+  /** Crop frame aspect ratio from the selected photo dimension. */
+  aspectRatio?: number;
 }
 
 type InputTab = "upload" | "camera";
 
-/** Input module offering "Take Photo" (WebRTC) and "Upload Photo" methods. */
-export default function PhotoInput({ onPhotoSelected }: PhotoInputProps) {
+/** Input module: upload/camera → interactive crop → confirm. */
+export default function PhotoInput({
+  onPhotoSelected,
+  aspectRatio = 3 / 4,
+}: PhotoInputProps) {
   const [tab, setTab] = useState<InputTab>("upload");
   const [error, setError] = useState<string | null>(null);
+  const [rawImage, setRawImage] = useState<string | null>(null);
+  const [pendingWarning, setPendingWarning] = useState<string | undefined>();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const acceptDataUrl = useCallback(
-    async (dataUrl: string) => {
-      setError(null);
-      try {
-        const validation = await validateSourceImage(dataUrl);
-        onPhotoSelected(dataUrl, validation.warning);
-      } catch {
-        setError("That file does not look like a valid image. Please try another.");
-      }
-    },
-    [onPhotoSelected],
-  );
+  const beginCrop = useCallback(async (dataUrl: string) => {
+    setError(null);
+    try {
+      const validation = await validateSourceImage(dataUrl);
+      setPendingWarning(validation.warning);
+      setRawImage(dataUrl);
+    } catch {
+      setError("That file does not look like a valid image. Please try another.");
+    }
+  }, []);
 
   const handleFile = useCallback(
     async (file: File | undefined) => {
@@ -42,13 +48,13 @@ export default function PhotoInput({ onPhotoSelected }: PhotoInputProps) {
         return;
       }
       if (file.size > MAX_UPLOAD_BYTES) {
-        setError("Image is larger than 15 MB. Please choose a smaller file.");
+        setError("Image is larger than 10 MB. Please choose a smaller file.");
         return;
       }
       const dataUrl = await fileToDataUrl(file);
-      await acceptDataUrl(dataUrl);
+      await beginCrop(dataUrl);
     },
-    [acceptDataUrl],
+    [beginCrop],
   );
 
   const tabClass = (active: boolean) =>
@@ -57,6 +63,24 @@ export default function PhotoInput({ onPhotoSelected }: PhotoInputProps) {
         ? "bg-white text-slate-900 shadow"
         : "text-slate-500 hover:text-slate-700"
     }`;
+
+  if (rawImage) {
+    return (
+      <CropEditor
+        imageSrc={rawImage}
+        aspectRatio={aspectRatio}
+        onCancel={() => {
+          setRawImage(null);
+          setPendingWarning(undefined);
+        }}
+        onConfirm={(cropped) => {
+          setRawImage(null);
+          onPhotoSelected(cropped, pendingWarning);
+          setPendingWarning(undefined);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -90,7 +114,8 @@ export default function PhotoInput({ onPhotoSelected }: PhotoInputProps) {
             e.preventDefault();
             handleFile(e.dataTransfer.files?.[0]);
           }}
-          className="flex aspect-[3/4] w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 text-slate-500 transition hover:border-sky-400 hover:bg-sky-50"
+          className="flex w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 text-slate-500 transition hover:border-sky-400 hover:bg-sky-50"
+          style={{ aspectRatio: String(aspectRatio) }}
         >
           <span className="text-4xl" aria-hidden>
             🖼️
@@ -112,7 +137,7 @@ export default function PhotoInput({ onPhotoSelected }: PhotoInputProps) {
           />
         </button>
       ) : (
-        <CameraCapture onCapture={acceptDataUrl} />
+        <CameraCapture onCapture={beginCrop} />
       )}
 
       {error && (

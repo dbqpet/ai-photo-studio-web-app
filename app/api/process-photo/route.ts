@@ -1,12 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
-import { processCutout } from "@/lib/server/aiProviders";
-import { finalizeIdPhoto } from "@/lib/server/stylePipeline";
-import type { ProcessPhotoRequest, ProcessPhotoResponse, ProcessingMode } from "@/lib/types";
+import { processPhoto } from "@/lib/server/aiProviders";
+import { isGeminiImageConfigured } from "@/lib/server/geminiImage";
+import {
+  isGeminiConfigured,
+  validatePhotoWithGemini,
+} from "@/lib/server/geminiValidate";
+import {
+  HIGH_DEMAND_MESSAGE,
+  type BackgroundMode,
+  type ProcessPhotoRequest,
+  type ProcessPhotoResponse,
+  type ProcessingMode,
+} from "@/lib/types";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+/** Gemini Nano Banana Pro image edits + retries can take a while. */
+export const maxDuration = 180;
 
 const VALID_MODES: ProcessingMode[] = ["classic", "korean", "corporate"];
+const VALID_BG_MODES: BackgroundMode[] = ["solid", "studio"];
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 const MAX_DIMENSION = 4000;
 
@@ -14,6 +26,18 @@ function dataUrlToBuffer(dataUrl: string): Buffer {
   const match = /^data:image\/(?:jpeg|jpg|png|webp);base64,(.+)$/.exec(dataUrl);
   if (!match) throw new Error("imageDataUrl must be a base64 JPEG/PNG/WebP data URL.");
   return Buffer.from(match[1], "base64");
+}
+
+function isHighDemandError(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err);
+  return (
+    msg.includes("AI_HIGH_DEMAND") ||
+    msg.includes("429") ||
+    msg.includes("rate") ||
+    msg.includes("quota") ||
+    msg.includes("503") ||
+    msg.includes("unavailable")
+  );
 }
 
 export async function POST(req: NextRequest) {
@@ -24,7 +48,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  const { imageDataUrl, mode, backgroundColor, targetWidth, targetHeight } = body;
+  const {
+    imageDataUrl,
+    mode,
+    backgroundMode = "studio",
+    backgroundColor,
+    targetWidth,
+    targetHeight,
+  } = body;
+
+  if (!isGeminiImageConfigured()) {
+    return NextResponse.json(
+      {
+        error:
+          "Gemini AI is not configured. Please set GEMINI_API_KEY to generate photos.",
+        highDemand: false,
+      },
+      { status: 503 },
+    );
+  }
 
   if (!VALID_MODES.includes(mode)) {
     return NextResponse.json(
@@ -32,9 +74,15 @@ export async function POST(req: NextRequest) {
       { status: 400 },
     );
   }
-  if (!HEX_COLOR.test(backgroundColor ?? "")) {
+  if (!VALID_BG_MODES.includes(backgroundMode)) {
     return NextResponse.json(
-      { error: "backgroundColor must be a #RRGGBB hex value." },
+      { error: `backgroundMode must be one of: ${VALID_BG_MODES.join(", ")}` },
+      { status: 400 },
+    );
+  }
+  if (backgroundMode === "solid" && !HEX_COLOR.test(backgroundColor ?? "")) {
+    return NextResponse.json(
+      { error: "backgroundColor must be a #RRGGBB hex value for Solid Color Background mode." },
       { status: 400 },
     );
   }
@@ -62,29 +110,57 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Optional pre-validation — generation still proceeds if this check errors.
+  if (isGeminiConfigured()) {
+    try {
+      const verdict = await validatePhotoWithGemini(imageDataUrl);
+      if (!verdict.suitable) {
+        return NextResponse.json(
+          {
+            error:
+              verdict.reason ||
+              "Please upload a clear, single-person photo without sunglasses.",
+          },
+          { status: 422 },
+        );
+      }
+    } catch (err) {
+      console.error("[process-photo] Gemini pre-check failed:", err);
+    }
+  }
+
   try {
-    const { png, provider, styleApplied, fallbackReason } = await processCutout(
+    const { image, provider, mimeType } = await processPhoto(
       source,
       mode,
-    );
-    const finalJpeg = await finalizeIdPhoto(png, {
-      mode,
-      backgroundColor,
+      backgroundMode,
+      backgroundColor ?? "#FFFFFF",
       targetWidth,
       targetHeight,
-      skipStyle: styleApplied,
-    });
+    );
     const response: ProcessPhotoResponse = {
-      imageDataUrl: `data:image/jpeg;base64,${finalJpeg.toString("base64")}`,
+      imageDataUrl: `data:${mimeType};base64,${image.toString("base64")}`,
       provider,
       mode,
-      fallbackReason,
+      backgroundMode,
     };
     return NextResponse.json(response);
   } catch (err) {
     console.error("[process-photo] processing failed:", err);
+    if (isHighDemandError(err)) {
+      return NextResponse.json(
+        { error: HIGH_DEMAND_MESSAGE, highDemand: true },
+        { status: 503 },
+      );
+    }
     return NextResponse.json(
-      { error: "Photo processing failed. Please try a different photo." },
+      {
+        error:
+          err instanceof Error
+            ? err.message
+            : "Photo processing failed. Please try again.",
+        highDemand: false,
+      },
       { status: 502 },
     );
   }

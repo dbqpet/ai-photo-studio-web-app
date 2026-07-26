@@ -8,34 +8,40 @@ import SpecSelector from "@/components/SpecSelector";
 import PreviewPanel from "@/components/PreviewPanel";
 import {
   BACKGROUND_COLORS,
+  CUSTOM_MM_MAX,
+  CUSTOM_MM_MIN,
   PHOTO_SIZE_PRESETS,
+  formatDimensionLabel,
   getBackgroundById,
-  getPresetById,
+  resolvePhotoPreset,
 } from "@/constants/photoSizes";
-import { cropToAspect, downscaleDataUrl } from "@/lib/imageUtils";
+import { cropToAspect } from "@/lib/imageUtils";
 import { renderPrintSheet, type SheetLayout } from "@/lib/printLayout";
 import { applyWatermarkToCanvas, watermarkDataUrl } from "@/lib/watermark";
-import { storePendingPurchase } from "@/lib/purchaseStore";
-import type {
-  AiProvider,
-  CheckoutRequest,
-  CheckoutResponse,
-  ProcessPhotoRequest,
-  ProcessPhotoResponse,
-  ProcessingMode,
-  ValidatePhotoResponse,
+import { storePendingPurchase, type PurchaseSummary } from "@/lib/purchaseStore";
+import {
+  HIGH_DEMAND_MESSAGE,
+  PROCESSING_MODES,
+  type AiProvider,
+  type BackgroundMode,
+  type CheckoutRequest,
+  type CheckoutResponse,
+  type ProcessPhotoRequest,
+  type ProcessPhotoResponse,
+  type ProcessingMode,
 } from "@/lib/types";
 
 type Step = 1 | 2 | 3;
 
 interface GeneratedResult {
   provider: AiProvider;
-  fallbackReason?: string;
   cleanSingle: string;
   cleanSheet: string;
   previewSingle: string;
   previewSheet: string;
   layout: SheetLayout;
+  backgroundMode: BackgroundMode;
+  backgroundColor: string;
 }
 
 const STEPS: Array<{ id: Step; label: string }> = [
@@ -44,56 +50,60 @@ const STEPS: Array<{ id: Step; label: string }> = [
   { id: 3, label: "Preview" },
 ];
 
+function clampMm(value: number): number {
+  if (!Number.isFinite(value)) return 35;
+  return Math.min(CUSTOM_MM_MAX, Math.max(CUSTOM_MM_MIN, value));
+}
+
 export default function StudioPage() {
   const [step, setStep] = useState<Step>(1);
   const [sourcePhoto, setSourcePhoto] = useState<string | null>(null);
   const [resolutionWarning, setResolutionWarning] = useState<string | undefined>();
 
   const [presetId, setPresetId] = useState(PHOTO_SIZE_PRESETS[0].id);
+  const [customWidthMm, setCustomWidthMm] = useState(35);
+  const [customHeightMm, setCustomHeightMm] = useState(45);
   const [backgroundId, setBackgroundId] = useState(BACKGROUND_COLORS[0].id);
+  const [backgroundMode, setBackgroundMode] = useState<BackgroundMode>("solid");
   const [mode, setMode] = useState<ProcessingMode>("classic");
 
   const [processing, setProcessing] = useState(false);
   const [processError, setProcessError] = useState<string | null>(null);
+  const [highDemand, setHighDemand] = useState(false);
   const [result, setResult] = useState<GeneratedResult | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
-  const [aiChecking, setAiChecking] = useState(false);
-  const [aiCheckError, setAiCheckError] = useState<string | null>(null);
 
-  const preset = useMemo(() => getPresetById(presetId)!, [presetId]);
-  const background = useMemo(() => getBackgroundById(backgroundId)!, [backgroundId]);
+  const preset = useMemo(
+    () =>
+      resolvePhotoPreset(
+        presetId,
+        clampMm(customWidthMm),
+        clampMm(customHeightMm),
+      ),
+    [presetId, customWidthMm, customHeightMm],
+  );
+  const background = useMemo(
+    () => getBackgroundById(backgroundId)!,
+    [backgroundId],
+  );
 
+  const orderSummary: PurchaseSummary = useMemo(() => {
+    const styleLabel =
+      PROCESSING_MODES.find((m) => m.id === mode)?.label ?? mode;
+    const backgroundLabel =
+      backgroundMode === "solid"
+        ? `Solid Color — ${background.label}`
+        : "AI Studio Background";
+    return {
+      styleLabel,
+      backgroundLabel,
+      dimensionLabel: formatDimensionLabel(preset),
+    };
+  }, [mode, backgroundMode, background.label, preset]);
+
+  /** Client-side checks only — no Gemini / backend calls on upload. */
   const handlePhotoSelected = useCallback(
-    async (dataUrl: string, warning?: string) => {
-      setAiCheckError(null);
-      setAiChecking(true);
-      try {
-        // Mandatory smart pre-validation (Gemini) BEFORE any generative
-        // processing, so unsuitable photos never consume fal.ai credits.
-        const smallDataUrl = await downscaleDataUrl(dataUrl, 800);
-        const res = await fetch("/api/validate-photo", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ imageDataUrl: smallDataUrl }),
-        });
-        const verdict = (await res.json()) as ValidatePhotoResponse & {
-          error?: string;
-        };
-        if (!res.ok) throw new Error(verdict.error ?? "Validation failed.");
-        if (verdict.configured && !verdict.suitable) {
-          setAiCheckError(
-            verdict.reason ||
-              "Please upload a clear, single-person photo without sunglasses.",
-          );
-          return;
-        }
-      } catch (err) {
-        // Fail open: a validation outage should not block the product.
-        console.warn("Photo pre-validation unavailable:", err);
-      } finally {
-        setAiChecking(false);
-      }
-
+    (dataUrl: string, warning?: string) => {
       setSourcePhoto(dataUrl);
       setResolutionWarning(warning);
       setResult(null);
@@ -107,18 +117,18 @@ export default function StudioPage() {
     if (!sourcePhoto) return;
     setProcessing(true);
     setProcessError(null);
+    setHighDemand(false);
     try {
-      // 1. Crop to the exact document aspect ratio at 300 DPI dimensions.
       const cropped = await cropToAspect(
         sourcePhoto,
         preset.pixels.width,
         preset.pixels.height,
       );
 
-      // 2. AI processing: background removal + style + background colour.
       const requestBody: ProcessPhotoRequest = {
         imageDataUrl: cropped,
         mode,
+        backgroundMode,
         backgroundColor: background.hex,
         targetWidth: preset.pixels.width,
         targetHeight: preset.pixels.height,
@@ -128,51 +138,71 @@ export default function StudioPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody),
       });
-      const json = (await res.json()) as ProcessPhotoResponse & { error?: string };
-      if (!res.ok) throw new Error(json.error ?? "Processing failed.");
+      const json = (await res.json()) as ProcessPhotoResponse & {
+        error?: string;
+        highDemand?: boolean;
+      };
+      if (!res.ok) {
+        if (json.highDemand || res.status === 503) {
+          setHighDemand(true);
+          throw new Error(json.error ?? HIGH_DEMAND_MESSAGE);
+        }
+        throw new Error(json.error ?? "Processing failed.");
+      }
 
-      // 3. 4R print sheet via the client-side Canvas engine.
+      // API always returns an opaque JPEG with background already applied.
+      const cleanSingle = json.imageDataUrl;
+      if (!cleanSingle?.startsWith("data:image/")) {
+        throw new Error("Generation returned an invalid image. Please try again.");
+      }
+
       const { canvas: sheetCanvas, layout } = await renderPrintSheet(
-        json.imageDataUrl,
+        cleanSingle,
         preset.pixels.width,
         preset.pixels.height,
       );
       const cleanSheet = sheetCanvas.toDataURL("image/jpeg", 0.92);
 
-      // 4. Watermarked previews (clean copies stay in memory until payment).
-      const previewSingle = await watermarkDataUrl(json.imageDataUrl);
+      const previewSingle = await watermarkDataUrl(cleanSingle);
       applyWatermarkToCanvas(sheetCanvas);
       const previewSheet = sheetCanvas.toDataURL("image/jpeg", 0.85);
 
       setResult({
         provider: json.provider,
-        fallbackReason: json.fallbackReason,
-        cleanSingle: json.imageDataUrl,
+        cleanSingle,
         cleanSheet,
         previewSingle,
         previewSheet,
         layout,
+        backgroundMode,
+        backgroundColor: background.hex,
       });
       setStep(3);
     } catch (err) {
-      setProcessError(
-        err instanceof Error ? err.message : "Processing failed. Please try again.",
-      );
+      const message =
+        err instanceof Error ? err.message : "Processing failed. Please try again.";
+      if (
+        message.includes("high demand") ||
+        message.includes("AI_HIGH_DEMAND") ||
+        message.includes("patient")
+      ) {
+        setHighDemand(true);
+      }
+      setProcessError(message);
     } finally {
       setProcessing(false);
     }
-  }, [sourcePhoto, preset, background, mode]);
+  }, [sourcePhoto, preset, background, mode, backgroundMode]);
 
   const checkout = useCallback(async () => {
     if (!result) return;
     setCheckoutLoading(true);
     try {
-      storePendingPurchase({
-        singleDataUrl: result.cleanSingle,
-        sheetDataUrl: result.cleanSheet,
-        presetLabel: preset.label,
-      });
-      const body: CheckoutRequest = { presetId: preset.id, mode };
+      const body: CheckoutRequest = {
+        presetId: preset.id,
+        mode,
+        dimensionLabel: orderSummary.dimensionLabel,
+      };
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -180,14 +210,25 @@ export default function StudioPage() {
       });
       const json = (await res.json()) as CheckoutResponse & { error?: string };
       if (!res.ok) throw new Error(json.error ?? "Checkout failed.");
+
+      await storePendingPurchase({
+        singleDataUrl: result.cleanSingle,
+        sheetDataUrl: result.cleanSheet,
+        presetLabel: preset.label,
+        style: mode,
+        summary: orderSummary,
+      });
       window.location.href = json.url;
     } catch (err) {
+      console.error("Checkout failed:", err);
       setProcessError(
-        err instanceof Error ? err.message : "Checkout failed. Please try again.",
+        err instanceof Error
+          ? err.message
+          : "Checkout failed. Please try again.",
       );
       setCheckoutLoading(false);
     }
-  }, [result, preset, mode]);
+  }, [result, preset, mode, orderSummary]);
 
   const backToSpecs = useCallback(() => {
     setProcessError(null);
@@ -216,7 +257,6 @@ export default function StudioPage() {
       </header>
 
       <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-5 py-6">
-        {/* Step indicator */}
         <nav aria-label="Progress" className="flex items-center gap-2">
           {STEPS.map((s, i) => (
             <div key={s.id} className="flex flex-1 items-center gap-2">
@@ -252,30 +292,72 @@ export default function StudioPage() {
               Add your photo
             </h2>
             <p className="mb-5 text-sm text-slate-500">
-              Face the camera straight on, in even lighting, ideally against a
-              plain background.
+              Choose your photo dimensions first, then upload or capture. You
+              can zoom and reposition before we process it. AI runs only when
+              you click Generate.
             </p>
-            {aiCheckError && (
-              <p
-                data-testid="ai-check-error"
-                className="mb-4 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700"
+
+            <div className="mb-5">
+              <h3 className="mb-2.5 text-sm font-semibold text-slate-700">
+                Photo Dimensions
+              </h3>
+              <select
+                value={presetId}
+                onChange={(e) => setPresetId(e.target.value)}
+                className="mb-3 w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-sky-500"
               >
-                🚫 {aiCheckError}
+                {PHOTO_SIZE_PRESETS.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.icon} {p.label}
+                  </option>
+                ))}
+              </select>
+              {presetId === "custom" && (
+                <div className="mb-3 grid grid-cols-2 gap-3">
+                  <label className="flex flex-col gap-1">
+                    <span className="text-xs font-semibold text-slate-600">
+                      Width (mm)
+                    </span>
+                    <input
+                      type="number"
+                      min={CUSTOM_MM_MIN}
+                      max={CUSTOM_MM_MAX}
+                      step={0.5}
+                      value={customWidthMm}
+                      onChange={(e) =>
+                        setCustomWidthMm(Number(e.target.value))
+                      }
+                      className="rounded-xl border-2 border-slate-200 px-3 py-2.5 text-sm font-medium outline-none focus:border-sky-500"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1">
+                    <span className="text-xs font-semibold text-slate-600">
+                      Height (mm)
+                    </span>
+                    <input
+                      type="number"
+                      min={CUSTOM_MM_MIN}
+                      max={CUSTOM_MM_MAX}
+                      step={0.5}
+                      value={customHeightMm}
+                      onChange={(e) =>
+                        setCustomHeightMm(Number(e.target.value))
+                      }
+                      className="rounded-xl border-2 border-slate-200 px-3 py-2.5 text-sm font-medium outline-none focus:border-sky-500"
+                    />
+                  </label>
+                </div>
+              )}
+              <p className="text-xs text-slate-500">
+                Crop frame: {formatDimensionLabel(preset)} (
+                {preset.pixels.width}×{preset.pixels.height}px @ 300 DPI)
               </p>
-            )}
-            {aiChecking ? (
-              <div className="flex aspect-[3/4] w-full flex-col items-center justify-center gap-3 rounded-2xl bg-slate-50 text-slate-500">
-                <span className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-sky-500" />
-                <span className="text-sm font-medium">
-                  Checking your photo with AI…
-                </span>
-                <span className="text-xs text-slate-400">
-                  Verifying one person, no sunglasses, clear face
-                </span>
-              </div>
-            ) : (
-              <PhotoInput onPhotoSelected={handlePhotoSelected} />
-            )}
+            </div>
+
+            <PhotoInput
+              onPhotoSelected={handlePhotoSelected}
+              aspectRatio={preset.aspectRatio}
+            />
           </section>
         )}
 
@@ -292,7 +374,8 @@ export default function StudioPage() {
                   Choose your specs
                 </h2>
                 <p className="text-sm text-slate-500">
-                  Pick the document, background and studio style.
+                  Pick the background and studio style. Dimension:{" "}
+                  {formatDimensionLabel(preset)}.
                 </p>
                 <button
                   type="button"
@@ -312,15 +395,39 @@ export default function StudioPage() {
 
             <SpecSelector
               presetId={presetId}
+              customWidthMm={customWidthMm}
+              customHeightMm={customHeightMm}
               backgroundId={backgroundId}
+              backgroundMode={backgroundMode}
               mode={mode}
               onPresetChange={setPresetId}
+              onCustomWidthChange={setCustomWidthMm}
+              onCustomHeightChange={setCustomHeightMm}
               onBackgroundChange={setBackgroundId}
+              onBackgroundModeChange={setBackgroundMode}
               onModeChange={setMode}
             />
 
+            {processing && (
+              <p
+                data-testid="high-demand-status"
+                className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900"
+              >
+                ⏳ Our AI servers can get busy during peak times. Please be
+                patient while we create your photo — automatic retries are in
+                progress if the network is congested.
+              </p>
+            )}
+
             {processError && (
-              <p className="mt-4 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">
+              <p
+                className={`mt-4 rounded-xl px-4 py-3 text-sm ${
+                  highDemand
+                    ? "bg-amber-50 text-amber-900"
+                    : "bg-rose-50 text-rose-700"
+                }`}
+              >
+                {highDemand ? "⏳ " : ""}
                 {processError}
               </p>
             )}
@@ -334,7 +441,7 @@ export default function StudioPage() {
               {processing ? (
                 <>
                   <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                  Generating your ID photo…
+                  Creating your photo with AI…
                 </>
               ) : (
                 <>✨ Generate ID Photo</>
@@ -360,10 +467,10 @@ export default function StudioPage() {
             <PreviewPanel
               preset={preset}
               provider={result.provider}
-              fallbackReason={result.fallbackReason}
               singlePreviewUrl={result.previewSingle}
               sheetPreviewUrl={result.previewSheet}
               layout={result.layout}
+              summary={orderSummary}
               checkoutLoading={checkoutLoading}
               onCheckout={checkout}
               onBack={backToSpecs}

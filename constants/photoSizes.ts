@@ -28,15 +28,18 @@ export interface PhotoSizePreset {
   pixels: { width: number; height: number };
   /** Emoji flag / icon for quick recognition in the UI. */
   icon: string;
+  /** True when dimensions come from user custom inputs. */
+  isCustom?: boolean;
 }
 
-const makePreset = (
+export const makePreset = (
   id: string,
   label: string,
   description: string,
   widthMm: number,
   heightMm: number,
   icon: string,
+  isCustom = false,
 ): PhotoSizePreset => ({
   id,
   label,
@@ -46,35 +49,83 @@ const makePreset = (
   aspectRatio: widthMm / heightMm,
   pixels: { width: mmToPx300(widthMm), height: mmToPx300(heightMm) },
   icon,
+  isCustom,
 });
 
 export const PHOTO_SIZE_PRESETS: PhotoSizePreset[] = [
   makePreset(
-    "hk-passport",
-    "Hong Kong Passport / BNO",
-    "40mm × 50mm",
-    40,
-    50,
-    "🇭🇰",
+    "eu-35x45",
+    "35×45 mm (HK / UK / EU Standard)",
+    "35mm × 45mm · common passport & visa size",
+    35,
+    45,
+    "🛂",
   ),
   makePreset(
-    "us-visa",
-    "US Visa / Passport",
+    "us-2x2",
+    "2×2 inches (US Passport)",
     "2in × 2in (51mm × 51mm)",
     51,
     51,
     "🇺🇸",
   ),
   makePreset(
+    "hk-passport",
+    "40×50 mm (Hong Kong Passport / BNO)",
+    "40mm × 50mm",
+    40,
+    50,
+    "🇭🇰",
+  ),
+  makePreset(
     "cn-travel-permit",
-    "Mainland China Travel Permit / Visa",
+    "33×48 mm (Mainland China Travel Permit)",
     "33mm × 48mm",
     33,
     48,
     "🇨🇳",
   ),
-  makePreset("resume", "Standard Resume / CV", "35mm × 45mm", 35, 45, "💼"),
+  makePreset("custom", "Custom", "Enter your own width × height in mm", 35, 45, "📐", true),
 ];
+
+/** Custom dimension limits (mm) at 300 DPI print size. */
+export const CUSTOM_MM_MIN = 20;
+export const CUSTOM_MM_MAX = 100;
+
+export function buildCustomPreset(
+  widthMm: number,
+  heightMm: number,
+): PhotoSizePreset {
+  const w = Math.round(widthMm * 10) / 10;
+  const h = Math.round(heightMm * 10) / 10;
+  return makePreset(
+    "custom",
+    "Custom",
+    `${w}mm × ${h}mm`,
+    w,
+    h,
+    "📐",
+    true,
+  );
+}
+
+export function resolvePhotoPreset(
+  presetId: string,
+  customWidthMm: number,
+  customHeightMm: number,
+): PhotoSizePreset {
+  if (presetId === "custom") {
+    return buildCustomPreset(customWidthMm, customHeightMm);
+  }
+  return getPresetById(presetId) ?? PHOTO_SIZE_PRESETS[0];
+}
+
+export function formatDimensionLabel(preset: PhotoSizePreset): string {
+  if (preset.isCustom || preset.id === "custom") {
+    return `${preset.widthMm}×${preset.heightMm} mm (Custom)`;
+  }
+  return `${preset.widthMm}×${preset.heightMm} mm`;
+}
 
 export interface BackgroundColorOption {
   id: string;

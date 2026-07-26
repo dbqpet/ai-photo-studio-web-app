@@ -17,9 +17,17 @@ export async function POST(req: NextRequest) {
   }
 
   const preset = getPresetById(body.presetId);
-  if (!preset) {
+  // Custom dimensions are client-defined; allow "custom" without a static preset match.
+  if (!preset && body.presetId !== "custom") {
     return NextResponse.json({ error: "Unknown photo size preset." }, { status: 400 });
   }
+
+  const dimensionLabel =
+    body.dimensionLabel ||
+    preset?.description ||
+    preset?.label ||
+    "Custom dimensions";
+  const presetId = preset?.id ?? body.presetId;
 
   const origin = req.nextUrl.origin;
   const secretKey = process.env.STRIPE_SECRET_KEY;
@@ -45,12 +53,12 @@ export async function POST(req: NextRequest) {
             unit_amount: PRICE_HKD_CENTS,
             product_data: {
               name: "AI Studio ID — High-Res Photo Pack (No Watermark)",
-              description: `${preset.label} (${preset.description}) · single photo + 4R print sheet, ${body.mode} style`,
+              description: `${dimensionLabel} · single photo + 4R print sheet, ${body.mode} style`,
             },
           },
         },
       ],
-      metadata: { presetId: preset.id, mode: body.mode },
+      metadata: { presetId, mode: body.mode, dimensionLabel },
       success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/?checkout=cancelled`,
     });
