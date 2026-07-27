@@ -5,7 +5,7 @@
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import PriceAnchor from "@/components/PriceAnchor";
 import type { PhotoSizePreset } from "@/constants/photoSizes";
-import { PRICING } from "@/lib/pricing";
+import { PRICING, formatUsd } from "@/lib/pricing";
 import type { PurchaseSummary } from "@/lib/purchaseStore";
 import type { SheetLayout } from "@/lib/printLayout";
 import type { AiProvider } from "@/lib/types";
@@ -82,9 +82,13 @@ export default function PreviewPanel({
 
       <div className="rounded-2xl border border-rose-100 bg-rose-50/50 px-5 py-4">
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-          Unlock clean files
+          Unlock this photo
         </p>
         <PriceAnchor />
+        <p className="mt-2 text-xs text-slate-500">
+          Instant HD download for this photo · +{PRICING.previewCreditsBonus}{" "}
+          preview tokens
+        </p>
       </div>
 
       <div className="flex flex-col gap-3">
@@ -100,7 +104,7 @@ export default function PreviewPanel({
               Redirecting to secure checkout…
             </>
           ) : (
-            <>💳 {PRICING.checkoutCta}</>
+            <>💳 Unlock 300 DPI HD — {formatUsd(PRICING.saleUsd)}</>
           )}
         </button>
         <button

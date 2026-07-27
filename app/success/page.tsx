@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import { downloadDataUrl, studioDownloadFilename } from "@/lib/imageUtils";
+import { PRICING } from "@/lib/pricing";
 import { readPendingPurchase, type PendingPurchase } from "@/lib/purchaseStore";
 import type { VerifyPaymentResponse } from "@/lib/types";
 
@@ -75,8 +76,9 @@ function SuccessContent() {
           </span>
           <h1 className="text-2xl font-bold text-slate-900">Payment successful!</h1>
           <p className="text-sm text-slate-600">
-            Your payment is confirmed. Tap a button below to download your
-            watermark-free high-res files.
+            Your payment is confirmed. Download your watermark-free high-res
+            files below. +{PRICING.previewCreditsBonus} preview tokens were also
+            added to your account.
           </p>
           {purchase.summary && (
             <OrderSummaryCard summary={purchase.summary} className="w-full" />
@@ -149,10 +151,10 @@ function SuccessContent() {
           </span>
           <h1 className="text-xl font-bold text-slate-900">Payment successful!</h1>
           <p className="text-sm text-slate-600">
-            Your purchase is confirmed and generation credits have been added
-            to your account. If you generated photos in this browser, reopen
-            the studio to continue — otherwise generate a new ID photo with
-            your refreshed credits.
+            Your purchase is confirmed. +{PRICING.previewCreditsBonus} preview
+            tokens were added to your account. Return to the studio to generate
+            more previews, or reopen this page if your HD files are still in
+            this browser session.
           </p>
           <Link href="/" className="text-sm font-medium text-sky-600 hover:underline">
             ← Back to studio

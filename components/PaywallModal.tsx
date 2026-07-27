@@ -7,11 +7,11 @@ interface PaywallModalProps {
   onClose: () => void;
   onCheckout: () => void;
   checkoutLoading?: boolean;
-  /** When true, explain that free credits are exhausted. */
+  /** When true, explain that preview credits are exhausted. */
   outOfCredits?: boolean;
 }
 
-/** Price-anchored paywall for unlocking high-res downloads (and topping up). */
+/** Price-anchored paywall for the Single Photo Unlock Package. */
 export default function PaywallModal({
   open,
   onClose,
@@ -37,11 +37,13 @@ export default function PaywallModal({
           id="paywall-modal-title"
           className="text-xl font-bold text-slate-900"
         >
-          {outOfCredits ? "You're out of free credits" : "Unlock your photos"}
+          {outOfCredits
+            ? "No preview credits left"
+            : "Unlock your photos"}
         </h2>
         <p className="mt-2 text-sm text-slate-600">
           {outOfCredits
-            ? "Purchase to unlock high-res downloads and keep generating ID photos."
+            ? "Purchase a pack to unlock HD downloads and get more preview generations."
             : "Remove the watermark and download your clean high-res single photo + 4R print sheet."}
         </p>
 
@@ -58,8 +60,8 @@ export default function PaywallModal({
             </span>
           </div>
           <p className="mt-2 text-xs text-slate-500">
-            One-time payment · high-res unlock · +{PRICING.creditsPerPurchase}{" "}
-            generation credits
+            Instant HD download for this photo · +{PRICING.previewCreditsBonus}{" "}
+            preview tokens
           </p>
         </div>
 

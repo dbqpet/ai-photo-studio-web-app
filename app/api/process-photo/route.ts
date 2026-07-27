@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { processPhoto } from "@/lib/server/aiProviders";
 import {
-  requireGenerationCredit,
-  spendGenerationCredit,
+  requirePreviewCredit,
+  spendPreviewCredit,
 } from "@/lib/server/credits";
 import { isGeminiImageConfigured } from "@/lib/server/geminiImage";
 import {
@@ -26,6 +26,9 @@ const VALID_MODES: ProcessingMode[] = ["classic", "korean", "corporate"];
 const VALID_BG_MODES: BackgroundMode[] = ["solid", "studio"];
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 const MAX_DIMENSION = 4000;
+
+const AI_FAILURE_MESSAGE =
+  "AI generation failed, no credits were deducted.";
 
 function dataUrlToBuffer(dataUrl: string): Buffer {
   const match = /^data:image\/(?:jpeg|jpg|png|webp);base64,(.+)$/.exec(dataUrl);
@@ -69,10 +72,10 @@ export async function POST(req: NextRequest) {
     targetHeight,
   } = body;
 
-  // Auth + credit gate — generation requires a logged-in user with credits > 0.
+  // 1) Preview-credit check FIRST — never call AI when preview_credits <= 0.
   const supabase = isSupabaseConfigured() ? await createClient() : null;
   if (supabase) {
-    const gate = await requireGenerationCredit(supabase);
+    const gate = await requirePreviewCredit(supabase);
     if (!gate.ok) {
       return NextResponse.json(
         { error: gate.error, code: gate.code },
@@ -134,7 +137,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Optional pre-validation — generation still proceeds if this check errors.
+  // Optional pre-validation — no preview credit deducted on failure.
   if (isGeminiConfigured()) {
     try {
       const verdict = await validatePhotoWithGemini(imageDataUrl);
@@ -153,8 +156,12 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // 2) Generate image FIRST — do not deduct preview credits yet.
+  let image: Buffer;
+  let provider: ProcessPhotoResponse["provider"];
+  let mimeType: string;
   try {
-    const { image, provider, mimeType } = await processPhoto(
+    const result = await processPhoto(
       source,
       mode,
       backgroundMode,
@@ -162,43 +169,51 @@ export async function POST(req: NextRequest) {
       targetWidth,
       targetHeight,
     );
-
-    let remainingCredits: number | undefined;
-    if (supabase) {
-      const spend = await spendGenerationCredit(supabase);
-      if (!spend.ok) {
-        // Generation succeeded but credit spend raced to zero — still return the image.
-        console.error("[process-photo] credit spend failed after generation:", spend);
-      } else {
-        remainingCredits = spend.credits;
-      }
-    }
-
-    const response: ProcessPhotoResponse = {
-      imageDataUrl: `data:${mimeType};base64,${image.toString("base64")}`,
-      provider,
-      mode,
-      backgroundMode,
-      creditsRemaining: remainingCredits,
-    };
-    return NextResponse.json(response);
+    image = result.image;
+    provider = result.provider;
+    mimeType = result.mimeType;
   } catch (err) {
+    // 4) AI failure — never deduct preview credits.
     console.error("[process-photo] processing failed:", err);
     if (isHighDemandError(err)) {
       return NextResponse.json(
-        { error: HIGH_DEMAND_MESSAGE, highDemand: true },
+        {
+          error: `${HIGH_DEMAND_MESSAGE} No credits were deducted.`,
+          highDemand: true,
+        },
         { status: 503 },
       );
     }
     return NextResponse.json(
       {
-        error:
-          err instanceof Error
-            ? err.message
-            : "Photo processing failed. Please try again.",
+        error: AI_FAILURE_MESSAGE,
         highDemand: false,
       },
       { status: 502 },
     );
   }
+
+  // 3) Deduct preview credit ONLY after successful AI generation.
+  // Watermark / downsample for preview is applied client-side on the returned image.
+  let remainingCredits: number | undefined;
+  if (supabase) {
+    const spend = await spendPreviewCredit(supabase);
+    if (!spend.ok) {
+      console.error(
+        "[process-photo] preview credit spend failed after successful generation:",
+        spend,
+      );
+    } else {
+      remainingCredits = spend.previewCredits;
+    }
+  }
+
+  const response: ProcessPhotoResponse = {
+    imageDataUrl: `data:${mimeType};base64,${image.toString("base64")}`,
+    provider,
+    mode,
+    backgroundMode,
+    creditsRemaining: remainingCredits,
+  };
+  return NextResponse.json(response);
 }

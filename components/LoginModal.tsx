@@ -1,5 +1,7 @@
 "use client";
 
+import { PRICING } from "@/lib/pricing";
+
 interface LoginModalProps {
   open: boolean;
   onClose: () => void;
@@ -34,7 +36,9 @@ export default function LoginModal({
         </h2>
         <p className="mt-2 text-sm text-slate-600">
           Create a free account to get{" "}
-          <span className="font-semibold text-slate-900">2 free credits</span>{" "}
+          <span className="font-semibold text-slate-900">
+            {PRICING.signupPreviewCredits} free preview credits
+          </span>{" "}
           and generate your ID photo.
         </p>
 

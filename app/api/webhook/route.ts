@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { PRICING } from "@/lib/pricing";
+import { grantUnlockPackAdmin } from "@/lib/server/credits";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 
 /**
- * Stripe webhook — the durable record of successful payments.
+ * Stripe webhook — durable record of successful payments.
  *
- * On `checkout.session.completed`:
- * - Client may download watermark-free files via /success + verify-payment
- * - Signed-in buyers receive generation credits on their profile
+ * On `checkout.session.completed` for the Single Photo Unlock Package:
+ * - Grant instant HD download for that purchase (client success page)
+ * - preview_credits += 5 (bonus only — do NOT bank hd_unlocks)
  */
 export async function POST(req: NextRequest) {
   const secretKey = process.env.STRIPE_SECRET_KEY;
@@ -47,39 +48,13 @@ export async function POST(req: NextRequest) {
     const userId = session.metadata?.userId;
     if (userId && process.env.SUPABASE_SERVICE_ROLE_KEY) {
       try {
-        const amount = Number(
-          session.metadata?.creditsToGrant ?? PRICING.creditsPerPurchase,
-        );
         const admin = createAdminClient();
-        const { error } = await admin.rpc("add_credits", {
-          target_user_id: userId,
-          amount: Number.isFinite(amount) ? amount : PRICING.creditsPerPurchase,
-        });
-        if (error) {
-          // Fallback if RPC is missing: direct update.
-          const { data: profile } = await admin
-            .from("profiles")
-            .select("credits")
-            .eq("id", userId)
-            .maybeSingle();
-          const next =
-            (profile?.credits ?? 0) +
-            (Number.isFinite(amount) ? amount : PRICING.creditsPerPurchase);
-          await admin.from("profiles").upsert({
-            id: userId,
-            credits: next,
-            updated_at: new Date().toISOString(),
-          });
-          console.log(
-            `[webhook] granted credits via upsert to user=${userId} credits=${next}`,
-          );
-        } else {
-          console.log(
-            `[webhook] granted ${amount} credits to user=${userId}`,
-          );
-        }
+        const granted = await grantUnlockPackAdmin(admin, userId);
+        console.log(
+          `[webhook] granted preview bonus to user=${userId} preview=${granted.previewCredits}`,
+        );
       } catch (err) {
-        console.error("[webhook] credit grant failed:", err);
+        console.error("[webhook] unlock pack grant failed:", err);
       }
     }
   }

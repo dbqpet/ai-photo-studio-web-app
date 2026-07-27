@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { PRICING } from "@/lib/pricing";
+import { grantUnlockPackAdmin } from "@/lib/server/credits";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { VerifyPaymentResponse } from "@/lib/types";
 
 export const runtime = "nodejs";
 
-async function grantCreditsToCurrentUser(): Promise<void> {
+async function grantPackToCurrentUser(): Promise<void> {
   if (
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    !process.env.SUPABASE_SERVICE_ROLE_KEY
   ) {
     return;
   }
@@ -21,35 +22,15 @@ async function grantCreditsToCurrentUser(): Promise<void> {
   } = await supabase.auth.getUser();
   if (!user) return;
 
-  if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    const admin = createAdminClient();
-    const { error } = await admin.rpc("add_credits", {
-      target_user_id: user.id,
-      amount: PRICING.creditsPerPurchase,
-    });
-    if (!error) return;
-
-    const { data: profile } = await admin
-      .from("profiles")
-      .select("credits")
-      .eq("id", user.id)
-      .maybeSingle();
-    await admin.from("profiles").upsert({
-      id: user.id,
-      email: user.email,
-      credits: (profile?.credits ?? 0) + PRICING.creditsPerPurchase,
-      updated_at: new Date().toISOString(),
-    });
-  }
+  const admin = createAdminClient();
+  await grantUnlockPackAdmin(admin, user.id, user.email);
 }
 
 /**
- * Confirms a Checkout session was paid before the client unlocks the
- * watermark-free download. Complements the webhook (the durable payment
- * record) for the interactive post-payment redirect.
+ * Confirms a Checkout session was paid before the client unlocks downloads.
  *
- * In mock mode (no STRIPE_SECRET_KEY), also grants credits to the signed-in
- * user so local auth/credit flows are testable end-to-end.
+ * In mock mode (no STRIPE_SECRET_KEY), also grants the unlock pack so local
+ * auth / credit flows are testable end-to-end.
  */
 export async function GET(req: NextRequest) {
   const sessionId = req.nextUrl.searchParams.get("session_id");
@@ -62,9 +43,9 @@ export async function GET(req: NextRequest) {
     const paid = sessionId === "mock_session";
     if (paid) {
       try {
-        await grantCreditsToCurrentUser();
+        await grantPackToCurrentUser();
       } catch (err) {
-        console.error("[verify-payment] mock credit grant failed:", err);
+        console.error("[verify-payment] mock unlock pack grant failed:", err);
       }
     }
     const response: VerifyPaymentResponse = {

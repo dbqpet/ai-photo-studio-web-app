@@ -1,4 +1,4 @@
-/** Launch-special price anchoring for the high-res unlock paywall. */
+/** Launch-special price anchoring for the Single Photo Unlock Package. */
 
 export const PRICING = {
   /** Strikethrough anchor price shown in the UI. */
@@ -10,9 +10,11 @@ export const PRICING = {
   currency: "usd" as const,
   badge: "🔥 Launch Special - Save 60%",
   checkoutCta: "Unlock High-Res Download",
-  productName: "AI Studio ID — High-Res Photo Pack (No Watermark)",
-  /** Credits granted to the user after a successful Stripe payment. */
-  creditsPerPurchase: 5,
+  productName: "AI Studio ID — Single Photo Unlock Package",
+  /** Bonus preview generations granted after purchase. */
+  previewCreditsBonus: 5,
+  /** Free preview credits seeded on first signup. */
+  signupPreviewCredits: 5,
 } as const;
 
 export function formatUsd(amount: number): string {

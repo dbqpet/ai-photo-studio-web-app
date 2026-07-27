@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { PRICING } from "@/lib/pricing";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
@@ -19,7 +20,8 @@ export async function GET(request: Request) {
           {
             id: user.id,
             email: user.email,
-            credits: 2,
+            preview_credits: PRICING.signupPreviewCredits,
+            hd_unlocks: 0,
           },
           { onConflict: "id", ignoreDuplicates: true },
         );

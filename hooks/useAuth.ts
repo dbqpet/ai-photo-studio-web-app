@@ -8,7 +8,8 @@ import { ensureProfile, type Profile } from "@/lib/supabase/profile";
 export interface AuthState {
   user: User | null;
   profile: Profile | null;
-  credits: number | null;
+  previewCredits: number | null;
+  hdUnlocks: number | null;
   profileError: string | null;
   needsDbSetup: boolean;
   loading: boolean;
@@ -96,8 +97,6 @@ export function useAuth(): AuthState {
       );
     }
 
-    // Preflight: avoid dumping users on a JSON "pretty print" page when
-    // Google is not enabled in the Supabase dashboard.
     const settingsRes = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/settings`,
       {
@@ -139,7 +138,8 @@ export function useAuth(): AuthState {
   return {
     user,
     profile,
-    credits: profile?.credits ?? null,
+    previewCredits: profile?.previewCredits ?? null,
+    hdUnlocks: profile?.hdUnlocks ?? null,
     profileError,
     needsDbSetup,
     loading,

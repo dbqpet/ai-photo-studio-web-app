@@ -9,7 +9,7 @@ A mobile-first AI ID photo web application built with **Next.js (App Router)**, 
 - **AI processing engine** (`/api/process-photo`) — **Gemini Nano Banana Pro exclusively** (`gemini-3-pro-image`). Retries with exponential backoff on high demand. Background modes: solid colour or full AI studio backdrop. Interactive crop (`react-easy-crop`) runs before processing. Facial identity is locked 100%.
 - **Optional Gemini pre-validation** (`/api/validate-photo`) — photos can be checked for one clear face (no sunglasses) before generation.
 - **4R print layout engine** (`lib/printLayout.ts`) — client-side Canvas that packs the maximum number of photos onto a 4×6in / 300 DPI sheet (1200×1800 or 1800×1200 px) with dashed cut guides.
-- **Google OAuth + free credits** — Supabase Auth (Google). First login creates a `profiles` row with **2 free credits**. Generate requires sign-in; each successful generation deducts 1 credit. Zero credits opens the anchored paywall.
+- **Google OAuth + preview / HD balances** — Supabase Auth (Google). First login seeds `preview_credits = 5` and `hd_unlocks = 0`. Generate requires sign-in and spends 1 preview credit only after successful AI generation. Stripe Single Photo Unlock Package grants +1 HD unlock and +5 preview credits.
 - **Watermarked previews & Stripe checkout** — repeating "AI Studio ID - Preview" watermark; `/api/checkout` creates a Stripe Checkout session (**$4.99 USD** launch special, anchored vs $12.99), `/api/webhook` records payment and grants credits, and the success page verifies the session and triggers the instant clean high-res JPEG download.
 
 ## Getting started

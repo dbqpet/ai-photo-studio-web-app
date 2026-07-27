@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 
-/** Launch-special price for the high-res, watermark-free download. */
+/** Launch-special price for the Single Photo Unlock Package. */
 export const PRICE_USD_CENTS = PRICING.stripeUnitAmount;
 
 export async function POST(req: NextRequest) {
@@ -19,7 +19,6 @@ export async function POST(req: NextRequest) {
   }
 
   const preset = getPresetById(body.presetId);
-  // Custom dimensions are client-defined; allow "custom" without a static preset match.
   if (!preset && body.presetId !== "custom") {
     return NextResponse.json({ error: "Unknown photo size preset." }, { status: 400 });
   }
@@ -31,7 +30,6 @@ export async function POST(req: NextRequest) {
     "Custom dimensions";
   const presetId = preset?.id ?? body.presetId;
 
-  // Attach the signed-in user so the webhook can grant credits after payment.
   let userId: string | undefined;
   if (
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
@@ -51,7 +49,6 @@ export async function POST(req: NextRequest) {
   const origin = req.nextUrl.origin;
   const secretKey = process.env.STRIPE_SECRET_KEY;
 
-  // Mock fallback so the full flow is testable before Stripe is configured.
   if (!secretKey) {
     const response: CheckoutResponse = {
       url: `${origin}/success?session_id=mock_session&mock=1${
@@ -74,7 +71,7 @@ export async function POST(req: NextRequest) {
             unit_amount: PRICE_USD_CENTS,
             product_data: {
               name: PRICING.productName,
-              description: `${dimensionLabel} · single photo + 4R print sheet, ${body.mode} style · ${PRICING.badge}`,
+              description: `${dimensionLabel} · instant HD unlock for this photo · +${PRICING.previewCreditsBonus} preview credits · ${body.mode} style · ${PRICING.badge}`,
             },
           },
         },
@@ -83,8 +80,9 @@ export async function POST(req: NextRequest) {
         presetId,
         mode: body.mode,
         dimensionLabel,
+        product: "single_photo_unlock_pack",
+        previewCreditsBonus: String(PRICING.previewCreditsBonus),
         ...(userId ? { userId } : {}),
-        creditsToGrant: String(PRICING.creditsPerPurchase),
       },
       success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/?checkout=cancelled`,

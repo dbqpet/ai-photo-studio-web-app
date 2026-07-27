@@ -19,6 +19,7 @@ import {
 } from "@/constants/photoSizes";
 import { useAuth } from "@/hooks/useAuth";
 import { cropToAspect } from "@/lib/imageUtils";
+import { PRICING, formatUsd } from "@/lib/pricing";
 import { renderPrintSheet, type SheetLayout } from "@/lib/printLayout";
 import { applyWatermarkToCanvas, watermarkDataUrl } from "@/lib/watermark";
 import { storePendingPurchase, type PurchaseSummary } from "@/lib/purchaseStore";
@@ -61,7 +62,7 @@ function clampMm(value: number): number {
 export default function StudioPage() {
   const {
     user,
-    credits,
+    previewCredits,
     profileError,
     needsDbSetup,
     loading: authLoading,
@@ -174,7 +175,7 @@ export default function StudioPage() {
       return;
     }
 
-    if (credits !== null && credits <= 0) {
+    if (previewCredits !== null && previewCredits <= 0) {
       setPaywallOpen(true);
       return;
     }
@@ -218,9 +219,17 @@ export default function StudioPage() {
           setLoginOpen(true);
           throw new Error(json.error ?? "Please sign in to generate.");
         }
-        if (res.status === 402 || json.code === "NO_CREDITS") {
+        if (
+          json.code === "NO_PREVIEW_CREDITS" ||
+          json.code === "NO_CREDITS" ||
+          (res.status === 400 &&
+            typeof json.error === "string" &&
+            json.error.toLowerCase().includes("preview credit"))
+        ) {
           setPaywallOpen(true);
-          throw new Error(json.error ?? "You're out of free credits.");
+          throw new Error(
+            json.error ?? "No preview credits left. Please purchase a pack.",
+          );
         }
         if (json.highDemand || res.status === 503) {
           setHighDemand(true);
@@ -242,6 +251,7 @@ export default function StudioPage() {
       );
       const cleanSheet = sheetCanvas.toDataURL("image/jpeg", 0.92);
 
+      // Watermark / downsample for on-screen preview only.
       const previewSingle = await watermarkDataUrl(cleanSingle);
       applyWatermarkToCanvas(sheetCanvas);
       const previewSheet = sheetCanvas.toDataURL("image/jpeg", 0.85);
@@ -275,7 +285,7 @@ export default function StudioPage() {
   }, [
     sourcePhoto,
     user,
-    credits,
+    previewCredits,
     profileError,
     preset,
     background,
@@ -307,7 +317,7 @@ export default function StudioPage() {
           <div className="flex items-center gap-2">
             {!authLoading && user && (
               <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
-                {credits ?? 0} credit{(credits ?? 0) === 1 ? "" : "s"}
+                {previewCredits ?? 0} Preview Tokens
               </span>
             )}
             {!authLoading && user ? (
@@ -532,24 +542,34 @@ export default function StudioPage() {
 
             <button
               type="button"
-              onClick={() => void generate()}
+              onClick={() => {
+                if (user && previewCredits !== null && previewCredits <= 0) {
+                  setPaywallOpen(true);
+                  return;
+                }
+                void generate();
+              }}
               disabled={processing}
               className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-600 to-indigo-600 px-6 py-4 text-base font-bold text-white shadow-lg transition hover:from-sky-500 hover:to-indigo-500 disabled:opacity-60"
             >
               {processing ? (
                 <>
                   <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                  Creating your photo with AI…
+                  AI Generating (takes ~10s)...
                 </>
+              ) : previewCredits !== null && previewCredits <= 0 ? (
+                <>✨ Out of Tokens (Get More)</>
               ) : (
-                <>✨ Generate ID Photo</>
+                <>
+                  ✨ Generate Free Preview (
+                  {previewCredits ?? PRICING.signupPreviewCredits} left)
+                </>
               )}
             </button>
-            {!user && !authLoading && (
-              <p className="mt-2 text-center text-xs text-slate-500">
-                Free account required · 2 free credits on sign-up
-              </p>
-            )}
+            <p className="mt-2 text-center text-xs text-slate-500">
+              🔒 Free preview • Watermarked preview • Unlock 300 DPI HD download
+              for {formatUsd(PRICING.saleUsd)}
+            </p>
           </section>
         )}
 
@@ -559,8 +579,8 @@ export default function StudioPage() {
               Your ID photo is ready
             </h2>
             <p className="mb-5 text-sm text-slate-500">
-              Previews are watermarked — purchase to unlock the clean high-res
-              files.
+              Previews are watermarked — purchase once to unlock instant HD
+              download for this photo.
             </p>
             {processError && (
               <p className="mb-4 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">
