@@ -2,7 +2,7 @@
  * Gemini Nano Banana Pro — exclusive image editing engine for ID photos.
  *
  * Uses `@google/genai` generateContent with the source portrait + text prompt.
- * Default model: gemini-3-pro-image (Nano Banana Pro).
+ * Default model: gemini-3.1-flash-image (Nano Banana 2).
  *
  * @see https://ai.google.dev/gemini-api/docs/models/gemini-3-pro-image
  */
@@ -12,9 +12,9 @@ import sharp from "sharp";
 import { buildStylePrompt } from "@/lib/server/stylePrompts";
 import type { BackgroundMode, ProcessingMode } from "@/lib/types";
 
-/** Nano Banana Pro (override via GEMINI_IMAGE_MODEL). */
+/** Nano Banana 2 (override via GEMINI_IMAGE_MODEL). */
 export const GEMINI_IMAGE_MODEL =
-  process.env.GEMINI_IMAGE_MODEL || "gemini-3-pro-image";
+  process.env.GEMINI_IMAGE_MODEL || "gemini-3.1-flash-image";
 
 const MAX_RETRIES = 4;
 const BASE_DELAY_MS = 1200;
