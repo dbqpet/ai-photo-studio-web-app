@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { PRICING } from "@/lib/pricing";
 import { grantUnlockPackAdmin } from "@/lib/server/credits";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -9,9 +8,8 @@ export const runtime = "nodejs";
 /**
  * Stripe webhook — durable record of successful payments.
  *
- * On `checkout.session.completed` for the Single Photo Unlock Package:
- * - Grant instant HD download for that purchase (client success page)
- * - preview_credits += 5 (bonus only — do NOT bank hd_unlocks)
+ * - topup: +5 preview_credits and +1 hd_unlock
+ * - unlock_photo: +5 preview_credits + mark generation_id unlocked (no hd token spend)
  */
 export async function POST(req: NextRequest) {
   const secretKey = process.env.STRIPE_SECRET_KEY;
@@ -41,18 +39,44 @@ export async function POST(req: NextRequest) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
+    const intent = session.metadata?.intent === "topup" ? "topup" : "unlock_photo";
+    const generationId =
+      session.metadata?.generationId || session.metadata?.photoId;
     console.log(
-      `[webhook] payment completed: session=${session.id} preset=${session.metadata?.presetId} mode=${session.metadata?.mode}`,
+      `[webhook] payment completed: session=${session.id} intent=${intent} generation=${generationId ?? "-"}`,
     );
 
     const userId = session.metadata?.userId;
     if (userId && process.env.SUPABASE_SERVICE_ROLE_KEY) {
       try {
         const admin = createAdminClient();
-        const granted = await grantUnlockPackAdmin(admin, userId);
+        const granted = await grantUnlockPackAdmin(admin, userId, null, {
+          includeHdUnlock: intent === "topup",
+        });
         console.log(
-          `[webhook] granted preview bonus to user=${userId} preview=${granted.previewCredits}`,
+          `[webhook] granted pack to user=${userId} intent=${intent} preview=${granted.previewCredits} hd=${granted.hdUnlocks}`,
         );
+
+        if (intent === "unlock_photo" && generationId) {
+          const upsertNew = await admin.from("unlocked_photos").upsert(
+            {
+              user_id: userId,
+              generation_id: generationId,
+              source: "payment",
+            },
+            { onConflict: "user_id,generation_id" },
+          );
+          if (upsertNew.error) {
+            await admin.from("unlocked_photos").upsert(
+              {
+                user_id: userId,
+                photo_id: generationId,
+                source: "payment",
+              },
+              { onConflict: "user_id,photo_id" },
+            );
+          }
+        }
       } catch (err) {
         console.error("[webhook] unlock pack grant failed:", err);
       }

@@ -2,10 +2,12 @@
  * Client-side storage bridge between the studio page and the post-payment
  * success page. Clean (watermark-free) renders can be several MB as data URLs,
  * which exceeds sessionStorage quota — IndexedDB is used instead.
+ *
+ * Shares DB with photoSessionStore (version 3).
  */
 
 const DB_NAME = "ai-studio-id";
-const DB_VERSION = 1;
+const DB_VERSION = 3;
 const STORE = "pending-purchase";
 const PENDING_KEY = "pending";
 
@@ -39,6 +41,17 @@ function openDb(): Promise<IDBDatabase> {
       const db = (event.target as IDBOpenDBRequest).result;
       if (!db.objectStoreNames.contains(STORE)) {
         db.createObjectStore(STORE);
+      }
+      if (!db.objectStoreNames.contains("photo-sessions")) {
+        db.createObjectStore("photo-sessions", { keyPath: "photoId" });
+      }
+      if (!db.objectStoreNames.contains("generation-sessions")) {
+        db.createObjectStore("generation-sessions", {
+          keyPath: "generationId",
+        });
+      }
+      if (!db.objectStoreNames.contains("meta")) {
+        db.createObjectStore("meta");
       }
     };
   });

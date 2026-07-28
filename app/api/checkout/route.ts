@@ -18,6 +18,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
+  const intent = body.intent === "topup" ? "topup" : "unlock_photo";
+  const generationId =
+    body.generationId?.trim() || body.photoId?.trim() || undefined;
+
+  if (intent === "unlock_photo" && !generationId) {
+    return NextResponse.json(
+      { error: "generationId is required for photo unlock checkout." },
+      { status: 400 },
+    );
+  }
+
   const preset = getPresetById(body.presetId);
   if (!preset && body.presetId !== "custom") {
     return NextResponse.json({ error: "Unknown photo size preset." }, { status: 400 });
@@ -48,12 +59,26 @@ export async function POST(req: NextRequest) {
 
   const origin = req.nextUrl.origin;
   const secretKey = process.env.STRIPE_SECRET_KEY;
+  const packLabel =
+    intent === "topup"
+      ? `1 HD Photo Unlock + ${PRICING.previewCreditsBonus} Bonus Preview Tokens`
+      : `instant HD unlock for this generation · +${PRICING.previewCreditsBonus} preview tokens`;
+
+  // Photo unlock returns to the studio with restored session; top-up uses success page.
+  const successUrl =
+    intent === "unlock_photo" && generationId
+      ? `${origin}/?payment=success&generation_id=${encodeURIComponent(generationId)}&session_id={CHECKOUT_SESSION_ID}`
+      : `${origin}/success?session_id={CHECKOUT_SESSION_ID}`;
 
   if (!secretKey) {
+    const mockSuccess =
+      intent === "unlock_photo" && generationId
+        ? `${origin}/?payment=success&generation_id=${encodeURIComponent(generationId)}&session_id=mock_session&intent=${intent}`
+        : `${origin}/success?session_id=mock_session&mock=1&intent=${intent}${
+            userId ? `&user_id=${userId}` : ""
+          }`;
     const response: CheckoutResponse = {
-      url: `${origin}/success?session_id=mock_session&mock=1${
-        userId ? `&user_id=${userId}` : ""
-      }`,
+      url: mockSuccess,
       mock: true,
     };
     return NextResponse.json(response);
@@ -70,8 +95,11 @@ export async function POST(req: NextRequest) {
             currency: PRICING.currency,
             unit_amount: PRICE_USD_CENTS,
             product_data: {
-              name: PRICING.productName,
-              description: `${dimensionLabel} · instant HD unlock for this photo · +${PRICING.previewCreditsBonus} preview credits · ${body.mode} style · ${PRICING.badge}`,
+              name:
+                intent === "topup"
+                  ? "AI Studio ID — Preview Top-up Pack"
+                  : PRICING.productName,
+              description: `${dimensionLabel} · ${packLabel} · ${body.mode} style · ${PRICING.badge}`,
             },
           },
         },
@@ -80,12 +108,21 @@ export async function POST(req: NextRequest) {
         presetId,
         mode: body.mode,
         dimensionLabel,
-        product: "single_photo_unlock_pack",
+        intent,
+        product:
+          intent === "topup" ? "preview_topup_pack" : "single_photo_unlock_pack",
         previewCreditsBonus: String(PRICING.previewCreditsBonus),
+        hdUnlocksBonus:
+          intent === "topup" ? String(PRICING.hdUnlocksPerTopup) : "0",
+        ...(generationId ? { generationId, photoId: generationId } : {}),
         ...(userId ? { userId } : {}),
       },
-      success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/?checkout=cancelled`,
+      success_url: successUrl,
+      cancel_url: `${origin}/?checkout=cancelled${
+        generationId
+          ? `&generation_id=${encodeURIComponent(generationId)}`
+          : ""
+      }`,
     });
     if (!session.url) throw new Error("Stripe session has no URL.");
     const response: CheckoutResponse = { url: session.url, mock: false };

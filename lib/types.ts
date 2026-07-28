@@ -87,6 +87,15 @@ export interface CheckoutRequest {
   mode: ProcessingMode;
   /** Human-readable dimension for Stripe / mock checkout copy. */
   dimensionLabel?: string;
+  /**
+   * - topup: out-of-tokens pack (+5 preview + 1 HD unlock banked)
+   * - unlock_photo: pay for current preview (instant download +5 preview)
+   */
+  intent?: "topup" | "unlock_photo";
+  /** Unique id for the AI generation being unlocked (NOT the upload session). */
+  generationId?: string;
+  /** @deprecated Use generationId */
+  photoId?: string;
 }
 
 export interface CheckoutResponse {

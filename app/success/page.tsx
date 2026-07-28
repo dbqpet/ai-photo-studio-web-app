@@ -11,7 +11,7 @@ import { PRICING } from "@/lib/pricing";
 import { readPendingPurchase, type PendingPurchase } from "@/lib/purchaseStore";
 import type { VerifyPaymentResponse } from "@/lib/types";
 
-type Status = "verifying" | "paid" | "unpaid" | "missing" | "error";
+type Status = "verifying" | "paid" | "unpaid" | "topup" | "error";
 
 function purchaseStyle(purchase: PendingPurchase): string {
   return purchase.style || purchase.presetLabel || "photo";
@@ -42,9 +42,12 @@ function SuccessContent() {
           return;
         }
         const pending = await readPendingPurchase();
-        if (!pending) {
-          // Payment may be a credit top-up without a pending download pack.
-          setStatus("missing");
+        if (
+          !pending ||
+          !pending.singleDataUrl?.startsWith("data:image/")
+        ) {
+          // Top-up from the out-of-tokens modal — no photo to download yet.
+          setStatus("topup");
           return;
         }
         setPurchase(pending);
@@ -128,6 +131,24 @@ function SuccessContent() {
         </>
       )}
 
+      {status === "topup" && (
+        <>
+          <h1 className="text-2xl font-bold text-slate-900">
+            Payment Successful! 🎉
+          </h1>
+          <p className="text-sm text-slate-600">
+            Your account has been topped up with 1 HD Photo Unlock and{" "}
+            {PRICING.previewCreditsBonus} Preview Tokens. You&apos;re all set!
+          </p>
+          <Link
+            href="/"
+            className="flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-sky-600 to-indigo-600 px-6 py-4 text-base font-bold text-white shadow-lg transition hover:from-sky-500 hover:to-indigo-500"
+          >
+            ✨ Start Making Photos
+          </Link>
+        </>
+      )}
+
       {status === "unpaid" && (
         <>
           <span className="text-5xl" aria-hidden>
@@ -137,24 +158,6 @@ function SuccessContent() {
           <p className="text-sm text-slate-600">
             We could not confirm this payment. If you completed checkout,
             please wait a moment and refresh this page.
-          </p>
-          <Link href="/" className="text-sm font-medium text-sky-600 hover:underline">
-            ← Back to studio
-          </Link>
-        </>
-      )}
-
-      {status === "missing" && (
-        <>
-          <span className="text-5xl" aria-hidden>
-            ✅
-          </span>
-          <h1 className="text-xl font-bold text-slate-900">Payment successful!</h1>
-          <p className="text-sm text-slate-600">
-            Your purchase is confirmed. +{PRICING.previewCreditsBonus} preview
-            tokens were added to your account. Return to the studio to generate
-            more previews, or reopen this page if your HD files are still in
-            this browser session.
           </p>
           <Link href="/" className="text-sm font-medium text-sky-600 hover:underline">
             ← Back to studio

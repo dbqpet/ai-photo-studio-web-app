@@ -2,7 +2,8 @@
 
 /* eslint-disable @next/next/no-img-element -- previews are dynamic data URLs */
 
-import { useCallback, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import LoginModal from "@/components/LoginModal";
 import PaywallModal from "@/components/PaywallModal";
 import PhotoInput from "@/components/PhotoInput";
@@ -20,9 +21,23 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { cropToAspect } from "@/lib/imageUtils";
 import { PRICING, formatUsd } from "@/lib/pricing";
+import {
+  createGenerationId,
+  createUploadSessionId,
+  markPhotoSessionDownloaded,
+  markPhotoSessionUnlocked,
+  readPhotoSession,
+  savePhotoSession,
+  type PhotoSession,
+} from "@/lib/photoSessionStore";
 import { renderPrintSheet, type SheetLayout } from "@/lib/printLayout";
 import { applyWatermarkToCanvas, watermarkDataUrl } from "@/lib/watermark";
-import { storePendingPurchase, type PurchaseSummary } from "@/lib/purchaseStore";
+import {
+  storePendingPurchase,
+  clearPendingPurchase,
+  type PurchaseSummary,
+} from "@/lib/purchaseStore";
+import { downloadHdPhotosZip } from "@/lib/zipDownload";
 import {
   HIGH_DEMAND_MESSAGE,
   PROCESSING_MODES,
@@ -38,6 +53,10 @@ import {
 type Step = 1 | 2 | 3;
 
 interface GeneratedResult {
+  /** Unique per AI output — unlock / payment is bound to this id only. */
+  generationId: string;
+  /** Stable for the current source-photo upload (not used for unlock). */
+  uploadSessionId: string;
   provider: AiProvider;
   cleanSingle: string;
   cleanSheet: string;
@@ -46,6 +65,8 @@ interface GeneratedResult {
   layout: SheetLayout;
   backgroundMode: BackgroundMode;
   backgroundColor: string;
+  unlocked: boolean;
+  downloaded: boolean;
 }
 
 const STEPS: Array<{ id: Step; label: string }> = [
@@ -60,9 +81,26 @@ function clampMm(value: number): number {
 }
 
 export default function StudioPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-1 items-center justify-center bg-slate-50 text-sm text-slate-500">
+          Loading studio…
+        </div>
+      }
+    >
+      <StudioPageContent />
+    </Suspense>
+  );
+}
+
+function StudioPageContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const {
     user,
     previewCredits,
+    hdUnlocks,
     profileError,
     needsDbSetup,
     loading: authLoading,
@@ -73,6 +111,7 @@ export default function StudioPage() {
 
   const [step, setStep] = useState<Step>(1);
   const [sourcePhoto, setSourcePhoto] = useState<string | null>(null);
+  const [uploadSessionId, setUploadSessionId] = useState<string | null>(null);
   const [resolutionWarning, setResolutionWarning] = useState<string | undefined>();
 
   const [presetId, setPresetId] = useState(PHOTO_SIZE_PRESETS[0].id);
@@ -87,8 +126,11 @@ export default function StudioPage() {
   const [highDemand, setHighDemand] = useState(false);
   const [result, setResult] = useState<GeneratedResult | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [downloadLoading, setDownloadLoading] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
   const [loginOpen, setLoginOpen] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
+  const [restoringSession, setRestoringSession] = useState(false);
 
   const preset = useMemo(
     () =>
@@ -122,6 +164,7 @@ export default function StudioPage() {
   const handlePhotoSelected = useCallback(
     (dataUrl: string, warning?: string) => {
       setSourcePhoto(dataUrl);
+      setUploadSessionId(createUploadSessionId());
       setResolutionWarning(warning);
       setResult(null);
       setProcessError(null);
@@ -130,42 +173,253 @@ export default function StudioPage() {
     [],
   );
 
-  const checkout = useCallback(async () => {
-    setCheckoutLoading(true);
-    try {
-      const body: CheckoutRequest = {
-        presetId: preset.id,
+  const showToast = useCallback((message: string) => {
+    setToast(message);
+    window.setTimeout(() => setToast(null), 4000);
+  }, []);
+
+  const applyPhotoSession = useCallback((session: PhotoSession) => {
+    setSourcePhoto(session.sourcePhoto);
+    setUploadSessionId(session.uploadSessionId);
+    setResolutionWarning(session.resolutionWarning);
+    setPresetId(session.presetId);
+    setCustomWidthMm(session.customWidthMm);
+    setCustomHeightMm(session.customHeightMm);
+    setBackgroundId(session.backgroundId);
+    setBackgroundMode(session.backgroundMode);
+    setMode(session.mode);
+    setResult({
+      generationId: session.generationId,
+      uploadSessionId: session.uploadSessionId,
+      ...session.result,
+      unlocked: session.unlocked,
+      downloaded: session.downloaded,
+    });
+    setStep(3);
+  }, []);
+
+  const persistCurrentSession = useCallback(
+    async (
+      nextResult: GeneratedResult,
+      flags?: Partial<Pick<GeneratedResult, "unlocked" | "downloaded">>,
+    ) => {
+      if (!sourcePhoto) return;
+      const unlocked = flags?.unlocked ?? nextResult.unlocked;
+      const downloaded = flags?.downloaded ?? nextResult.downloaded;
+      await savePhotoSession({
+        generationId: nextResult.generationId,
+        uploadSessionId: nextResult.uploadSessionId,
+        sourcePhoto,
+        resolutionWarning,
+        presetId,
+        customWidthMm: clampMm(customWidthMm),
+        customHeightMm: clampMm(customHeightMm),
+        backgroundId,
+        backgroundMode,
         mode,
-        dimensionLabel: orderSummary.dimensionLabel,
-      };
-      const res = await fetch("/api/checkout", {
+        result: {
+          provider: nextResult.provider,
+          cleanSingle: nextResult.cleanSingle,
+          cleanSheet: nextResult.cleanSheet,
+          previewSingle: nextResult.previewSingle,
+          previewSheet: nextResult.previewSheet,
+          layout: nextResult.layout,
+          backgroundMode: nextResult.backgroundMode,
+          backgroundColor: nextResult.backgroundColor,
+        },
+        summary: orderSummary,
+        presetLabel: preset.label,
+        unlocked,
+        downloaded,
+        updatedAt: Date.now(),
+      });
+    },
+    [
+      sourcePhoto,
+      resolutionWarning,
+      presetId,
+      customWidthMm,
+      customHeightMm,
+      backgroundId,
+      backgroundMode,
+      mode,
+      orderSummary,
+      preset.label,
+    ],
+  );
+
+  /** Restore studio state after Stripe redirect (?payment=success&generation_id=...). */
+  useEffect(() => {
+    const payment = searchParams.get("payment");
+    const generationId =
+      searchParams.get("generation_id") || searchParams.get("photo_id");
+    const sessionId = searchParams.get("session_id");
+    const intent = searchParams.get("intent");
+    if (payment !== "success" || !generationId) return;
+
+    let cancelled = false;
+    setRestoringSession(true);
+
+    (async () => {
+      try {
+        if (sessionId) {
+          const qs = new URLSearchParams({ session_id: sessionId });
+          if (intent) qs.set("intent", intent);
+          await fetch(`/api/verify-payment?${qs.toString()}`);
+        }
+        await fetch("/api/mark-photo-unlocked", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ generationId, sessionId }),
+        });
+
+        const session = await markPhotoSessionUnlocked(generationId);
+        const restored = session ?? (await readPhotoSession(generationId));
+        if (!cancelled && restored) {
+          applyPhotoSession({ ...restored, unlocked: true });
+          showToast("Payment successful — your photo is unlocked!");
+          await refreshProfile();
+        } else if (!cancelled) {
+          showToast(
+            "Payment succeeded, but the photo session was not found in this browser.",
+          );
+        }
+      } catch (err) {
+        console.error("[studio] payment restore failed:", err);
+        if (!cancelled) {
+          showToast("Payment succeeded, but restoring your photo failed.");
+        }
+      } finally {
+        if (!cancelled) {
+          setRestoringSession(false);
+          router.replace("/", { scroll: false });
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on payment return
+  }, []);
+
+  const checkout = useCallback(
+    async (intent: "topup" | "unlock_photo" = "unlock_photo") => {
+      setCheckoutLoading(true);
+      try {
+        if (intent === "unlock_photo" && result) {
+          await persistCurrentSession(result);
+          await storePendingPurchase({
+            singleDataUrl: result.cleanSingle,
+            sheetDataUrl: result.cleanSheet,
+            presetLabel: preset.label,
+            style: mode,
+            summary: orderSummary,
+          });
+        } else if (intent === "topup") {
+          await clearPendingPurchase();
+        }
+
+        const body: CheckoutRequest = {
+          presetId: preset.id,
+          mode,
+          dimensionLabel: orderSummary.dimensionLabel,
+          intent,
+          ...(intent === "unlock_photo" && result
+            ? { generationId: result.generationId }
+            : {}),
+        };
+        const res = await fetch("/api/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const json = (await res.json()) as CheckoutResponse & { error?: string };
+        if (!res.ok) throw new Error(json.error ?? "Checkout failed.");
+
+        window.location.href = json.url;
+      } catch (err) {
+        console.error("Checkout failed:", err);
+        setProcessError(
+          err instanceof Error
+            ? err.message
+            : "Checkout failed. Please try again.",
+        );
+        setCheckoutLoading(false);
+      }
+    },
+    [result, preset, mode, orderSummary, persistCurrentSession],
+  );
+
+  const downloadHd = useCallback(async () => {
+    if (!result) return;
+
+    setDownloadLoading(true);
+    setProcessError(null);
+    try {
+      // Always verify THIS generation_id server-side. Never trust client unlock
+      // state, and never inherit unlock from a prior generation / upload.
+      if (!result.unlocked && (hdUnlocks ?? 0) <= 0) {
+        setPaywallOpen(true);
+        throw new Error("No HD unlock tokens left.");
+      }
+
+      const res = await fetch("/api/download-hd", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ generationId: result.generationId }),
       });
-      const json = (await res.json()) as CheckoutResponse & { error?: string };
-      if (!res.ok) throw new Error(json.error ?? "Checkout failed.");
-
-      if (result) {
-        await storePendingPurchase({
-          singleDataUrl: result.cleanSingle,
-          sheetDataUrl: result.cleanSheet,
-          presetLabel: preset.label,
-          style: mode,
-          summary: orderSummary,
-        });
+      const json = (await res.json()) as {
+        error?: string;
+        code?: string;
+        alreadyUnlocked?: boolean;
+        hdUnlocksRemaining?: number;
+      };
+      if (!res.ok) {
+        if (res.status === 401 || json.code === "NOT_AUTHENTICATED") {
+          setLoginOpen(true);
+          throw new Error(json.error ?? "Please sign in to download.");
+        }
+        if (json.code === "NO_HD_UNLOCKS" || res.status === 400) {
+          setPaywallOpen(true);
+          throw new Error(json.error ?? "No HD unlock tokens left.");
+        }
+        throw new Error(json.error ?? "Could not prepare HD download.");
       }
-      window.location.href = json.url;
+
+      await downloadHdPhotosZip({
+        singleDataUrl: result.cleanSingle,
+        sheetDataUrl: result.cleanSheet,
+        style: mode,
+      });
+
+      const next: GeneratedResult = {
+        ...result,
+        unlocked: true,
+        downloaded: true,
+      };
+      setResult(next);
+      await markPhotoSessionDownloaded(result.generationId);
+      await persistCurrentSession(next, { unlocked: true, downloaded: true });
+      await refreshProfile();
     } catch (err) {
-      console.error("Checkout failed:", err);
-      setProcessError(
+      const message =
         err instanceof Error
           ? err.message
-          : "Checkout failed. Please try again.",
-      );
-      setCheckoutLoading(false);
+          : "HD download failed. Please try again.";
+      showToast(message);
+      setProcessError(message);
+    } finally {
+      setDownloadLoading(false);
     }
-  }, [result, preset, mode, orderSummary]);
+  }, [
+    result,
+    hdUnlocks,
+    mode,
+    refreshProfile,
+    showToast,
+    persistCurrentSession,
+  ]);
 
   const generate = useCallback(async () => {
     if (!sourcePhoto) return;
@@ -256,7 +510,13 @@ export default function StudioPage() {
       applyWatermarkToCanvas(sheetCanvas);
       const previewSheet = sheetCanvas.toDataURL("image/jpeg", 0.85);
 
-      setResult({
+      const sessionUploadId = uploadSessionId ?? createUploadSessionId();
+      if (!uploadSessionId) setUploadSessionId(sessionUploadId);
+
+      // New AI output → new generation_id. Prior unlocks never carry over.
+      const nextResult: GeneratedResult = {
+        generationId: createGenerationId(),
+        uploadSessionId: sessionUploadId,
         provider: json.provider,
         cleanSingle,
         cleanSheet,
@@ -265,8 +525,38 @@ export default function StudioPage() {
         layout,
         backgroundMode,
         backgroundColor: background.hex,
-      });
+        unlocked: false,
+        downloaded: false,
+      };
+      setResult(nextResult);
       setStep(3);
+      await savePhotoSession({
+        generationId: nextResult.generationId,
+        uploadSessionId: sessionUploadId,
+        sourcePhoto,
+        resolutionWarning,
+        presetId,
+        customWidthMm: clampMm(customWidthMm),
+        customHeightMm: clampMm(customHeightMm),
+        backgroundId,
+        backgroundMode,
+        mode,
+        result: {
+          provider: nextResult.provider,
+          cleanSingle,
+          cleanSheet,
+          previewSingle,
+          previewSheet,
+          layout,
+          backgroundMode,
+          backgroundColor: background.hex,
+        },
+        summary: orderSummary,
+        presetLabel: preset.label,
+        unlocked: false,
+        downloaded: false,
+        updatedAt: Date.now(),
+      });
       await refreshProfile();
     } catch (err) {
       const message =
@@ -284,6 +574,7 @@ export default function StudioPage() {
     }
   }, [
     sourcePhoto,
+    uploadSessionId,
     user,
     previewCredits,
     profileError,
@@ -292,16 +583,25 @@ export default function StudioPage() {
     mode,
     backgroundMode,
     refreshProfile,
+    resolutionWarning,
+    presetId,
+    customWidthMm,
+    customHeightMm,
+    backgroundId,
+    orderSummary,
   ]);
 
   const backToSpecs = useCallback(() => {
     setProcessError(null);
+    // Leaving preview invalidates unlock UI for the next generate.
+    // Same generation stays unlocked if they return without regenerating.
     setStep(2);
   }, []);
 
   const startOver = useCallback(() => {
     setStep(1);
     setSourcePhoto(null);
+    setUploadSessionId(null);
     setResolutionWarning(undefined);
     setResult(null);
     setProcessError(null);
@@ -557,13 +857,8 @@ export default function StudioPage() {
                   <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
                   AI Generating (takes ~10s)...
                 </>
-              ) : previewCredits !== null && previewCredits <= 0 ? (
-                <>✨ Out of Tokens (Get More)</>
               ) : (
-                <>
-                  ✨ Generate Free Preview (
-                  {previewCredits ?? PRICING.signupPreviewCredits} left)
-                </>
+                <>✨ Preview Your Photo</>
               )}
             </button>
             <p className="mt-2 text-center text-xs text-slate-500">
@@ -579,8 +874,11 @@ export default function StudioPage() {
               Your ID photo is ready
             </h2>
             <p className="mb-5 text-sm text-slate-500">
-              Previews are watermarked — purchase once to unlock instant HD
-              download for this photo.
+              {result.unlocked
+                ? "Your photo is unlocked — download the clean HD ZIP anytime with no extra charge."
+                : (hdUnlocks ?? 0) > 0
+                  ? "Your watermarked preview is ready — use an HD token to unlock and download this photo forever."
+                  : "Previews are watermarked — purchase once to unlock instant HD download for this photo."}
             </p>
             {processError && (
               <p className="mb-4 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">
@@ -594,14 +892,36 @@ export default function StudioPage() {
               sheetPreviewUrl={result.previewSheet}
               layout={result.layout}
               summary={orderSummary}
+              hdUnlocks={hdUnlocks ?? 0}
+              unlocked={result.unlocked}
+              downloaded={result.downloaded}
               checkoutLoading={checkoutLoading}
-              onCheckout={() => void checkout()}
+              downloadLoading={downloadLoading}
+              onCheckout={() => void checkout("unlock_photo")}
+              onDownloadHd={() => void downloadHd()}
               onBack={backToSpecs}
               onStartOver={startOver}
             />
           </section>
         )}
+
+        {restoringSession && (
+          <div className="fixed inset-0 z-40 flex items-center justify-center bg-white/70 backdrop-blur-sm">
+            <p className="rounded-2xl bg-white px-5 py-4 text-sm font-semibold text-slate-700 shadow-lg">
+              Restoring your unlocked photo…
+            </p>
+          </div>
+        )}
       </main>
+
+      {toast && (
+        <div
+          role="status"
+          className="fixed bottom-6 left-1/2 z-50 max-w-sm -translate-x-1/2 rounded-2xl bg-slate-900 px-4 py-3 text-center text-sm font-medium text-white shadow-lg"
+        >
+          {toast}
+        </div>
+      )}
 
       <footer className="border-t border-slate-200 bg-white py-4">
         <p className="text-center text-xs text-slate-400">
@@ -630,9 +950,8 @@ export default function StudioPage() {
       <PaywallModal
         open={paywallOpen}
         onClose={() => setPaywallOpen(false)}
-        onCheckout={() => void checkout()}
+        onCheckout={() => void checkout("topup")}
         checkoutLoading={checkoutLoading}
-        outOfCredits
       />
     </div>
   );

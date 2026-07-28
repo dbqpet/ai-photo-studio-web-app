@@ -3,7 +3,6 @@
 /* eslint-disable @next/next/no-img-element -- previews are dynamic data URLs */
 
 import OrderSummaryCard from "@/components/OrderSummaryCard";
-import PriceAnchor from "@/components/PriceAnchor";
 import type { PhotoSizePreset } from "@/constants/photoSizes";
 import { PRICING, formatUsd } from "@/lib/pricing";
 import type { PurchaseSummary } from "@/lib/purchaseStore";
@@ -17,8 +16,13 @@ interface PreviewPanelProps {
   sheetPreviewUrl: string;
   layout: SheetLayout;
   summary: PurchaseSummary;
+  hdUnlocks: number;
+  unlocked: boolean;
+  downloaded: boolean;
   checkoutLoading: boolean;
+  downloadLoading: boolean;
   onCheckout: () => void;
+  onDownloadHd: () => void;
   onBack: () => void;
   onStartOver: () => void;
 }
@@ -26,6 +30,12 @@ interface PreviewPanelProps {
 const PROVIDER_LABEL: Record<AiProvider, string> = {
   gemini: "Gemini Nano Banana Pro",
 };
+
+const UNLOCK_BTN =
+  "flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 via-rose-500 to-fuchsia-600 px-6 py-4 text-base font-bold text-white shadow-lg shadow-rose-500/30 transition-all duration-200 hover:scale-[1.02] hover:from-orange-400 hover:via-rose-400 hover:to-fuchsia-500 hover:shadow-xl hover:shadow-rose-500/40 active:scale-[0.98] disabled:scale-100 disabled:opacity-60 disabled:shadow-lg";
+
+const DOWNLOAD_BTN =
+  "flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 px-6 py-4 text-base font-bold text-white shadow-lg shadow-emerald-500/25 transition-all duration-200 hover:scale-[1.02] hover:from-emerald-500 hover:via-teal-500 hover:to-cyan-500 hover:shadow-xl hover:shadow-emerald-500/35 active:scale-[0.98] disabled:scale-100 disabled:opacity-60 disabled:shadow-lg";
 
 /** Watermarked previews of the single ID photo and the 4R print sheet. */
 export default function PreviewPanel({
@@ -35,11 +45,23 @@ export default function PreviewPanel({
   sheetPreviewUrl,
   layout,
   summary,
+  hdUnlocks,
+  unlocked,
+  downloaded,
   checkoutLoading,
+  downloadLoading,
   onCheckout,
+  onDownloadHd,
   onBack,
   onStartOver,
 }: PreviewPanelProps) {
+  const showUnlock = !unlocked && hdUnlocks <= 0;
+  const showDownload = unlocked || hdUnlocks > 0;
+
+  const downloadLabel = downloaded
+    ? "✅ Downloaded — Download Again"
+    : "📦 Download HD Photos (.zip)";
+
   return (
     <div className="flex flex-col gap-6">
       <div className="grid gap-6 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
@@ -56,6 +78,11 @@ export default function PreviewPanel({
             >
               ⚡ Real AI Mode
             </span>
+            {unlocked && (
+              <span className="absolute right-2 top-2 rounded-full bg-sky-600 px-2.5 py-1 text-[11px] font-bold text-white shadow">
+                Unlocked
+              </span>
+            )}
           </div>
           <figcaption className="text-xs text-slate-500">
             Single photo · {preset.description} @ 300 DPI
@@ -80,33 +107,62 @@ export default function PreviewPanel({
         Processed by: {PROVIDER_LABEL[provider]}
       </p>
 
-      <div className="rounded-2xl border border-rose-100 bg-rose-50/50 px-5 py-4">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-          Unlock this photo
-        </p>
-        <PriceAnchor />
-        <p className="mt-2 text-xs text-slate-500">
-          Instant HD download for this photo · +{PRICING.previewCreditsBonus}{" "}
-          preview tokens
-        </p>
-      </div>
-
       <div className="flex flex-col gap-3">
-        <button
-          type="button"
-          onClick={onCheckout}
-          disabled={checkoutLoading}
-          className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-600 to-indigo-600 px-6 py-4 text-base font-bold text-white shadow-lg transition hover:from-sky-500 hover:to-indigo-500 disabled:opacity-60"
-        >
-          {checkoutLoading ? (
-            <>
-              <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-              Redirecting to secure checkout…
-            </>
-          ) : (
-            <>💳 Unlock 300 DPI HD — {formatUsd(PRICING.saleUsd)}</>
-          )}
-        </button>
+        {showUnlock && (
+          <>
+            <button
+              type="button"
+              onClick={onCheckout}
+              disabled={checkoutLoading}
+              className={UNLOCK_BTN}
+            >
+              {checkoutLoading ? (
+                <>
+                  <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                  Redirecting to secure checkout…
+                </>
+              ) : (
+                <>
+                  🔓 Unlock HD &amp; 4R Print Sheet ({formatUsd(PRICING.saleUsd)})
+                </>
+              )}
+            </button>
+            <p className="text-center text-xs leading-relaxed text-slate-600">
+              ⚡ Instant Download • 300 DPI Official Spec • Includes 4R Print
+              Sheet
+            </p>
+          </>
+        )}
+
+        {showDownload && (
+          <>
+            <button
+              type="button"
+              onClick={onDownloadHd}
+              disabled={downloadLoading}
+              className={DOWNLOAD_BTN}
+            >
+              {downloadLoading ? (
+                <>
+                  <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                  Preparing HD Photo...
+                </>
+              ) : (
+                <>{downloadLabel}</>
+              )}
+            </button>
+            <p className="text-center text-xs leading-relaxed text-slate-600">
+              Includes Single HD Photo (300 DPI) + 4R Print Layout (ZIP format)
+            </p>
+            {!unlocked && hdUnlocks > 0 && (
+              <p className="text-center text-[11px] text-slate-500">
+                You have {hdUnlocks} HD token{hdUnlocks === 1 ? "" : "s"}{" "}
+                remaining. First download unlocks this photo forever.
+              </p>
+            )}
+          </>
+        )}
+
         <button
           type="button"
           onClick={onBack}

@@ -7,17 +7,14 @@ interface PaywallModalProps {
   onClose: () => void;
   onCheckout: () => void;
   checkoutLoading?: boolean;
-  /** When true, explain that preview credits are exhausted. */
-  outOfCredits?: boolean;
 }
 
-/** Price-anchored paywall for the Single Photo Unlock Package. */
+/** Top-up modal when the user is out of preview tokens. */
 export default function PaywallModal({
   open,
   onClose,
   onCheckout,
   checkoutLoading = false,
-  outOfCredits = false,
 }: PaywallModalProps) {
   if (!open) return null;
 
@@ -37,14 +34,11 @@ export default function PaywallModal({
           id="paywall-modal-title"
           className="text-xl font-bold text-slate-900"
         >
-          {outOfCredits
-            ? "No preview credits left"
-            : "Unlock your photos"}
+          Unlock More Previews ✨
         </h2>
         <p className="mt-2 text-sm text-slate-600">
-          {outOfCredits
-            ? "Purchase a pack to unlock HD downloads and get more preview generations."
-            : "Remove the watermark and download your clean high-res single photo + 4R print sheet."}
+          You&apos;ve run out of free preview tokens. Grab a new pack to
+          continue creating your perfect ID photo!
         </p>
 
         <div className="mt-6 rounded-2xl border border-rose-100 bg-rose-50/60 px-5 py-5">
@@ -59,9 +53,9 @@ export default function PaywallModal({
               {PRICING.badge}
             </span>
           </div>
-          <p className="mt-2 text-xs text-slate-500">
-            Instant HD download for this photo · +{PRICING.previewCreditsBonus}{" "}
-            preview tokens
+          <p className="mt-3 text-sm font-semibold text-slate-800">
+            💎 1 HD Photo Unlock + {PRICING.previewCreditsBonus} Bonus Preview
+            Tokens
           </p>
         </div>
 
@@ -77,7 +71,7 @@ export default function PaywallModal({
               Redirecting to secure checkout…
             </>
           ) : (
-            <>💳 {PRICING.checkoutCta}</>
+            <>Unlock for {formatUsd(PRICING.saleUsd)}</>
           )}
         </button>
 

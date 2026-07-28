@@ -13,6 +13,8 @@ export const PRICING = {
   productName: "AI Studio ID — Single Photo Unlock Package",
   /** Bonus preview generations granted after purchase. */
   previewCreditsBonus: 5,
+  /** HD unlocks banked on a top-up pack purchase (not on photo unlock). */
+  hdUnlocksPerTopup: 1,
   /** Free preview credits seeded on first signup. */
   signupPreviewCredits: 5,
 } as const;

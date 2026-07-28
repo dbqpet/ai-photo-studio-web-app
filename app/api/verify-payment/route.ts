@@ -7,7 +7,7 @@ import type { VerifyPaymentResponse } from "@/lib/types";
 
 export const runtime = "nodejs";
 
-async function grantPackToCurrentUser(): Promise<void> {
+async function grantPackToCurrentUser(includeHdUnlock: boolean): Promise<void> {
   if (
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
     !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
@@ -23,17 +23,18 @@ async function grantPackToCurrentUser(): Promise<void> {
   if (!user) return;
 
   const admin = createAdminClient();
-  await grantUnlockPackAdmin(admin, user.id, user.email);
+  await grantUnlockPackAdmin(admin, user.id, user.email, { includeHdUnlock });
 }
 
 /**
  * Confirms a Checkout session was paid before the client unlocks downloads.
  *
- * In mock mode (no STRIPE_SECRET_KEY), also grants the unlock pack so local
+ * In mock mode (no STRIPE_SECRET_KEY), also grants the pack so local
  * auth / credit flows are testable end-to-end.
  */
 export async function GET(req: NextRequest) {
   const sessionId = req.nextUrl.searchParams.get("session_id");
+  const intent = req.nextUrl.searchParams.get("intent");
   if (!sessionId) {
     return NextResponse.json({ error: "session_id is required." }, { status: 400 });
   }
@@ -43,7 +44,8 @@ export async function GET(req: NextRequest) {
     const paid = sessionId === "mock_session";
     if (paid) {
       try {
-        await grantPackToCurrentUser();
+        // Top-up banks an HD unlock; photo unlock only adds preview bonus.
+        await grantPackToCurrentUser(intent === "topup");
       } catch (err) {
         console.error("[verify-payment] mock unlock pack grant failed:", err);
       }
