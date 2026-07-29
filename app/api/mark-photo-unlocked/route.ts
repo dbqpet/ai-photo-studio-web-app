@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
       result.code !== "NOT_AUTHENTICATED"
     ) {
       console.error(
-        `[mark-photo-unlocked] RPC token spend failed (code=${result.code}, error=${result.error}) for generation=${generationId} — attempting a direct admin token spend before falling back to a free unlock.`,
+        `[mark-photo-unlocked] RPC token spend failed (code=${result.code}, error=${result.error}) for generation=${generationId} — attempting a direct admin unlock via unlock_generation_admin before falling back to a free unlock.`,
       );
       try {
         const {
@@ -96,61 +96,58 @@ export async function POST(req: NextRequest) {
         if (user) {
           const admin = createAdminClient();
 
-          // Try a real admin-privileged spend first (bypasses whatever made
-          // the user-scoped RPC above fail, e.g. a stale RPC signature) so
-          // this fallback still deducts hd_unlocks whenever a token is
-          // actually available — it should only ever grant a free unlock if
-          // there truly isn't one, which would itself be worth investigating.
-          let hdUnlocksRemaining: number | undefined;
-          try {
-            const { data: rpcSpend, error: rpcError } = await admin.rpc(
-              "spend_hd_unlock_admin",
-              { target_user_id: user.id },
-            );
-            if (rpcError) throw rpcError;
-            hdUnlocksRemaining =
-              rpcSpend === null ? undefined : (rpcSpend as number);
-          } catch (spendErr) {
-            console.error(
-              "[mark-photo-unlocked] spend_hd_unlock_admin RPC failed (run supabase/migrations/008_spend_hd_unlock_admin.sql?):",
-              spendErr,
-            );
-          }
-
-          const upsertNew = await admin.from("unlocked_photos").upsert(
+          // Single atomic call: claims (user, generation) and spends the
+          // token in one DB transaction — same function the webhook uses,
+          // so this can never double-spend against a concurrent webhook
+          // call for the same purchase (see migrations/009).
+          const { data: rpcData, error: rpcError } = await admin.rpc(
+            "unlock_generation_admin",
             {
-              user_id: user.id,
-              generation_id: generationId,
-              source: "payment",
+              target_user_id: user.id,
+              p_generation_id: generationId,
+              p_source: "payment",
+              p_require_token: true,
             },
-            { onConflict: "user_id,generation_id" },
           );
-          if (upsertNew.error) {
-            await admin.from("unlocked_photos").upsert(
-              {
-                user_id: user.id,
-                photo_id: generationId,
-                source: "payment",
-              },
-              { onConflict: "user_id,photo_id" },
+
+          if (rpcError) {
+            console.error(
+              "[mark-photo-unlocked] unlock_generation_admin RPC failed (run supabase/migrations/009_unlock_generation_admin.sql?):",
+              rpcError,
             );
-          }
-          if (hdUnlocksRemaining === undefined) {
+            // Legacy last-resort so a confirmed paid user is never blocked —
+            // no token spend here, this should be rare and is logged loudly.
+            await admin.from("unlocked_photos").upsert(
+              { user_id: user.id, generation_id: generationId, source: "payment" },
+              { onConflict: "user_id,generation_id" },
+            );
             const { data: profile } = await admin
               .from("profiles")
               .select("hd_unlocks")
               .eq("id", user.id)
               .maybeSingle();
-            hdUnlocksRemaining = profile?.hd_unlocks ?? undefined;
             console.error(
-              `[mark-photo-unlocked] admin fallback unlocked generation=${generationId} WITHOUT a token spend (hd_unlocks=${hdUnlocksRemaining}). This should be rare — investigate the RPC failure above.`,
+              `[mark-photo-unlocked] admin fallback unlocked generation=${generationId} WITHOUT a token spend (hd_unlocks=${profile?.hd_unlocks ?? "?"}). This should be rare — investigate the RPC failure above.`,
+            );
+            return NextResponse.json({
+              ok: true,
+              generationId,
+              alreadyUnlocked: false,
+              hdUnlocksRemaining: profile?.hd_unlocks ?? undefined,
+            });
+          }
+
+          const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+          if (row?.already_unlocked) {
+            console.log(
+              `[mark-photo-unlocked] generation=${generationId} was already unlocked (webhook likely won the race) — no spend needed here.`,
             );
           }
           return NextResponse.json({
             ok: true,
             generationId,
-            alreadyUnlocked: false,
-            hdUnlocksRemaining,
+            alreadyUnlocked: Boolean(row?.already_unlocked),
+            hdUnlocksRemaining: row?.out_hd_unlocks,
           });
         }
       } catch (err) {
