@@ -39,7 +39,7 @@ export default function LoginModal({
         <ul className="mt-5 space-y-2.5">
           <li className="flex items-start gap-2.5 text-sm text-slate-700">
             <span aria-hidden>🎁</span>
-            <span>3 Free Preview Tokens included</span>
+            <span>3 Free Preview Tokens on your first sign in</span>
           </li>
           <li className="flex items-start gap-2.5 text-sm text-slate-700">
             <span aria-hidden>📂</span>
