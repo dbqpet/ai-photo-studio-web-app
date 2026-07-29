@@ -904,8 +904,8 @@ function StudioPageContent() {
     <div className="flex flex-1 flex-col bg-slate-50">
       <header className="border-b border-slate-200 bg-white/80 backdrop-blur">
         <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-3 px-5 py-4">
-          <h1 className="text-lg font-bold tracking-tight text-slate-900">
-            📸 AI Studio ID
+          <h1 className="font-sans text-xl font-extrabold tracking-tighter text-slate-900">
+            AI Images Studio
           </h1>
           <div className="flex items-center gap-2">
             {!authLoading && user && (
