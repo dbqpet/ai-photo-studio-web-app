@@ -59,24 +59,21 @@ export async function POST(req: NextRequest) {
 
   const origin = req.nextUrl.origin;
   const secretKey = process.env.STRIPE_SECRET_KEY;
-  const packLabel =
-    intent === "topup"
-      ? `1 HD Photo Unlock + ${PRICING.previewCreditsBonus} Bonus Preview Tokens`
-      : `instant HD unlock for this generation · +${PRICING.previewCreditsBonus} preview tokens`;
+  const packLabel = `1 HD Photo Download + ${PRICING.previewCreditsBonus} Bonus Preview Tokens`;
 
-  // Photo unlock returns to the studio with restored session; top-up uses success page.
+  // Both intents return straight to the studio so the in-progress photo /
+  // specs / step can be restored instead of stranding the user on a
+  // separate success page.
   const successUrl =
     intent === "unlock_photo" && generationId
       ? `${origin}/?payment=success&generation_id=${encodeURIComponent(generationId)}&session_id={CHECKOUT_SESSION_ID}`
-      : `${origin}/success?session_id={CHECKOUT_SESSION_ID}`;
+      : `${origin}/?topup=success&session_id={CHECKOUT_SESSION_ID}`;
 
   if (!secretKey) {
     const mockSuccess =
       intent === "unlock_photo" && generationId
         ? `${origin}/?payment=success&generation_id=${encodeURIComponent(generationId)}&session_id=mock_session&intent=${intent}`
-        : `${origin}/success?session_id=mock_session&mock=1&intent=${intent}${
-            userId ? `&user_id=${userId}` : ""
-          }`;
+        : `${origin}/?topup=success&session_id=mock_session`;
     const response: CheckoutResponse = {
       url: mockSuccess,
       mock: true,
@@ -100,6 +97,7 @@ export async function POST(req: NextRequest) {
                   ? "AI Studio ID — Preview Top-up Pack"
                   : PRICING.productName,
               description: `${dimensionLabel} · ${packLabel} · ${body.mode} style · ${PRICING.badge}`,
+              tax_code: PRICING.stripeTaxCode,
             },
           },
         },
@@ -109,13 +107,15 @@ export async function POST(req: NextRequest) {
         mode: body.mode,
         dimensionLabel,
         intent,
+        // `type` mirrors `intent` — the webhook accepts either key.
+        type: intent,
         product:
           intent === "topup" ? "preview_topup_pack" : "single_photo_unlock_pack",
         previewCreditsBonus: String(PRICING.previewCreditsBonus),
-        hdUnlocksBonus:
-          intent === "topup" ? String(PRICING.hdUnlocksPerTopup) : "0",
+        hdUnlocksBonus: String(PRICING.hdUnlocksPerPurchase),
         ...(generationId ? { generationId, photoId: generationId } : {}),
-        ...(userId ? { userId } : {}),
+        // `user_id` mirrors `userId` — the webhook accepts either key.
+        ...(userId ? { userId, user_id: userId } : {}),
       },
       success_url: successUrl,
       cancel_url: `${origin}/?checkout=cancelled${

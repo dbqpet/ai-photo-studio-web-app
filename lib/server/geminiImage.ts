@@ -18,6 +18,9 @@ export const GEMINI_IMAGE_MODEL =
 
 const MAX_RETRIES = 4;
 const BASE_DELAY_MS = 1200;
+/** Bound a single Gemini attempt so a hung upstream call can't stall the
+ * whole request past the serverless function's max duration. */
+const ATTEMPT_TIMEOUT_MS = 35_000;
 
 const ASPECT_RATIOS: Array<{ label: string; value: number }> = [
   { label: "1:1", value: 1 },
@@ -57,6 +60,25 @@ function detectMime(buffer: Buffer): string {
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** Reject with a retryable "timeout" error if the promise never settles. */
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`Gemini request timeout after ${ms}ms`));
+    }, ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (err) => {
+        clearTimeout(timer);
+        reject(err);
+      },
+    );
+  });
 }
 
 function isRetryableError(err: unknown): boolean {
@@ -144,7 +166,10 @@ export async function generateStyledPortraitWithNanoBanana(
   let lastError: unknown;
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
-      return await callGeminiOnce(apiKey, mimeType, base64, prompt, aspectRatio);
+      return await withTimeout(
+        callGeminiOnce(apiKey, mimeType, base64, prompt, aspectRatio),
+        ATTEMPT_TIMEOUT_MS,
+      );
     } catch (err) {
       lastError = err;
       console.warn(

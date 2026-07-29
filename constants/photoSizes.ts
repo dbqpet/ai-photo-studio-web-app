@@ -129,16 +129,38 @@ export function formatDimensionLabel(preset: PhotoSizePreset): string {
 
 export interface BackgroundColorOption {
   id: string;
+  /** Short label shown as the card's main text (kept concise to avoid overflow). */
   label: string;
-  /** CSS hex value used for compositing and UI swatches. */
+  /** Small secondary text shown under the label. */
+  subLabel: string;
+  /** CSS hex value used for compositing the final image. */
   hex: string;
+  /** Tailwind classes for the swatch circle (bg + border). */
+  swatchClassName: string;
 }
 
 export const BACKGROUND_COLORS: BackgroundColorOption[] = [
-  { id: "white", label: "White", hex: "#FFFFFF" },
-  { id: "light-blue", label: "Light Blue", hex: "#AECFEA" },
-  { id: "grey", label: "Grey", hex: "#C9CDD1" },
-  { id: "red", label: "Red", hex: "#C0362C" },
+  {
+    id: "white",
+    label: "White",
+    subLabel: "Passport / Visa",
+    hex: "#FFFFFF",
+    swatchClassName: "bg-white border-gray-300",
+  },
+  {
+    id: "off-white-grey",
+    label: "Off-White",
+    subLabel: "Light Grey",
+    hex: "#F0F0F0",
+    swatchClassName: "bg-[#f0f0f0] border-gray-300",
+  },
+  {
+    id: "blue",
+    label: "Blue",
+    subLabel: "Standard Blue",
+    hex: "#2B6CB0",
+    swatchClassName: "bg-[#2b6cb0] border-blue-600",
+  },
 ];
 
 export const getPresetById = (id: string): PhotoSizePreset | undefined =>

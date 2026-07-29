@@ -1,13 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { grantUnlockPackAdmin } from "@/lib/server/credits";
+import { grantUnlockPackOnceForSession } from "@/lib/server/credits";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { VerifyPaymentResponse } from "@/lib/types";
 
 export const runtime = "nodejs";
 
-async function grantPackToCurrentUser(includeHdUnlock: boolean): Promise<void> {
+/**
+ * Client-triggered fallback grant, deduped per session id via
+ * grantUnlockPackOnceForSession. Safe to call even if the Stripe webhook
+ * already granted (or will grant) the same session — this exists because
+ * webhook delivery can be delayed, misconfigured, or (in local dev)
+ * unreachable entirely without `stripe listen` running.
+ */
+async function grantPackToCurrentUser(sessionId: string): Promise<void> {
   if (
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
     !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
@@ -23,18 +30,24 @@ async function grantPackToCurrentUser(includeHdUnlock: boolean): Promise<void> {
   if (!user) return;
 
   const admin = createAdminClient();
-  await grantUnlockPackAdmin(admin, user.id, user.email, { includeHdUnlock });
+  const granted = await grantUnlockPackOnceForSession(admin, {
+    sessionId,
+    userId: user.id,
+    email: user.email,
+  });
+  console.log(
+    `[verify-payment] ${granted.granted ? "granted" : "already granted (deduped)"} pack to user=${user.id} session=${sessionId} preview=${granted.previewCredits} hd=${granted.hdUnlocks}`,
+  );
 }
 
 /**
  * Confirms a Checkout session was paid before the client unlocks downloads.
- *
- * In mock mode (no STRIPE_SECRET_KEY), also grants the pack so local
- * auth / credit flows are testable end-to-end.
+ * Also grants the credit pack as a fallback (deduped per session id) so a
+ * paid session never leaves the user without their tokens, even if the
+ * Stripe webhook hasn't fired yet.
  */
 export async function GET(req: NextRequest) {
   const sessionId = req.nextUrl.searchParams.get("session_id");
-  const intent = req.nextUrl.searchParams.get("intent");
   if (!sessionId) {
     return NextResponse.json({ error: "session_id is required." }, { status: 400 });
   }
@@ -44,8 +57,7 @@ export async function GET(req: NextRequest) {
     const paid = sessionId === "mock_session";
     if (paid) {
       try {
-        // Top-up banks an HD unlock; photo unlock only adds preview bonus.
-        await grantPackToCurrentUser(intent === "topup");
+        await grantPackToCurrentUser(sessionId);
       } catch (err) {
         console.error("[verify-payment] mock unlock pack grant failed:", err);
       }
@@ -60,8 +72,16 @@ export async function GET(req: NextRequest) {
   try {
     const stripe = new Stripe(secretKey);
     const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const paid = session.payment_status === "paid";
+    if (paid) {
+      try {
+        await grantPackToCurrentUser(session.id);
+      } catch (err) {
+        console.error("[verify-payment] unlock pack grant failed:", err);
+      }
+    }
     const response: VerifyPaymentResponse = {
-      paid: session.payment_status === "paid",
+      paid,
       mock: false,
     };
     return NextResponse.json(response);

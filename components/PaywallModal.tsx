@@ -54,8 +54,8 @@ export default function PaywallModal({
             </span>
           </div>
           <p className="mt-3 text-sm font-semibold text-slate-800">
-            💎 1 HD Photo Unlock + {PRICING.previewCreditsBonus} Bonus Preview
-            Tokens
+            💎 Includes 1 HD Photo Download + {PRICING.previewCreditsBonus}{" "}
+            Bonus Preview Tokens
           </p>
         </div>
 

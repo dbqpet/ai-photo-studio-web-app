@@ -7,11 +7,9 @@ import type { PhotoSizePreset } from "@/constants/photoSizes";
 import { PRICING, formatUsd } from "@/lib/pricing";
 import type { PurchaseSummary } from "@/lib/purchaseStore";
 import type { SheetLayout } from "@/lib/printLayout";
-import type { AiProvider } from "@/lib/types";
 
 interface PreviewPanelProps {
   preset: PhotoSizePreset;
-  provider: AiProvider;
   singlePreviewUrl: string;
   sheetPreviewUrl: string;
   layout: SheetLayout;
@@ -27,10 +25,6 @@ interface PreviewPanelProps {
   onStartOver: () => void;
 }
 
-const PROVIDER_LABEL: Record<AiProvider, string> = {
-  gemini: "Gemini Nano Banana Pro",
-};
-
 const UNLOCK_BTN =
   "flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 via-rose-500 to-fuchsia-600 px-6 py-4 text-base font-bold text-white shadow-lg shadow-rose-500/30 transition-all duration-200 hover:scale-[1.02] hover:from-orange-400 hover:via-rose-400 hover:to-fuchsia-500 hover:shadow-xl hover:shadow-rose-500/40 active:scale-[0.98] disabled:scale-100 disabled:opacity-60 disabled:shadow-lg";
 
@@ -40,7 +34,6 @@ const DOWNLOAD_BTN =
 /** Watermarked previews of the single ID photo and the 4R print sheet. */
 export default function PreviewPanel({
   preset,
-  provider,
   singlePreviewUrl,
   sheetPreviewUrl,
   layout,
@@ -102,10 +95,6 @@ export default function PreviewPanel({
       </div>
 
       <OrderSummaryCard summary={summary} />
-
-      <p className="rounded-lg bg-slate-100 px-3 py-2 text-xs text-slate-600">
-        Processed by: {PROVIDER_LABEL[provider]}
-      </p>
 
       <div className="flex flex-col gap-3">
         {showUnlock && (

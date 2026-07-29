@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { PRICING } from "@/lib/pricing";
 
 export type CreditCheckResult =
   | { ok: true; previewCredits: number; hdUnlocks: number; userId: string }
@@ -381,33 +382,81 @@ export async function spendHdUnlock(
   return { ok: true, hdUnlocks: Number(data), userId: user.id };
 }
 
-/** Grant purchase pack via service role (webhook / mock verify).
- *  Always adds bonus preview credits.
- *  When includeHdUnlock is true (top-up pack), also banks +1 hd_unlock.
- *  Photo unlock purchases leave hd_unlocks unchanged (instant download on success page).
+/**
+ * Grant a purchase pack exactly once per Stripe Checkout session.
+ *
+ * Both the webhook (source of truth) and the client-triggered
+ * /api/verify-payment fallback call this with the same `sessionId`. The
+ * first caller to insert the session id into `processed_stripe_sessions`
+ * performs the grant; every later caller for the same session is a no-op.
+ * This makes it safe to grant credits from two independent paths, which is
+ * what fixes "payment succeeded but tokens were not added" when the webhook
+ * is delayed, misconfigured, or (in local dev) not running at all.
+ */
+export async function grantUnlockPackOnceForSession(
+  admin: SupabaseClient,
+  params: { sessionId: string; userId: string; email?: string | null },
+): Promise<{ granted: boolean; previewCredits: number; hdUnlocks: number }> {
+  const { sessionId, userId, email } = params;
+
+  const claim = await admin
+    .from("processed_stripe_sessions")
+    .insert({ session_id: sessionId, user_id: userId })
+    .select()
+    .maybeSingle();
+
+  if (claim.error) {
+    // 23505 = unique_violation → another caller already claimed and granted
+    // this session (webhook or verify-payment got there first).
+    if (claim.error.code === "23505") {
+      const { data: profile } = await admin
+        .from("profiles")
+        .select("preview_credits, hd_unlocks")
+        .eq("id", userId)
+        .maybeSingle();
+      return {
+        granted: false,
+        previewCredits: profile?.preview_credits ?? 0,
+        hdUnlocks: profile?.hd_unlocks ?? 0,
+      };
+    }
+    // Ledger table missing (migration not applied yet) or another error —
+    // fail open and grant anyway so a real purchase is never silently
+    // dropped. Run supabase/migrations/006_processed_stripe_sessions.sql to
+    // enable proper dedupe.
+    console.error(
+      "[credits] processed_stripe_sessions insert failed, granting anyway:",
+      claim.error,
+    );
+  }
+
+  const granted = await grantUnlockPackAdmin(admin, userId, email);
+  return { granted: true, ...granted };
+}
+
+/**
+ * Grant purchase pack via service role (webhook / mock verify).
+ * Every purchase ($4.99) grants +{PRICING.previewCreditsBonus} preview_credits
+ * and +{PRICING.hdUnlocksPerPurchase} banked hd_unlocks, regardless of intent.
+ * unlock_photo purchases additionally mark the specific generation unlocked
+ * (handled separately via unlocked_photos, not here).
  */
 export async function grantUnlockPackAdmin(
   admin: SupabaseClient,
   userId: string,
   email?: string | null,
-  options: { includeHdUnlock?: boolean } = {},
 ): Promise<{ previewCredits: number; hdUnlocks: number }> {
-  const includeHdUnlock = options.includeHdUnlock === true;
-  const hdBonus = includeHdUnlock ? 1 : 0;
-
-  if (!includeHdUnlock) {
-    const { data, error } = await admin.rpc("grant_unlock_pack", {
-      target_user_id: userId,
-    });
-    if (!error && data) {
-      const row = Array.isArray(data) ? data[0] : data;
-      return {
-        previewCredits: Number(
-          row.out_preview_credits ?? row.preview_credits ?? 0,
-        ),
-        hdUnlocks: Number(row.out_hd_unlocks ?? row.hd_unlocks ?? 0),
-      };
-    }
+  const { data, error } = await admin.rpc("grant_unlock_pack", {
+    target_user_id: userId,
+  });
+  if (!error && data) {
+    const row = Array.isArray(data) ? data[0] : data;
+    return {
+      previewCredits: Number(
+        row.out_preview_credits ?? row.preview_credits ?? 0,
+      ),
+      hdUnlocks: Number(row.out_hd_unlocks ?? row.hd_unlocks ?? 0),
+    };
   }
 
   const { data: profile } = await admin
@@ -416,8 +465,9 @@ export async function grantUnlockPackAdmin(
     .eq("id", userId)
     .maybeSingle();
 
-  const previewCredits = (profile?.preview_credits ?? 0) + 5;
-  const hdUnlocks = (profile?.hd_unlocks ?? 0) + hdBonus;
+  const previewCredits =
+    (profile?.preview_credits ?? 0) + PRICING.previewCreditsBonus;
+  const hdUnlocks = (profile?.hd_unlocks ?? 0) + PRICING.hdUnlocksPerPurchase;
 
   await admin.from("profiles").upsert({
     id: userId,

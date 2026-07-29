@@ -54,10 +54,22 @@ export function useAuth(): AuthState {
     }
   }, []);
 
+  /**
+   * Re-fetches the current Supabase user (not the closed-over `user` state)
+   * before loading the profile. This matters because `refreshProfile` is
+   * often called from a mount-only `useEffect(() => {...}, [])` (e.g. after
+   * returning from a Stripe topup) whose closure can capture this function
+   * before `user` has finished loading — depending on the `user` state
+   * would silently no-op forever in that case, which is why newly granted
+   * credits weren't showing up immediately after payment.
+   */
   const refreshProfile = useCallback(async () => {
-    if (!user) return;
-    await loadProfile(user);
-  }, [user, loadProfile]);
+    if (!isSupabaseConfigured()) return;
+    const supabase = createClient();
+    const { data } = await supabase.auth.getUser();
+    setUser(data.user);
+    await loadProfile(data.user);
+  }, [loadProfile]);
 
   useEffect(() => {
     if (!configured) {

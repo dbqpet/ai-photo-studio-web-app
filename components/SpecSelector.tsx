@@ -6,42 +6,34 @@ import {
   CUSTOM_MM_MIN,
   PHOTO_SIZE_PRESETS,
 } from "@/constants/photoSizes";
-import {
-  PROCESSING_MODES,
-  type BackgroundMode,
-  type ProcessingMode,
-} from "@/lib/types";
+import { PROCESSING_MODES, type ProcessingMode } from "@/lib/types";
 
 interface SpecSelectorProps {
   presetId: string;
   customWidthMm: number;
   customHeightMm: number;
   backgroundId: string;
-  backgroundMode: BackgroundMode;
   mode: ProcessingMode;
   onPresetChange: (id: string) => void;
   onCustomWidthChange: (mm: number) => void;
   onCustomHeightChange: (mm: number) => void;
   onBackgroundChange: (id: string) => void;
-  onBackgroundModeChange: (mode: BackgroundMode) => void;
   onModeChange: (mode: ProcessingMode) => void;
   /** When true, hide dimension controls (already chosen on step 1). */
   hideDimensions?: boolean;
 }
 
-/** Document size, background mode/colour and AI style selection. */
+/** Document size, official background colour and AI style selection. */
 export default function SpecSelector({
   presetId,
   customWidthMm,
   customHeightMm,
   backgroundId,
-  backgroundMode,
   mode,
   onPresetChange,
   onCustomWidthChange,
   onCustomHeightChange,
   onBackgroundChange,
-  onBackgroundModeChange,
   onModeChange,
   hideDimensions = false,
 }: SpecSelectorProps) {
@@ -110,79 +102,44 @@ export default function SpecSelector({
 
       <section>
         <h3 className="mb-2.5 text-sm font-semibold text-slate-700">
-          Background
+          Background Color
         </h3>
-        <div className="grid gap-2 sm:grid-cols-2">
-          <button
-            type="button"
-            onClick={() => onBackgroundModeChange("solid")}
-            aria-pressed={backgroundMode === "solid"}
-            className={`rounded-xl border-2 px-4 py-3 text-left transition ${
-              backgroundMode === "solid"
-                ? "border-sky-500 bg-sky-50"
-                : "border-slate-200 bg-white hover:border-slate-300"
-            }`}
-          >
-            <span className="block text-sm font-semibold text-slate-900">
-              ⬚ Solid Color Background
-            </span>
-            <span className="mt-0.5 block text-xs text-slate-500">
-              Isolate the subject on your exact solid colour (white, blue,
-              grey…).
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => onBackgroundModeChange("studio")}
-            aria-pressed={backgroundMode === "studio"}
-            className={`rounded-xl border-2 px-4 py-3 text-left transition ${
-              backgroundMode === "studio"
-                ? "border-sky-500 bg-sky-50"
-                : "border-slate-200 bg-white hover:border-slate-300"
-            }`}
-          >
-            <span className="block text-sm font-semibold text-slate-900">
-              🎨 AI Studio Background
-            </span>
-            <span className="mt-0.5 block text-xs text-slate-500">
-              Full professional studio with depth, texture and lighting — ideal
-              for LinkedIn, resumes and branding.
-            </span>
-          </button>
-        </div>
-
-        {backgroundMode === "solid" && (
-          <div className="mt-3">
-            <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Solid colour
-            </h4>
-            <div className="flex gap-3">
-              {BACKGROUND_COLORS.map((color) => {
-                const active = color.id === backgroundId;
-                return (
-                  <button
-                    key={color.id}
-                    type="button"
-                    onClick={() => onBackgroundChange(color.id)}
-                    aria-pressed={active}
-                    title={color.label}
-                    className={`flex flex-col items-center gap-1.5 rounded-xl p-1.5 transition ${
-                      active ? "ring-2 ring-sky-500" : "hover:bg-slate-100"
-                    }`}
-                  >
-                    <span
-                      className="h-10 w-10 rounded-full border border-slate-300 shadow-inner"
-                      style={{ backgroundColor: color.hex }}
-                    />
-                    <span className="text-[11px] font-medium text-slate-600">
-                      {color.label}
+        <div className="grid grid-cols-3 gap-3 sm:gap-4">
+          {BACKGROUND_COLORS.map((color) => {
+            const active = color.id === backgroundId;
+            return (
+              <button
+                key={color.id}
+                type="button"
+                onClick={() => onBackgroundChange(color.id)}
+                aria-pressed={active}
+                title={color.label}
+                className={`flex flex-col items-center justify-center gap-1 rounded-xl border-2 p-3 text-center transition sm:p-4 ${
+                  active
+                    ? "border-blue-600 bg-blue-50/30"
+                    : "border-slate-200 bg-white hover:border-slate-300"
+                }`}
+              >
+                <span className="relative">
+                  <span
+                    className={`block h-8 w-8 rounded-full border shadow-sm sm:h-10 sm:w-10 ${color.swatchClassName}`}
+                  />
+                  {active && (
+                    <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] leading-none text-white shadow">
+                      ✓
                     </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
+                  )}
+                </span>
+                <span className="mt-1 block text-sm font-semibold text-slate-900">
+                  {color.label}
+                </span>
+                <span className="block text-[11px] text-slate-500">
+                  {color.subLabel}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </section>
 
       <section>
@@ -217,10 +174,6 @@ export default function SpecSelector({
             );
           })}
         </div>
-        <p className="mt-2.5 rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-800">
-          🔒 Powered by Gemini Nano Banana Pro — facial identity is locked 100%;
-          only lighting, clothing and background are edited.
-        </p>
       </section>
     </div>
   );

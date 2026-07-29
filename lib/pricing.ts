@@ -10,13 +10,15 @@ export const PRICING = {
   currency: "usd" as const,
   badge: "🔥 Launch Special - Save 60%",
   checkoutCta: "Unlock High-Res Download",
-  productName: "AI Studio ID — Single Photo Unlock Package",
+  productName: "Official HD Photo & 4R Print Sheet",
+  /** Stripe tax code: digital photos downloaded with permanent rights. */
+  stripeTaxCode: "txcd_10501000",
   /** Bonus preview generations granted after purchase. */
-  previewCreditsBonus: 5,
-  /** HD unlocks banked on a top-up pack purchase (not on photo unlock). */
-  hdUnlocksPerTopup: 1,
+  previewCreditsBonus: 3,
+  /** HD unlocks banked per purchase (top-up pack or single-photo unlock). */
+  hdUnlocksPerPurchase: 1,
   /** Free preview credits seeded on first signup. */
-  signupPreviewCredits: 5,
+  signupPreviewCredits: 3,
 } as const;
 
 export function formatUsd(amount: number): string {

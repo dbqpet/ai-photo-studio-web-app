@@ -2,8 +2,9 @@
 
 /* eslint-disable @next/next/no-img-element -- previews are dynamic data URLs */
 
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import ExitWarningModal from "@/components/ExitWarningModal";
 import LoginModal from "@/components/LoginModal";
 import PaywallModal from "@/components/PaywallModal";
 import PhotoInput from "@/components/PhotoInput";
@@ -32,6 +33,12 @@ import {
 } from "@/lib/photoSessionStore";
 import { renderPrintSheet, type SheetLayout } from "@/lib/printLayout";
 import { applyWatermarkToCanvas, watermarkDataUrl } from "@/lib/watermark";
+import {
+  clearPendingPhotoUpload,
+  readPendingPhotoUpload,
+  savePendingPhotoUpload,
+  type PendingPhotoUpload,
+} from "@/lib/pendingPhotoUpload";
 import {
   storePendingPurchase,
   clearPendingPurchase,
@@ -78,6 +85,37 @@ const STEPS: Array<{ id: Step; label: string }> = [
 function clampMm(value: number): number {
   if (!Number.isFinite(value)) return 35;
   return Math.min(CUSTOM_MM_MAX, Math.max(CUSTOM_MM_MIN, value));
+}
+
+/**
+ * Verify + zip-download an unlocked generation. Pure helper (no component
+ * state) so it can run safely from both the manual button and the
+ * mount-only payment-restore effect without stale-closure risk.
+ */
+async function downloadHdZipForSession(session: {
+  generationId: string;
+  cleanSingle: string;
+  cleanSheet: string;
+  mode: ProcessingMode;
+}): Promise<boolean> {
+  try {
+    const res = await fetch("/api/download-hd", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ generationId: session.generationId }),
+    });
+    if (!res.ok) return false;
+
+    await downloadHdPhotosZip({
+      singleDataUrl: session.cleanSingle,
+      sheetDataUrl: session.cleanSheet,
+      style: session.mode,
+    });
+    return true;
+  } catch (err) {
+    console.error("[studio] HD zip download failed:", err);
+    return false;
+  }
 }
 
 export default function StudioPage() {
@@ -131,6 +169,9 @@ function StudioPageContent() {
   const [loginOpen, setLoginOpen] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const [restoringSession, setRestoringSession] = useState(false);
+  const [hasDownloadedHD, setHasDownloadedHD] = useState(false);
+  const [exitWarningOpen, setExitWarningOpen] = useState(false);
+  const pendingExitRef = useRef<(() => void) | null>(null);
 
   const preset = useMemo(
     () =>
@@ -167,6 +208,7 @@ function StudioPageContent() {
       setUploadSessionId(createUploadSessionId());
       setResolutionWarning(warning);
       setResult(null);
+      setHasDownloadedHD(false);
       setProcessError(null);
       setStep(2);
     },
@@ -176,6 +218,126 @@ function StudioPageContent() {
   const showToast = useCallback((message: string) => {
     setToast(message);
     window.setTimeout(() => setToast(null), 4000);
+  }, []);
+
+  /**
+   * Snapshot photo + specs so an external redirect (Google OAuth sign-in or
+   * a Stripe top-up checkout) does not lose the in-progress upload.
+   */
+  const persistPendingUploadForLogin = useCallback(() => {
+    if (!sourcePhoto) return;
+    savePendingPhotoUpload({
+      sourcePhoto,
+      uploadSessionId,
+      resolutionWarning,
+      presetId,
+      customWidthMm: clampMm(customWidthMm),
+      customHeightMm: clampMm(customHeightMm),
+      backgroundId,
+      backgroundMode,
+      mode,
+      step: step === 1 ? 2 : step,
+    });
+  }, [
+    sourcePhoto,
+    uploadSessionId,
+    resolutionWarning,
+    presetId,
+    customWidthMm,
+    customHeightMm,
+    backgroundId,
+    backgroundMode,
+    mode,
+    step,
+  ]);
+
+  /** Apply a localStorage-saved upload (Google sign-in or top-up redirect). */
+  const applyPendingPhotoUpload = useCallback((pending: PendingPhotoUpload) => {
+    setSourcePhoto(pending.sourcePhoto);
+    setUploadSessionId(pending.uploadSessionId ?? createUploadSessionId());
+    setResolutionWarning(pending.resolutionWarning);
+    setPresetId(pending.presetId || PHOTO_SIZE_PRESETS[0].id);
+    setCustomWidthMm(clampMm(pending.customWidthMm ?? 35));
+    setCustomHeightMm(clampMm(pending.customHeightMm ?? 45));
+    setBackgroundId(pending.backgroundId || BACKGROUND_COLORS[0].id);
+    setBackgroundMode(pending.backgroundMode === "studio" ? "studio" : "solid");
+    setMode(
+      pending.mode === "korean" || pending.mode === "corporate"
+        ? pending.mode
+        : "classic",
+    );
+    setResult(null);
+    setHasDownloadedHD(false);
+    setProcessError(null);
+    setStep(pending.step === 3 ? 2 : pending.step === 1 ? 2 : pending.step || 2);
+    clearPendingPhotoUpload();
+  }, []);
+
+  /** Restore uploaded photo after Google OAuth returns to `/`. */
+  useEffect(() => {
+    // Payment / top-up restore effects own the page in those cases.
+    if (searchParams.get("payment") === "success") return;
+    if (searchParams.get("topup") === "success") return;
+
+    const pending = readPendingPhotoUpload();
+    if (!pending?.sourcePhoto) return;
+
+    applyPendingPhotoUpload(pending);
+    showToast("Welcome back — your photo was restored.");
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- restore once on mount
+  }, []);
+
+  /** Restore top-up purchase: grant credits + resume the in-progress photo. */
+  useEffect(() => {
+    const topup = searchParams.get("topup");
+    const sessionId = searchParams.get("session_id");
+    if (topup !== "success") return;
+
+    let cancelled = false;
+    setRestoringSession(true);
+
+    (async () => {
+      try {
+        if (sessionId) {
+          // Confirms payment AND grants credits (deduped per session id) —
+          // this is the fallback path that fixes credits not being added
+          // when the Stripe webhook hasn't fired (e.g. `stripe listen` not
+          // running locally).
+          await fetch(
+            `/api/verify-payment?${new URLSearchParams({ session_id: sessionId }).toString()}`,
+          );
+        }
+        if (cancelled) return;
+        await refreshProfile();
+
+        const pending = readPendingPhotoUpload();
+        if (!cancelled && pending?.sourcePhoto) {
+          applyPendingPhotoUpload(pending);
+        }
+        if (!cancelled) {
+          showToast(
+            `🎉 Top-up successful! +${PRICING.hdUnlocksPerPurchase} HD Unlock and +${PRICING.previewCreditsBonus} Preview Tokens added.`,
+          );
+        }
+      } catch (err) {
+        console.error("[studio] topup restore failed:", err);
+        if (!cancelled) {
+          showToast(
+            "Payment succeeded, but we couldn't refresh your account. Please refresh the page.",
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setRestoringSession(false);
+          router.replace("/", { scroll: false });
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on topup return
   }, []);
 
   const applyPhotoSession = useCallback((session: PhotoSession) => {
@@ -195,6 +357,7 @@ function StudioPageContent() {
       unlocked: session.unlocked,
       downloaded: session.downloaded,
     });
+    setHasDownloadedHD(session.downloaded);
     setStep(3);
   }, []);
 
@@ -277,8 +440,32 @@ function StudioPageContent() {
         const restored = session ?? (await readPhotoSession(generationId));
         if (!cancelled && restored) {
           applyPhotoSession({ ...restored, unlocked: true });
-          showToast("Payment successful — your photo is unlocked!");
           await refreshProfile();
+
+          // Auto-Trigger Download: fire the HD ZIP the moment we land back
+          // from Stripe so the user never has to click again. Browsers give
+          // no reliable signal that a script-triggered (non user-gesture)
+          // download actually saved a file — some silently no-op it — so we
+          // do NOT trust this alone to clear the exit-protection flag. Only
+          // an explicit click (main button or the exit-warning modal) does
+          // that; this keeps the "not downloaded" safety net active if the
+          // automatic attempt was silently blocked.
+          const attempted = await downloadHdZipForSession({
+            generationId: restored.generationId,
+            cleanSingle: restored.result.cleanSingle,
+            cleanSheet: restored.result.cleanSheet,
+            mode: restored.mode,
+          });
+          if (cancelled) return;
+          if (attempted) {
+            showToast(
+              "🎉 Payment successful! Your 300 DPI HD photo ZIP is downloading now. If you don't see it, use the \"Download HD Photos\" button below.",
+            );
+          } else {
+            showToast(
+              "Payment successful — your photo is unlocked! Tap \"Download HD Photos\" to save your files.",
+            );
+          }
         } else if (!cancelled) {
           showToast(
             "Payment succeeded, but the photo session was not found in this browser.",
@@ -318,6 +505,10 @@ function StudioPageContent() {
           });
         } else if (intent === "topup") {
           await clearPendingPurchase();
+          // Save the in-progress photo/specs so returning from Stripe
+          // resumes exactly where the user left off (no-ops if no photo
+          // has been uploaded yet).
+          persistPendingUploadForLogin();
         }
 
         const body: CheckoutRequest = {
@@ -348,7 +539,14 @@ function StudioPageContent() {
         setCheckoutLoading(false);
       }
     },
-    [result, preset, mode, orderSummary, persistCurrentSession],
+    [
+      result,
+      preset,
+      mode,
+      orderSummary,
+      persistCurrentSession,
+      persistPendingUploadForLogin,
+    ],
   );
 
   const downloadHd = useCallback(async () => {
@@ -399,6 +597,7 @@ function StudioPageContent() {
         downloaded: true,
       };
       setResult(next);
+      setHasDownloadedHD(true);
       await markPhotoSessionDownloaded(result.generationId);
       await persistCurrentSession(next, { unlocked: true, downloaded: true });
       await refreshProfile();
@@ -442,6 +641,19 @@ function StudioPageContent() {
     setProcessing(true);
     setProcessError(null);
     setHighDemand(false);
+
+    // Guarantee the button can never get stuck: abort the request if the
+    // server hangs instead of responding (network issue, platform timeout,
+    // or a stuck upstream AI call). Kept just under the API route's
+    // `maxDuration` (180s) so we never abort a request the server would
+    // have completed anyway.
+    const CLIENT_TIMEOUT_MS = 175_000;
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(
+      () => controller.abort(),
+      CLIENT_TIMEOUT_MS,
+    );
+
     try {
       const cropped = await cropToAspect(
         sourcePhoto,
@@ -457,11 +669,28 @@ function StudioPageContent() {
         targetWidth: preset.pixels.width,
         targetHeight: preset.pixels.height,
       };
-      const res = await fetch("/api/process-photo", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody),
-      });
+      let res: Response;
+      try {
+        res = await fetch("/api/process-photo", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestBody),
+          signal: controller.signal,
+        });
+      } catch (fetchErr) {
+        if (
+          fetchErr instanceof DOMException &&
+          fetchErr.name === "AbortError"
+        ) {
+          setHighDemand(true);
+          throw new Error(
+            "Generation timed out. Our AI servers may be busy — please try again.",
+          );
+        }
+        throw new Error(
+          "Could not reach the server. Please check your connection and try again.",
+        );
+      }
       const json = (await res.json()) as ProcessPhotoResponse & {
         error?: string;
         highDemand?: boolean;
@@ -529,6 +758,7 @@ function StudioPageContent() {
         downloaded: false,
       };
       setResult(nextResult);
+      setHasDownloadedHD(false);
       setStep(3);
       await savePhotoSession({
         generationId: nextResult.generationId,
@@ -570,6 +800,7 @@ function StudioPageContent() {
       }
       setProcessError(message);
     } finally {
+      window.clearTimeout(timeoutId);
       setProcessing(false);
     }
   }, [
@@ -604,8 +835,35 @@ function StudioPageContent() {
     setUploadSessionId(null);
     setResolutionWarning(undefined);
     setResult(null);
+    setHasDownloadedHD(false);
     setProcessError(null);
   }, []);
+
+  /** Un-downloaded paid photo: exiting would strand it, so intercept first. */
+  const needsExitProtection = Boolean(result?.unlocked) && !hasDownloadedHD;
+
+  const guardExit = useCallback(
+    (action: () => void) => {
+      if (needsExitProtection) {
+        pendingExitRef.current = action;
+        setExitWarningOpen(true);
+        return;
+      }
+      action();
+    },
+    [needsExitProtection],
+  );
+
+  /** Best-effort warning for real tab/window close or leaving the site. */
+  useEffect(() => {
+    if (!needsExitProtection) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [needsExitProtection]);
 
   return (
     <div className="flex flex-1 flex-col bg-slate-50">
@@ -631,7 +889,10 @@ function StudioPageContent() {
             ) : (
               <button
                 type="button"
-                onClick={() => setLoginOpen(true)}
+                onClick={() => {
+                  persistPendingUploadForLogin();
+                  setLoginOpen(true);
+                }}
                 disabled={authLoading}
                 className="rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-700 transition hover:bg-sky-200 disabled:opacity-60"
               >
@@ -806,13 +1067,11 @@ function StudioPageContent() {
               customWidthMm={customWidthMm}
               customHeightMm={customHeightMm}
               backgroundId={backgroundId}
-              backgroundMode={backgroundMode}
               mode={mode}
               onPresetChange={setPresetId}
               onCustomWidthChange={setCustomWidthMm}
               onCustomHeightChange={setCustomHeightMm}
               onBackgroundChange={setBackgroundId}
-              onBackgroundModeChange={setBackgroundMode}
               onModeChange={setMode}
             />
 
@@ -858,7 +1117,10 @@ function StudioPageContent() {
                   AI Generating (takes ~10s)...
                 </>
               ) : (
-                <>✨ Preview Your Photo</>
+                <>
+                  ✨ Generate Free Preview (
+                  {previewCredits ?? PRICING.signupPreviewCredits} left)
+                </>
               )}
             </button>
             <p className="mt-2 text-center text-xs text-slate-500">
@@ -887,7 +1149,6 @@ function StudioPageContent() {
             )}
             <PreviewPanel
               preset={preset}
-              provider={result.provider}
               singlePreviewUrl={result.previewSingle}
               sheetPreviewUrl={result.previewSheet}
               layout={result.layout}
@@ -899,8 +1160,8 @@ function StudioPageContent() {
               downloadLoading={downloadLoading}
               onCheckout={() => void checkout("unlock_photo")}
               onDownloadHd={() => void downloadHd()}
-              onBack={backToSpecs}
-              onStartOver={startOver}
+              onBack={() => guardExit(backToSpecs)}
+              onStartOver={() => guardExit(startOver)}
             />
           </section>
         )}
@@ -908,7 +1169,7 @@ function StudioPageContent() {
         {restoringSession && (
           <div className="fixed inset-0 z-40 flex items-center justify-center bg-white/70 backdrop-blur-sm">
             <p className="rounded-2xl bg-white px-5 py-4 text-sm font-semibold text-slate-700 shadow-lg">
-              Restoring your unlocked photo…
+              Completing your purchase…
             </p>
           </div>
         )}
@@ -935,8 +1196,10 @@ function StudioPageContent() {
         onClose={() => setLoginOpen(false)}
         onSignIn={async () => {
           try {
+            persistPendingUploadForLogin();
             await signInWithGoogle();
           } catch (err) {
+            clearPendingPhotoUpload();
             setProcessError(
               err instanceof Error
                 ? err.message
@@ -952,6 +1215,22 @@ function StudioPageContent() {
         onClose={() => setPaywallOpen(false)}
         onCheckout={() => void checkout("topup")}
         checkoutLoading={checkoutLoading}
+      />
+
+      <ExitWarningModal
+        open={exitWarningOpen}
+        downloadLoading={downloadLoading}
+        onDownloadNow={async () => {
+          await downloadHd();
+          setExitWarningOpen(false);
+          pendingExitRef.current = null;
+        }}
+        onLeaveAnyway={() => {
+          setExitWarningOpen(false);
+          const action = pendingExitRef.current;
+          pendingExitRef.current = null;
+          action?.();
+        }}
       />
     </div>
   );

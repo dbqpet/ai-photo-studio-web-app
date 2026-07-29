@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { grantUnlockPackAdmin } from "@/lib/server/credits";
+import { grantUnlockPackOnceForSession } from "@/lib/server/credits";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -8,8 +8,15 @@ export const runtime = "nodejs";
 /**
  * Stripe webhook — durable record of successful payments.
  *
- * - topup: +5 preview_credits and +1 hd_unlock
- * - unlock_photo: +5 preview_credits + mark generation_id unlocked (no hd token spend)
+ * Every purchase ($4.99) grants: +{PRICING.previewCreditsBonus} preview_credits
+ * and +{PRICING.hdUnlocksPerPurchase} hd_unlocks (banked for future downloads).
+ * unlock_photo additionally marks the specific generation_id unlocked instantly.
+ *
+ * The grant is deduped per Checkout session id (see
+ * grantUnlockPackOnceForSession) because /api/verify-payment also attempts
+ * the same grant as a client-triggered fallback — whichever fires first
+ * wins, so credits are never doubled or silently lost if this webhook is
+ * delayed or not reachable (e.g. `stripe listen` not running locally).
  */
 export async function POST(req: NextRequest) {
   const secretKey = process.env.STRIPE_SECRET_KEY;
@@ -39,22 +46,24 @@ export async function POST(req: NextRequest) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
-    const intent = session.metadata?.intent === "topup" ? "topup" : "unlock_photo";
+    const rawType = session.metadata?.type || session.metadata?.intent;
+    const intent = rawType === "topup" ? "topup" : "unlock_photo";
     const generationId =
       session.metadata?.generationId || session.metadata?.photoId;
     console.log(
       `[webhook] payment completed: session=${session.id} intent=${intent} generation=${generationId ?? "-"}`,
     );
 
-    const userId = session.metadata?.userId;
+    const userId = session.metadata?.user_id || session.metadata?.userId;
     if (userId && process.env.SUPABASE_SERVICE_ROLE_KEY) {
       try {
         const admin = createAdminClient();
-        const granted = await grantUnlockPackAdmin(admin, userId, null, {
-          includeHdUnlock: intent === "topup",
+        const granted = await grantUnlockPackOnceForSession(admin, {
+          sessionId: session.id,
+          userId,
         });
         console.log(
-          `[webhook] granted pack to user=${userId} intent=${intent} preview=${granted.previewCredits} hd=${granted.hdUnlocks}`,
+          `[webhook] ${granted.granted ? "granted" : "already granted (deduped)"} pack to user=${userId} intent=${intent} preview=${granted.previewCredits} hd=${granted.hdUnlocks}`,
         );
 
         if (intent === "unlock_photo" && generationId) {

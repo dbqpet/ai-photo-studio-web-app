@@ -1,7 +1,5 @@
 "use client";
 
-import { PRICING } from "@/lib/pricing";
-
 interface LoginModalProps {
   open: boolean;
   onClose: () => void;
@@ -32,15 +30,26 @@ export default function LoginModal({
           id="login-modal-title"
           className="text-xl font-bold text-slate-900"
         >
-          Sign in to generate
+          ✨ Claim Your 3 Free Preview Tokens!
         </h2>
         <p className="mt-2 text-sm text-slate-600">
-          Create a free account to get{" "}
-          <span className="font-semibold text-slate-900">
-            {PRICING.signupPreviewCredits} free preview credits
-          </span>{" "}
-          and generate your ID photo.
+          Sign in with Google to unlock instant AI photo generation and preview.
         </p>
+
+        <ul className="mt-5 space-y-2.5">
+          <li className="flex items-start gap-2.5 text-sm text-slate-700">
+            <span aria-hidden>🎁</span>
+            <span>3 Free Preview Tokens included</span>
+          </li>
+          <li className="flex items-start gap-2.5 text-sm text-slate-700">
+            <span aria-hidden>📂</span>
+            <span>Save and access your photo generations anytime</span>
+          </li>
+          <li className="flex items-start gap-2.5 text-sm text-slate-700">
+            <span aria-hidden>📐</span>
+            <span>Guaranteed 100% Official Passport &amp; Visa specs</span>
+          </li>
+        </ul>
 
         <button
           type="button"
@@ -50,6 +59,11 @@ export default function LoginModal({
           <GoogleIcon />
           Continue with Google
         </button>
+
+        <p className="mt-3 text-center text-[11px] leading-relaxed text-slate-500">
+          🔒 Privacy Guaranteed: Your photos are strictly confidential and
+          auto-deleted after processing.
+        </p>
 
         <button
           type="button"
