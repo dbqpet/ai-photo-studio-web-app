@@ -1223,7 +1223,7 @@ function StudioPageContent() {
 
       <footer className="border-t border-slate-200 bg-white py-4">
         <p className="text-center text-xs text-slate-400">
-          AI Studio ID · Photos are processed securely and never stored on our
+          AI Images Studio · Photos are processed securely and never stored on our
           servers.
         </p>
       </footer>

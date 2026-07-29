@@ -12,10 +12,62 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://aiimagesstudio.com";
+
+const SITE_DESCRIPTION =
+  "Create official, high-resolution 300 DPI passport, visa, and ID photos instantly with AI Images Studio. Features automatic background removal, official size compliance (Hong Kong, UK, US, Schengen, etc.), Korean studio style enhancement, and printable 4R sheet layouts. Trusted worldwide for fast, compliant ID photo creation.";
+
+const OG_DESCRIPTION =
+  "Turn any selfie into official 300 DPI passport & visa photos instantly with AI Images Studio. Automatic background removal & official spec compliance.";
+
 export const metadata: Metadata = {
-  title: "AI Studio ID — Professional ID Photos in Seconds",
-  description:
-    "Take or upload a photo and get compliant passport, visa and resume ID photos with AI background removal, studio styles and 4R print sheets.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default:
+      "AI Images Studio — Professional Passport & Visa Photos in Seconds",
+    template: "%s | AI Images Studio",
+  },
+  description: SITE_DESCRIPTION,
+  keywords: [
+    "AI ID photo",
+    "Hong Kong passport photo",
+    "passport photo maker",
+    "visa photo AI",
+    "4R print sheet",
+    "Korean studio ID photo",
+    "online passport photo generator",
+    "300 DPI ID photo",
+  ],
+  applicationName: "AI Images Studio",
+  authors: [{ name: "AI Images Studio" }],
+  creator: "AI Images Studio",
+  publisher: "AI Images Studio",
+  category: "Photography",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: SITE_URL,
+    siteName: "AI Images Studio",
+    title: "AI Images Studio — Instant Professional ID & Passport Photos",
+    description: OG_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AI Images Studio — Instant Professional ID & Passport Photos",
+    description: OG_DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
+  alternates: {
+    canonical: SITE_URL,
+  },
 };
 
 export default function RootLayout({

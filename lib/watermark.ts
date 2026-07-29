@@ -5,7 +5,7 @@
 
 import { loadImage } from "@/lib/imageUtils";
 
-export const WATERMARK_TEXT = "AI Studio ID - Preview";
+export const WATERMARK_TEXT = "AI Images Studio - Preview";
 
 function fillCheckerboard(
   ctx: CanvasRenderingContext2D,

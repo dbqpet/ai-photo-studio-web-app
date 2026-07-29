@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
             product_data: {
               name:
                 intent === "topup"
-                  ? "AI Studio ID — Preview Top-up Pack"
+                  ? "AI Images Studio — Preview Top-up Pack"
                   : PRICING.productName,
               description: `${dimensionLabel} · ${packLabel} · ${body.mode} style · ${PRICING.badge}`,
               tax_code: PRICING.stripeTaxCode,

@@ -1,4 +1,4 @@
-/** Shared domain types for the AI Studio ID photo pipeline. */
+/** Shared domain types for the AI Images Studio photo pipeline. */
 
 export type ProcessingMode = "classic" | "korean" | "corporate";
 
