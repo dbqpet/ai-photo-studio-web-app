@@ -1,6 +1,7 @@
 "use client";
 
 import { PRICING, formatUsd } from "@/lib/pricing";
+import { SUPPORT_EMAIL } from "@/lib/site";
 
 interface PaywallModalProps {
   open: boolean;
@@ -74,6 +75,16 @@ export default function PaywallModal({
             <>Unlock for {formatUsd(PRICING.saleUsd)}</>
           )}
         </button>
+
+        <p className="mt-4 text-center text-[11px] text-slate-500">
+          Questions about your order? Contact support at{" "}
+          <a
+            href={`mailto:${SUPPORT_EMAIL}`}
+            className="text-slate-600 hover:underline"
+          >
+            {SUPPORT_EMAIL}
+          </a>
+        </p>
 
         <button
           type="button"

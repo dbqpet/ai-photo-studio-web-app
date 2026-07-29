@@ -5,6 +5,7 @@
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import type { PhotoSizePreset } from "@/constants/photoSizes";
 import { PRICING, formatUsd } from "@/lib/pricing";
+import { SUPPORT_EMAIL } from "@/lib/site";
 import type { PurchaseSummary } from "@/lib/purchaseStore";
 import type { SheetLayout } from "@/lib/printLayout";
 
@@ -119,6 +120,15 @@ export default function PreviewPanel({
             <p className="text-center text-xs leading-relaxed text-slate-600">
               ⚡ Instant Download • 300 DPI Official Spec • Includes 4R Print
               Sheet
+            </p>
+            <p className="text-center text-[11px] text-slate-500">
+              Questions about your order? Contact support at{" "}
+              <a
+                href={`mailto:${SUPPORT_EMAIL}`}
+                className="text-slate-600 hover:underline"
+              >
+                {SUPPORT_EMAIL}
+              </a>
             </p>
           </>
         )}

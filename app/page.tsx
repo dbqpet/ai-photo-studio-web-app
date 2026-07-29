@@ -22,6 +22,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { cropToAspect } from "@/lib/imageUtils";
 import { PRICING, formatUsd } from "@/lib/pricing";
+import { SUPPORT_EMAIL } from "@/lib/site";
 import {
   clearActivePhotoSession,
   createGenerationId,
@@ -1225,6 +1226,15 @@ function StudioPageContent() {
         <p className="text-center text-xs text-slate-400">
           AI Images Studio · Photos are processed securely and never stored on our
           servers.
+        </p>
+        <p className="mt-1.5 text-center text-xs text-slate-400">
+          Support:{" "}
+          <a
+            href={`mailto:${SUPPORT_EMAIL}`}
+            className="text-slate-600 hover:underline"
+          >
+            {SUPPORT_EMAIL}
+          </a>
         </p>
       </footer>
 
