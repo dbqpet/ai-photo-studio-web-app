@@ -439,11 +439,22 @@ function StudioPageContent() {
           if (intent) qs.set("intent", intent);
           await fetch(`/api/verify-payment?${qs.toString()}`);
         }
-        await fetch("/api/mark-photo-unlocked", {
+        const unlockRes = await fetch("/api/mark-photo-unlocked", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ generationId, sessionId }),
         });
+        if (!unlockRes.ok) {
+          // Previously ignored entirely — surfaced now so a failed token
+          // spend after payment shows up in the browser console instead of
+          // silently leaving hd_unlocks un-deducted with no trace.
+          const errJson = await unlockRes.json().catch(() => ({}));
+          console.error(
+            "[studio] mark-photo-unlocked failed:",
+            unlockRes.status,
+            errJson,
+          );
+        }
 
         const session = await markPhotoSessionUnlocked(generationId);
         const restored = session ?? (await readPhotoSession(generationId));
