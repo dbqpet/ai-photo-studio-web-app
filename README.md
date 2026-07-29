@@ -9,7 +9,7 @@ A mobile-first AI ID photo web application built with **Next.js (App Router)**, 
 - **AI processing engine** (`/api/process-photo`) — **Gemini Nano Banana Pro exclusively** (`gemini-3-pro-image`). Retries with exponential backoff on high demand. Background modes: solid colour or full AI studio backdrop. Interactive crop (`react-easy-crop`) runs before processing. Facial identity is locked 100%.
 - **Optional Gemini pre-validation** (`/api/validate-photo`) — photos can be checked for one clear face (no sunglasses) before generation.
 - **4R print layout engine** (`lib/printLayout.ts`) — client-side Canvas that packs the maximum number of photos onto a 4×6in / 300 DPI sheet (1200×1800 or 1800×1200 px) with dashed cut guides.
-- **Google OAuth + preview / HD balances** — Supabase Auth (Google). First login seeds `preview_credits = 5` and `hd_unlocks = 0`. Generate requires sign-in and spends 1 preview credit only after successful AI generation. Stripe Single Photo Unlock Package grants +1 HD unlock and +5 preview credits.
+- **Google OAuth + preview / HD balances** — Supabase Auth (Google). First login seeds `preview_credits = 3` and `hd_unlocks = 0`. Generate requires sign-in and spends 1 preview credit only after successful AI generation. Every $4.99 purchase grants +1 banked HD unlock and +3 bonus preview credits; a single-photo unlock purchase immediately spends that same HD unlock to unlock the generation being paid for.
 - **Watermarked previews & Stripe checkout** — repeating "AI Studio ID - Preview" watermark; `/api/checkout` creates a Stripe Checkout session (**$4.99 USD** launch special, anchored vs $12.99), `/api/webhook` records payment and grants credits, and the success page verifies the session and triggers the instant clean high-res JPEG download.
 
 ## Getting started
@@ -31,11 +31,43 @@ Open [http://localhost:3000](http://localhost:3000). Without API keys the app ru
 | `GEMINI_IMAGE_MODEL` | Optional image model (default `gemini-3-pro-image` / Nano Banana Pro) |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL (Google OAuth + profiles) |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Service role for webhook/mock credit grants (server only) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Service role for webhook + `/api/verify-payment` credit grants (server only) — **required** in every deployment target or purchases silently grant nothing |
 | `STRIPE_SECRET_KEY` | Stripe secret key — enables real checkout ($4.99 USD) |
-| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret for `/api/webhook` |
+| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret for `/api/webhook`. Locally this comes from `stripe listen`; in production it must be the secret of a real webhook endpoint registered in the Stripe Dashboard for your live domain |
 
-Apply `supabase/migrations/001_profiles_and_credits.sql` in the Supabase SQL editor, and enable the **Google** provider under Authentication → Providers. Set the redirect URL to `http://localhost:3000/auth/callback` (plus your production URL).
+Apply the SQL files in `supabase/migrations/` **in order** (001 through the highest-numbered file) in the Supabase SQL editor, and enable the **Google** provider under Authentication → Providers. Set the redirect URL to `http://localhost:3000/auth/callback` (plus your production URL).
+
+> New migrations only take effect once you actually run them in the SQL
+> Editor of the target Supabase project — deploying app code does **not**
+> apply them. If local dev and your live site use the same Supabase
+> project, running them once covers both; if they're different projects,
+> run the migrations against each one separately. `007_production_sync.sql`
+> consolidates 002-006 into one idempotent script — safe to run even if
+> some of those were already applied.
+
+## Deploying to Vercel
+
+A working local `.env.local` is not enough — Vercel needs its own copy of
+every variable, and the Supabase project needs its own copy of every
+migration. After a deploy, if new signups don't get the right starting
+credits, or purchases don't grant tokens / trigger the auto-download, check
+both of these before anything else:
+
+1. **Vercel → Project → Settings → Environment Variables** (Production):
+   every variable in the table above must be set, especially
+   `SUPABASE_SERVICE_ROLE_KEY` — both the Stripe webhook and the
+   `/api/verify-payment` fallback silently do nothing if it's missing, so
+   payments succeed on Stripe's side but no credits/unlock ever land.
+2. **Supabase SQL Editor** (the project matching the `NEXT_PUBLIC_SUPABASE_URL`
+   set in Vercel): run `supabase/migrations/007_production_sync.sql`, then
+   the `select ...` verification query at the bottom of that file should
+   report `default_credits = 3`, `grants_hd_unlock = true`,
+   `has_generation_unlock_fn = true`, `has_processed_sessions_table = true`.
+3. **Stripe Dashboard → Developers → Webhooks**: add an endpoint pointing to
+   `https://<your-domain>/api/webhook` (or the `/api/webhooks/stripe` alias)
+   for the `checkout.session.completed` event, then put its signing secret
+   in Vercel's `STRIPE_WEBHOOK_SECRET` — the `stripe listen` secret used
+   locally is temporary and does not work in production.
 
 ## Project structure
 
