@@ -200,6 +200,29 @@ export async function readActivePhotoSession(): Promise<PhotoSession | null> {
   }
 }
 
+/**
+ * Clear the "active generation" pointer so a fresh "Create New Photo" never
+ * accidentally rehydrates a stale unlocked/downloaded session on next load.
+ * The historical session record itself is left in place (harmless — it's
+ * only ever looked up by its own generationId), only the active-session
+ * meta key used for fallback restores is removed.
+ */
+export async function clearActivePhotoSession(): Promise<void> {
+  try {
+    const db = await openDb();
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(META_STORE, "readwrite");
+      tx.objectStore(META_STORE).delete(ACTIVE_KEY);
+      tx.objectStore(META_STORE).delete("active-photo-id");
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error ?? new Error("IndexedDB write failed."));
+    });
+    db.close();
+  } catch (err) {
+    console.warn("[photoSession] clear active session failed:", err);
+  }
+}
+
 export async function markPhotoSessionUnlocked(
   generationId: string,
 ): Promise<PhotoSession | null> {

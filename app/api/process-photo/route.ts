@@ -11,6 +11,7 @@ import {
 } from "@/lib/server/geminiValidate";
 import { createClient } from "@/lib/supabase/server";
 import {
+  AI_SERVICE_UNAVAILABLE_MESSAGE,
   HIGH_DEMAND_MESSAGE,
   type BackgroundMode,
   type ProcessPhotoRequest,
@@ -46,6 +47,12 @@ function isHighDemandError(err: unknown): boolean {
     msg.includes("503") ||
     msg.includes("unavailable")
   );
+}
+
+/** Depleted Gemini API billing — distinct from transient "high demand". */
+function isQuotaExhaustedError(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err);
+  return msg.includes("AI_QUOTA_EXHAUSTED");
 }
 
 function isSupabaseConfigured(): boolean {
@@ -175,6 +182,14 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     // 4) AI failure — never deduct preview credits.
     console.error("[process-photo] processing failed:", err);
+    if (isQuotaExhaustedError(err)) {
+      // Billing outage, not transient load — don't tell the user "please be
+      // patient, we're retrying" since retrying will not help here.
+      return NextResponse.json(
+        { error: AI_SERVICE_UNAVAILABLE_MESSAGE, highDemand: false },
+        { status: 503 },
+      );
+    }
     if (isHighDemandError(err)) {
       return NextResponse.json(
         {

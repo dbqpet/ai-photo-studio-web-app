@@ -113,3 +113,12 @@ export interface VerifyPaymentResponse {
 /** Friendly copy when Gemini is busy / rate-limited / unavailable. */
 export const HIGH_DEMAND_MESSAGE =
   "Our AI servers are currently in high demand. Please be patient — we're retrying your photo. This can take a little longer than usual.";
+
+/**
+ * Copy for a depleted-billing outage (Gemini API prepayment credits are
+ * exhausted). Deliberately does NOT say "please be patient" / "retrying" —
+ * unlike high demand, this will not resolve itself, so we tell the user
+ * plainly that the service is down instead of implying a retry will help.
+ */
+export const AI_SERVICE_UNAVAILABLE_MESSAGE =
+  "Our AI photo service is temporarily unavailable. No credits were deducted — please try again later or contact support if this continues.";

@@ -438,8 +438,13 @@ export async function grantUnlockPackOnceForSession(
  * Grant purchase pack via service role (webhook / mock verify).
  * Every purchase ($4.99) grants +{PRICING.previewCreditsBonus} preview_credits
  * and +{PRICING.hdUnlocksPerPurchase} banked hd_unlocks, regardless of intent.
- * unlock_photo purchases additionally mark the specific generation unlocked
- * (handled separately via unlocked_photos, not here).
+ *
+ * For a `unlock_photo` purchase, /api/mark-photo-unlocked immediately spends
+ * that same banked hd_unlock to unlock the specific generation being paid
+ * for (see its doc comment) — so the net effect of that purchase is 0
+ * change to the hd_unlocks bank + the bonus preview credits + one
+ * permanently-unlocked photo, not a free extra banked token on top of a
+ * free unlock.
  */
 export async function grantUnlockPackAdmin(
   admin: SupabaseClient,

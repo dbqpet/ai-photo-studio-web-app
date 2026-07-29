@@ -3,7 +3,7 @@
 /* eslint-disable @next/next/no-img-element -- previews are dynamic data URLs */
 
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import ExitWarningModal from "@/components/ExitWarningModal";
 import LoginModal from "@/components/LoginModal";
 import PaywallModal from "@/components/PaywallModal";
@@ -23,6 +23,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { cropToAspect } from "@/lib/imageUtils";
 import { PRICING, formatUsd } from "@/lib/pricing";
 import {
+  clearActivePhotoSession,
   createGenerationId,
   createUploadSessionId,
   markPhotoSessionDownloaded,
@@ -133,7 +134,6 @@ export default function StudioPage() {
 }
 
 function StudioPageContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const {
     user,
@@ -293,6 +293,11 @@ function StudioPageContent() {
     const sessionId = searchParams.get("session_id");
     if (topup !== "success") return;
 
+    // Strip the query params from the address bar immediately (pure history
+    // API call, no Next.js re-render/refetch) so refreshing the page never
+    // re-runs this grant-credits-and-restore flow a second time.
+    window.history.replaceState({}, "", window.location.pathname);
+
     let cancelled = false;
     setRestoringSession(true);
 
@@ -329,7 +334,6 @@ function StudioPageContent() {
       } finally {
         if (!cancelled) {
           setRestoringSession(false);
-          router.replace("/", { scroll: false });
         }
       }
     })();
@@ -420,6 +424,11 @@ function StudioPageContent() {
     const intent = searchParams.get("intent");
     if (payment !== "success" || !generationId) return;
 
+    // Strip the query params from the address bar immediately (pure history
+    // API call, no Next.js re-render/refetch) so refreshing the page never
+    // re-triggers the unlock + auto-download flow a second time.
+    window.history.replaceState({}, "", window.location.pathname);
+
     let cancelled = false;
     setRestoringSession(true);
 
@@ -479,7 +488,6 @@ function StudioPageContent() {
       } finally {
         if (!cancelled) {
           setRestoringSession(false);
-          router.replace("/", { scroll: false });
         }
       }
     })();
@@ -799,6 +807,10 @@ function StudioPageContent() {
         setHighDemand(true);
       }
       setProcessError(message);
+      // The inline banner sits below the button and is easy to miss if the
+      // user isn't looking there — a toast makes a failed generation
+      // impossible to mistake for a silent hang.
+      showToast(message);
     } finally {
       window.clearTimeout(timeoutId);
       setProcessing(false);
@@ -820,6 +832,7 @@ function StudioPageContent() {
     customHeightMm,
     backgroundId,
     orderSummary,
+    showToast,
   ]);
 
   const backToSpecs = useCallback(() => {
@@ -829,6 +842,13 @@ function StudioPageContent() {
     setStep(2);
   }, []);
 
+  /**
+   * "Create New Photo": fully reset in-memory state AND every localStorage /
+   * IndexedDB trace of the previous session (unlock status, pending
+   * upload/purchase snapshots) so nothing stale can leak into the next
+   * photo — e.g. a page refresh right after this should never resurrect the
+   * old generationId, unlock flag, or downloaded flag.
+   */
   const startOver = useCallback(() => {
     setStep(1);
     setSourcePhoto(null);
@@ -837,6 +857,10 @@ function StudioPageContent() {
     setResult(null);
     setHasDownloadedHD(false);
     setProcessError(null);
+
+    clearPendingPhotoUpload();
+    void clearPendingPurchase();
+    void clearActivePhotoSession();
   }, []);
 
   /** Un-downloaded paid photo: exiting would strand it, so intercept first. */
@@ -1116,11 +1140,13 @@ function StudioPageContent() {
                   <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
                   AI Generating (takes ~10s)...
                 </>
-              ) : (
+              ) : user ? (
                 <>
                   ✨ Generate Free Preview (
                   {previewCredits ?? PRICING.signupPreviewCredits} left)
                 </>
+              ) : (
+                <>✨ Generate Free Preview</>
               )}
             </button>
             <p className="mt-2 text-center text-xs text-slate-500">

@@ -6,8 +6,16 @@ import { createAdminClient } from "@/lib/supabase/admin";
 export const runtime = "nodejs";
 
 /**
- * Mark a generation unlocked after a successful Stripe payment (no HD token spend).
+ * Mark a generation unlocked after a successful Stripe payment.
  * Used when returning from checkout with ?payment=success&generation_id=...
+ *
+ * The $4.99 "Unlock HD & 4R Print Sheet" purchase grants +1 banked
+ * hd_unlock (via /api/verify-payment, called by the client right before
+ * this route) and this call immediately spends that same token to unlock
+ * THIS generation. Net effect of the purchase: 0 change to the hd_unlocks
+ * bank (received 1, spent 1 here) + 3 bonus preview credits kept + this
+ * photo permanently unlocked — not a free extra banked token on top of a
+ * free unlock, which is what happened before this required a token.
  */
 export async function POST(req: NextRequest) {
   if (
@@ -46,11 +54,15 @@ export async function POST(req: NextRequest) {
   const supabase = await createClient();
   const result = await unlockGenerationIdempotent(supabase, generationId, {
     source: "payment",
-    requireToken: false,
+    requireToken: true,
   });
 
   if (!result.ok) {
-    // Fallback with service role if RLS insert fails for edge cases.
+    // Fallback with service role if the token spend races the credit grant
+    // (e.g. verify-payment's grant hasn't committed yet) or RLS insert
+    // fails for edge cases. We already know payment succeeded — this route
+    // only runs from a Stripe `?payment=success` redirect — so never block
+    // the unlock on a timing race; just record it without a token spend.
     if (
       process.env.SUPABASE_SERVICE_ROLE_KEY &&
       result.code !== "NOT_AUTHENTICATED"
@@ -79,11 +91,16 @@ export async function POST(req: NextRequest) {
               { onConflict: "user_id,photo_id" },
             );
           }
+          const { data: profile } = await admin
+            .from("profiles")
+            .select("hd_unlocks")
+            .eq("id", user.id)
+            .maybeSingle();
           return NextResponse.json({
             ok: true,
             generationId,
             alreadyUnlocked: false,
-            hdUnlocksRemaining: result.status === 503 ? undefined : 0,
+            hdUnlocksRemaining: profile?.hd_unlocks ?? undefined,
           });
         }
       } catch (err) {

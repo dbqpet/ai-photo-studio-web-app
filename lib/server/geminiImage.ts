@@ -81,7 +81,26 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   });
 }
 
+/**
+ * Depleted account billing/prepayment credits (Gemini "RESOURCE_EXHAUSTED"
+ * with a billing-specific message). Unlike per-minute rate limiting, this
+ * cannot resolve itself within the request's lifetime — retrying just
+ * burns ~12s of the user's time on 4 guaranteed failures. Detected
+ * separately so callers can fail fast instead of retrying.
+ */
+export function isQuotaExhaustedError(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err);
+  const lower = msg.toLowerCase();
+  return (
+    lower.includes("resource_exhausted") &&
+    (lower.includes("prepayment") ||
+      lower.includes("billing") ||
+      lower.includes("credits are depleted"))
+  );
+}
+
 function isRetryableError(err: unknown): boolean {
+  if (isQuotaExhaustedError(err)) return false;
   const msg = err instanceof Error ? err.message : String(err);
   const lower = msg.toLowerCase();
   return (
@@ -188,6 +207,11 @@ export async function generateStyledPortraitWithNanoBanana(
 
   const detail =
     lastError instanceof Error ? lastError.message : "unknown error";
+  if (isQuotaExhaustedError(lastError)) {
+    throw new Error(
+      `AI_QUOTA_EXHAUSTED: Gemini API billing credits are depleted (${detail})`,
+    );
+  }
   throw new Error(
     `AI_HIGH_DEMAND: Gemini Nano Banana Pro unavailable after ${MAX_RETRIES} attempts (${detail})`,
   );
