@@ -4,6 +4,7 @@
 
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { track } from "@vercel/analytics";
 import ExitWarningModal from "@/components/ExitWarningModal";
 import LoginModal from "@/components/LoginModal";
 import PaywallModal from "@/components/PaywallModal";
@@ -294,6 +295,8 @@ function StudioPageContent() {
     const sessionId = searchParams.get("session_id");
     if (topup !== "success") return;
 
+    track("view_success_page", { intent: "topup" });
+
     // Strip the query params from the address bar immediately (pure history
     // API call, no Next.js re-render/refetch) so refreshing the page never
     // re-runs this grant-credits-and-restore flow a second time.
@@ -424,6 +427,8 @@ function StudioPageContent() {
     const sessionId = searchParams.get("session_id");
     const intent = searchParams.get("intent");
     if (payment !== "success" || !generationId) return;
+
+    track("view_success_page", { intent: "unlock_photo" });
 
     // Strip the query params from the address bar immediately (pure history
     // API call, no Next.js re-render/refetch) so refreshing the page never
@@ -819,6 +824,7 @@ function StudioPageContent() {
         setHighDemand(true);
       }
       setProcessError(message);
+      track("error_generation", { reason: message });
       // The inline banner sits below the button and is easy to miss if the
       // user isn't looking there — a toast makes a failed generation
       // impossible to mistake for a silent hang.
@@ -1107,8 +1113,14 @@ function StudioPageContent() {
               onPresetChange={setPresetId}
               onCustomWidthChange={setCustomWidthMm}
               onCustomHeightChange={setCustomHeightMm}
-              onBackgroundChange={setBackgroundId}
-              onModeChange={setMode}
+              onBackgroundChange={(id) => {
+                track("select_bg", { color: id });
+                setBackgroundId(id);
+              }}
+              onModeChange={(m) => {
+                track("select_mode", { mode: m });
+                setMode(m);
+              }}
             />
 
             {processing && (
@@ -1138,6 +1150,7 @@ function StudioPageContent() {
             <button
               type="button"
               onClick={() => {
+                track("click_generate_preview");
                 if (user && previewCredits !== null && previewCredits <= 0) {
                   setPaywallOpen(true);
                   return;
@@ -1196,8 +1209,14 @@ function StudioPageContent() {
               downloaded={result.downloaded}
               checkoutLoading={checkoutLoading}
               downloadLoading={downloadLoading}
-              onCheckout={() => void checkout("unlock_photo")}
-              onDownloadHd={() => void downloadHd()}
+              onCheckout={() => {
+                track("click_checkout", { intent: "unlock_photo" });
+                void checkout("unlock_photo");
+              }}
+              onDownloadHd={() => {
+                track("click_download_hd");
+                void downloadHd();
+              }}
               onBack={() => guardExit(backToSpecs)}
               onStartOver={() => guardExit(startOver)}
             />
@@ -1260,7 +1279,10 @@ function StudioPageContent() {
       <PaywallModal
         open={paywallOpen}
         onClose={() => setPaywallOpen(false)}
-        onCheckout={() => void checkout("topup")}
+        onCheckout={() => {
+          track("click_checkout", { intent: "topup" });
+          void checkout("topup");
+        }}
         checkoutLoading={checkoutLoading}
       />
 

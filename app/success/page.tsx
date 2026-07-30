@@ -5,6 +5,7 @@
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { track } from "@vercel/analytics";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import { downloadDataUrl, studioDownloadFilename } from "@/lib/imageUtils";
 import { PRICING } from "@/lib/pricing";
@@ -47,9 +48,11 @@ function SuccessContent() {
           !pending.singleDataUrl?.startsWith("data:image/")
         ) {
           // Top-up from the out-of-tokens modal — no photo to download yet.
+          track("view_success_page", { intent: "topup" });
           setStatus("topup");
           return;
         }
+        track("view_success_page", { intent: "unlock_photo" });
         setPurchase(pending);
         setStatus("paid");
       } catch {

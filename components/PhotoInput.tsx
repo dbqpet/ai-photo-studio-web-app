@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { track } from "@vercel/analytics";
 import CameraCapture from "./CameraCapture";
 import CropEditor from "./CropEditor";
 import {
@@ -108,10 +109,15 @@ export default function PhotoInput({
       {tab === "upload" ? (
         <button
           type="button"
-          onClick={() => fileInputRef.current?.click()}
+          onClick={() => {
+            // Fire-and-forget: never await/block the click on the analytics call.
+            track("click_upload");
+            fileInputRef.current?.click();
+          }}
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
             e.preventDefault();
+            track("click_upload");
             handleFile(e.dataTransfer.files?.[0]);
           }}
           className="flex w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 text-slate-500 transition hover:border-sky-400 hover:bg-sky-50"
