@@ -1,5 +1,5 @@
 /**
- * AI processing engine — Gemini Nano Banana Pro exclusively.
+ * AI processing engine — Gemini Nano Banana 2 Lite exclusively.
  *
  * Solid Color mode: flatten onto the user-chosen colour and return JPEG.
  * AI Studio mode: return JPEG with Gemini's generated backdrop.

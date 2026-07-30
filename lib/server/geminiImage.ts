@@ -1,10 +1,13 @@
 /**
- * Gemini Nano Banana Pro — exclusive image editing engine for ID photos.
+ * Gemini Nano Banana 2 Lite — exclusive image editing engine for ID photos.
  *
  * Uses `@google/genai` generateContent with the source portrait + text prompt.
- * Default model: gemini-3.1-flash-image (Nano Banana 2).
+ * Default model: gemini-3.1-flash-lite-image (Nano Banana 2 Lite) — Google's
+ * fastest, lowest-cost image model, chosen here to minimize per-generation
+ * API cost. It only supports 1K output resolution (see imageConfig below),
+ * which is more than enough for passport/visa-size crops.
  *
- * @see https://ai.google.dev/gemini-api/docs/models/gemini-3-pro-image
+ * @see https://ai.google.dev/gemini-api/docs/models/gemini-3.1-flash-lite-image
  */
 
 import { GoogleGenAI, Modality } from "@google/genai";
@@ -12,11 +15,26 @@ import sharp from "sharp";
 import { buildStylePrompt } from "@/lib/server/stylePrompts";
 import type { BackgroundMode, ProcessingMode } from "@/lib/types";
 
-/** Nano Banana 2 (override via GEMINI_IMAGE_MODEL). */
+/** Nano Banana 2 Lite (override via GEMINI_IMAGE_MODEL). */
 export const GEMINI_IMAGE_MODEL =
-  process.env.GEMINI_IMAGE_MODEL || "gemini-3.1-flash-image";
+  process.env.GEMINI_IMAGE_MODEL || "gemini-3.1-flash-lite-image";
 
-const MAX_RETRIES = 4;
+/**
+ * gemini-3.1-flash-lite-image only supports 1K output (unlike the full
+ * gemini-3.1-flash-image, which also supports 512/2K/4K) — requesting 2K
+ * against the Lite model would be an invalid/ignored parameter. 1K is still
+ * ample resolution for passport/visa photo crops and 4R print sheets, since
+ * `processPhoto` (lib/server/aiProviders.ts) resizes to the exact target
+ * pixel dimensions with sharp afterwards.
+ */
+const IMAGE_SIZE = "1K";
+
+/**
+ * A single attempt, no retries. Each attempt is a billed Gemini call, so
+ * retrying on failure silently doubles/triples cost per user click. Fail
+ * fast instead and let the user decide whether to click again.
+ */
+const MAX_RETRIES = 1;
 const BASE_DELAY_MS = 1200;
 /** Bound a single Gemini attempt so a hung upstream call can't stall the
  * whole request past the serverless function's max duration. */
@@ -142,7 +160,7 @@ async function callGeminiOnce(
       responseModalities: [Modality.TEXT, Modality.IMAGE],
       imageConfig: {
         aspectRatio,
-        imageSize: "2K",
+        imageSize: IMAGE_SIZE,
       },
     },
   });
@@ -155,12 +173,12 @@ async function callGeminiOnce(
     }
   }
 
-  throw new Error("Gemini Nano Banana Pro returned no image.");
+  throw new Error("Gemini Nano Banana 2 Lite returned no image.");
 }
 
 /**
- * Edit the source portrait with Gemini Nano Banana Pro.
- * Retries with exponential backoff. Never returns mock imagery.
+ * Edit the source portrait with Gemini Nano Banana 2 Lite.
+ * Single attempt, no retries (see MAX_RETRIES). Never returns mock imagery.
  */
 export async function generateStyledPortraitWithNanoBanana(
   input: Buffer,
@@ -213,6 +231,6 @@ export async function generateStyledPortraitWithNanoBanana(
     );
   }
   throw new Error(
-    `AI_HIGH_DEMAND: Gemini Nano Banana Pro unavailable after ${MAX_RETRIES} attempts (${detail})`,
+    `AI_HIGH_DEMAND: Gemini Nano Banana 2 Lite unavailable (${detail})`,
   );
 }

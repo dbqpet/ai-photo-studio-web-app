@@ -5,10 +5,6 @@ import {
   spendPreviewCredit,
 } from "@/lib/server/credits";
 import { isGeminiImageConfigured } from "@/lib/server/geminiImage";
-import {
-  isGeminiConfigured,
-  validatePhotoWithGemini,
-} from "@/lib/server/geminiValidate";
 import { createClient } from "@/lib/supabase/server";
 import {
   AI_SERVICE_UNAVAILABLE_MESSAGE,
@@ -20,7 +16,7 @@ import {
 } from "@/lib/types";
 
 export const runtime = "nodejs";
-/** Gemini Nano Banana Pro image edits + retries can take a while. */
+/** Gemini Nano Banana 2 Lite image edits (single attempt) can take a while. */
 export const maxDuration = 180;
 
 const VALID_MODES: ProcessingMode[] = ["classic", "korean", "corporate"];
@@ -144,24 +140,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Optional pre-validation — no preview credit deducted on failure.
-  if (isGeminiConfigured()) {
-    try {
-      const verdict = await validatePhotoWithGemini(imageDataUrl);
-      if (!verdict.suitable) {
-        return NextResponse.json(
-          {
-            error:
-              verdict.reason ||
-              "Please upload a clear, single-person photo without sunglasses.",
-          },
-          { status: 422 },
-        );
-      }
-    } catch (err) {
-      console.error("[process-photo] Gemini pre-check failed:", err);
-    }
-  }
+  // Standalone Gemini pre-validation call intentionally disabled here to
+  // avoid burning a second Gemini API call per click — generation below
+  // (processPhoto) handles suitability directly. /api/validate-photo still
+  // uses validatePhotoWithGemini for the client-side upload gate.
 
   // 2) Generate image FIRST — do not deduct preview credits yet.
   let image: Buffer;

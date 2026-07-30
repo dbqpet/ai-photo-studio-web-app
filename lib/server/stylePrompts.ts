@@ -1,5 +1,5 @@
 /**
- * Shared style prompts for ID photo generation (Gemini Nano Banana Pro).
+ * Shared style prompts for ID photo generation (Gemini Nano Banana 2 Lite).
  */
 
 import { BACKGROUND_COLORS } from "@/constants/photoSizes";

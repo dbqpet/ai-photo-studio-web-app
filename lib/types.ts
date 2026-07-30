@@ -40,7 +40,7 @@ export const PROCESSING_MODES: ProcessingModeOption[] = [
   },
 ];
 
-/** Gemini Nano Banana Pro is the exclusive image engine. */
+/** Gemini Nano Banana 2 Lite is the exclusive image engine. */
 export type AiProvider = "gemini";
 
 export interface ProcessPhotoRequest {
