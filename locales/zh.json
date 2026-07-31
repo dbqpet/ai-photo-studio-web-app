@@ -31,7 +31,8 @@
     "badge_ai": "⚡ 即時 AI 裁切與去背",
     "badge_print": "🖨️ 可直接列印的 4R 排版",
     "badge_privacy": "🔒 私隱優先，自動刪除",
-    "cta_button": "立即上傳相片"
+    "cta_button": "立即上傳相片",
+    "imageAlt": "4R 列印排版紙，九張 35×45mm 護照相整齊排列，可直接列印"
   },
 
   "common": {

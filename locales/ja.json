@@ -31,7 +31,8 @@
     "badge_ai": "⚡ 即時AIサイズ調整＆背景除去",
     "badge_print": "🖨️ 印刷可能な4Rレイアウト",
     "badge_privacy": "🔒 プライバシー優先・自動削除",
-    "cta_button": "今すぐ写真をアップロード"
+    "cta_button": "今すぐ写真をアップロード",
+    "imageAlt": "35×45mmパスポート写真9枚が整列した4R印刷シート"
   },
 
   "common": {

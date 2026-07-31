@@ -31,7 +31,8 @@
     "badge_ai": "⚡ 즉시 AI 크기 조정 및 배경 제거",
     "badge_print": "🖨️ 바로 인쇄 가능한 4R 레이아웃",
     "badge_privacy": "🔒 프라이버시 우선 · 자동 삭제",
-    "cta_button": "지금 사진 업로드"
+    "cta_button": "지금 사진 업로드",
+    "imageAlt": "35×45mm 여권 사진 9장이 정렬된 4R 인쇄 시트"
   },
 
   "common": {

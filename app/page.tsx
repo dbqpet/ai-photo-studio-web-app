@@ -911,8 +911,7 @@ function StudioPageContent() {
           <h1 className="font-sans text-xl font-extrabold tracking-tighter text-slate-900">
             {t("brand.name")}
           </h1>
-          <div className="flex items-center gap-2">
-            <LanguageSwitcher />
+          <div className="flex items-center gap-3">
             {!authLoading && user && (
               <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
                 {t("nav.previewTokens", { count: previewCredits ?? 0 })}
@@ -1246,18 +1245,23 @@ function StudioPageContent() {
       )}
 
       <footer className="border-t border-slate-200 bg-white py-4">
-        <p className="text-center text-xs text-slate-400">
-          {t("footer.privacyNote")}
-        </p>
-        <p className="mt-1.5 text-center text-xs text-slate-400">
-          {t("footer.support", { email: "" })}
-          <a
-            href={`mailto:${SUPPORT_EMAIL}`}
-            className="text-slate-600 hover:underline"
-          >
-            {SUPPORT_EMAIL}
-          </a>
-        </p>
+        <div className="mx-auto flex w-full max-w-3xl flex-col items-center justify-between gap-4 px-5 sm:flex-row">
+          <div className="text-center sm:text-left">
+            <p className="text-xs text-slate-400">
+              {t("footer.privacyNote")}
+            </p>
+            <p className="mt-1.5 text-xs text-slate-400">
+              {t("footer.support", { email: "" })}
+              <a
+                href={`mailto:${SUPPORT_EMAIL}`}
+                className="text-slate-600 hover:underline"
+              >
+                {SUPPORT_EMAIL}
+              </a>
+            </p>
+          </div>
+          <LanguageSwitcher />
+        </div>
       </footer>
 
       <LoginModal
