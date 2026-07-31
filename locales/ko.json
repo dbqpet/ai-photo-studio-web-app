@@ -1,0 +1,281 @@
+{
+  "meta": {
+    "title": "AI Images Studio — 몇 초 만에 완성하는 전문 여권 및 비자 사진",
+    "titleTemplate": "%s | AI Images Studio",
+    "description": "AI Images Studio로 공식 규격의 300 DPI 초고화질 여권, 비자, 증명사진을 즉시 제작하세요. 자동 배경 제거, 각국 공식 규격 지원(홍콩, 영국, 미국, 솅겐 지역 등), 한국식 스튜디오 보정, 인쇄용 4R 시트 레이아웃까지 제공합니다. 전 세계가 신뢰하는 빠르고 규정에 맞는 증명사진 제작 서비스입니다.",
+    "ogTitle": "AI Images Studio — 전문 증명사진 및 여권사진 즉시 생성",
+    "ogDescription": "AI Images Studio로 셀카를 공식 규격의 300 DPI 여권 및 비자 사진으로 순식간에 변환하세요. 자동 배경 제거 및 공식 규격 완벽 준수."
+  },
+
+  "brand": {
+    "name": "AI Images Studio",
+    "watermark": "AI Images Studio - 미리보기"
+  },
+
+  "nav": {
+    "previewTokens": "미리보기 {count}회 남음",
+    "signIn": "로그인",
+    "signOut": "로그아웃",
+    "progressLabel": "진행 상황"
+  },
+
+  "steps": {
+    "photo": "사진",
+    "specs": "규격",
+    "preview": "미리보기"
+  },
+
+  "common": {
+    "loadingStudio": "스튜디오를 불러오는 중…",
+    "cancel": "취소",
+    "widthMm": "너비 (mm)",
+    "heightMm": "높이 (mm)",
+    "photoDimensions": "사진 규격",
+    "dimensionPresetSrOnly": "사진 규격 프리셋",
+    "customDimensionRange": "허용 범위: {min}–{max} mm (300 DPI).",
+    "cropFrame": "크롭 프레임: {dimension} ({width}×{height}px @ 300 DPI)",
+    "customDimensionLabel": "{width}×{height} mm (사용자 지정)",
+    "dimensionLabel": "{width}×{height} mm",
+    "solidColorBackground": "단색 배경 — {color}",
+    "aiStudioBackground": "AI 스튜디오 배경",
+    "completingPurchase": "결제를 완료하는 중…",
+    "dbSetupHintBefore": "Supabase → SQL Editor → ",
+    "dbSetupHintAfter": " 내용을 붙여넣기 → 실행(Run). 이후 이 페이지를 새로고침하세요.",
+    "migrationFile": "supabase/migrations/001_profiles_and_credits.sql"
+  },
+
+  "step1": {
+    "title": "사진 업로드",
+    "description": "먼저 사진 규격을 선택한 후, 사진을 업로드하거나 촬영하세요. AI 처리 전에 확대/이동으로 위치를 조정할 수 있습니다. AI는 '생성' 버튼을 클릭할 때만 실행됩니다."
+  },
+
+  "step2": {
+    "title": "사진 규격 선택",
+    "description": "배경 색상과 스튜디오 스타일을 선택하세요. 규격: {dimension}.",
+    "changePhoto": "사진 변경",
+    "generatePreview": "✨ 무료 미리보기 생성",
+    "generatePreviewWithCredits": "✨ 무료 미리보기 생성 ({count}회 남음)",
+    "generating": "AI 생성 중 (약 10초)...",
+    "previewNote": "🔒 무료 미리보기 • 워터마크가 있는 미리보기 • {price}로 300 DPI 고화질 다운로드 잠금 해제",
+    "highDemandStatus": "⏳ 성수기에는 AI 서버가 혼잡할 수 있습니다. 사진을 생성하는 동안 잠시만 기다려 주세요 — 네트워크가 혼잡할 경우 자동으로 재시도합니다."
+  },
+
+  "step3": {
+    "title": "증명사진이 준비되었습니다",
+    "unlockedDescription": "사진이 잠금 해제되었습니다 — 추가 비용 없이 언제든지 깨끗한 고화질 ZIP 파일을 다운로드할 수 있습니다.",
+    "tokenAvailableDescription": "워터마크가 있는 미리보기가 준비되었습니다 — 고화질 토큰 1개를 사용하면 이 사진을 영구적으로 잠금 해제하고 다운로드할 수 있습니다.",
+    "lockedDescription": "미리보기에는 워터마크가 있습니다 — 한 번 구매하면 즉시 고화질 다운로드가 해제됩니다."
+  },
+
+  "photoInput": {
+    "uploadPhoto": "⬆️ 사진 업로드",
+    "takePhoto": "📷 사진 촬영",
+    "tapToChoose": "탭하여 사진 선택",
+    "orDragDrop": " 또는 파일을 끌어다 놓으세요",
+    "fileFormats": "JPEG / PNG / WebP · 권장 해상도 600×600px 이상",
+    "errorInvalidImage": "올바른 이미지 파일이 아닌 것 같습니다. 다른 파일을 시도해 주세요.",
+    "errorWrongFileType": "이미지 파일(JPEG, PNG 또는 WebP)을 선택해 주세요.",
+    "errorFileTooLarge": "이미지 크기가 10MB를 초과합니다. 더 작은 파일을 선택해 주세요."
+  },
+
+  "cropEditor": {
+    "title": "사진 위치 조정",
+    "description": "증명사진 프레임 중앙에 얼굴이 오도록 확대하거나 드래그해 조정하세요.",
+    "zoomLabel": "확대/축소 · {level}×",
+    "zoomAriaLabel": "확대/축소",
+    "preparing": "준비 중…",
+    "confirm": "✓ 이 크롭 사용",
+    "errorCropFailed": "크롭에 실패했습니다."
+  },
+
+  "camera": {
+    "alignFaceGuide": "타원형 가이드 안에 얼굴을 맞춰 주세요",
+    "takePhotoAriaLabel": "사진 촬영",
+    "unavailable": "카메라를 사용할 수 없습니다. 카메라 접근을 허용하거나 '사진 업로드'를 이용해 주세요."
+  },
+
+  "specs": {
+    "backgroundColor": "배경 색상",
+    "aiStyle": "AI 스타일"
+  },
+
+  "presets": {
+    "eu-35x45": {
+      "label": "35×45 mm (홍콩 / 영국 / EU 표준)",
+      "description": "35mm × 45mm · 일반적인 여권 및 비자 규격"
+    },
+    "us-2x2": {
+      "label": "2×2 인치 (미국 여권)",
+      "description": "2인치 × 2인치 (51mm × 51mm)"
+    },
+    "hk-passport": {
+      "label": "40×50 mm (홍콩 여권 / BNO)",
+      "description": "40mm × 50mm"
+    },
+    "cn-travel-permit": {
+      "label": "33×48 mm (중국 왕래증 / 비자)",
+      "description": "33mm × 48mm"
+    },
+    "custom": {
+      "label": "사용자 지정",
+      "description": "너비 × 높이(mm)를 직접 입력",
+      "descriptionFormatted": "{width}mm × {height}mm"
+    }
+  },
+
+  "backgrounds": {
+    "white": {
+      "label": "흰색",
+      "subLabel": "여권 / 비자"
+    },
+    "off-white-grey": {
+      "label": "오프화이트",
+      "subLabel": "연회색"
+    },
+    "blue": {
+      "label": "파란색",
+      "subLabel": "표준 블루"
+    }
+  },
+
+  "modes": {
+    "classic": {
+      "label": "클래식 여권 스타일",
+      "description": "자연스러운 조명으로 깔끔하고 전문적인 증명사진 느낌을 연출합니다."
+    },
+    "korean": {
+      "label": "한국식 스튜디오 스타일",
+      "description": "부드러운 하이키 조명과 자연스러운 피부 보정으로 고급스러운 스튜디오 톤을 완성합니다."
+    },
+    "corporate": {
+      "label": "비즈니스 프로",
+      "description": "선명한 초점과 차분한 색감으로 격식 있는 비즈니스 느낌을 연출합니다."
+    }
+  },
+
+  "orderSummary": {
+    "heading": "선택 내역",
+    "style": "스타일",
+    "background": "배경",
+    "dimension": "규격"
+  },
+
+  "preview": {
+    "singlePhotoAlt": "처리된 {preset} 워터마크 미리보기 사진",
+    "sheetAlt": "4R 인화 시트 워터마크 미리보기",
+    "aiModeBadge": "⚡ 리얼 AI 모드",
+    "unlockedBadge": "잠금 해제됨",
+    "singleCaption": "사진 1장 · {description} @ 300 DPI",
+    "sheetCaption": "4R 인화 시트 (4×6인치, 300 DPI) · {count}장 ({columns}×{rows}) 절취선 포함",
+    "unlockButton": "🔓 고화질 사진 & 4R 인화 시트 잠금 해제 ({price})",
+    "unlockNote": "⚡ 즉시 다운로드 • 300 DPI 공식 규격 • 4R 인화 시트 포함",
+    "downloadButton": "📦 고화질 사진 다운로드 (.zip)",
+    "downloadedButton": "✅ 다운로드 완료 — 다시 다운로드",
+    "preparingDownload": "고화질 사진 준비 중...",
+    "downloadNote": "고화질 사진 1장 (300 DPI) + 4R 인화 레이아웃 (ZIP 형식) 포함",
+    "hdTokensRemaining_one": "고화질 토큰이 {count}개 남았습니다. 첫 다운로드 시 이 사진이 영구적으로 잠금 해제됩니다.",
+    "hdTokensRemaining_other": "고화질 토큰이 {count}개 남았습니다. 첫 다운로드 시 이 사진이 영구적으로 잠금 해제됩니다.",
+    "redirectingCheckout": "안전한 결제 페이지로 이동 중…",
+    "backToEdit": "← 편집으로 돌아가기 (규격, 색상, 스타일)",
+    "startOver": "↺ 새 사진으로 다시 시작",
+    "supportQuestion": "주문에 대해 궁금하신 점이 있으신가요? 고객지원팀에 문의하세요: {email}"
+  },
+
+  "loginModal": {
+    "title": "✨ 무료 미리보기 3회 받기!",
+    "subtitle": "Google 계정으로 로그인하면 AI 사진 생성 및 미리보기를 바로 이용할 수 있습니다.",
+    "benefit1": "첫 로그인 시 무료 미리보기 3회 증정",
+    "benefit2": "생성한 증명사진을 언제든지 저장 및 확인 가능",
+    "benefit3": "공식 여권 및 비자 규격 100% 준수 보장",
+    "continueWithGoogle": "Google 계정으로 계속하기",
+    "privacyNote": "🔒 개인정보 보호 보장: 고객님의 사진은 철저히 비공개로 관리되며 처리 후 자동으로 삭제됩니다.",
+    "notNow": "나중에 하기"
+  },
+
+  "paywallModal": {
+    "title": "더 많은 미리보기 잠금 해제 ✨",
+    "description": "무료 미리보기 횟수를 모두 사용하셨습니다. 새 패키지를 구매하고 완벽한 증명사진 만들기를 계속하세요!",
+    "includesPack": "💎 고화질 사진 다운로드 1회 + 추가 미리보기 {previewCredits}회 포함",
+    "unlockForPrice": "{price}로 잠금 해제",
+    "redirectingCheckout": "안전한 결제 페이지로 이동 중…",
+    "supportQuestion": "주문에 대해 궁금하신 점이 있으신가요? 고객지원팀에 문의하세요: {email}",
+    "maybeLater": "나중에 할게요"
+  },
+
+  "exitWarningModal": {
+    "title": "⚠️ 잠깐만요! 고화질 사진을 아직 저장하지 않으셨습니다!",
+    "description": "이 페이지를 떠나면 300 DPI 증명사진 세션이 만료됩니다. 지금 파일을 다운로드해 주세요. (다운로드하지 않은 사진 세션은 복구할 수 없으며 환불되지 않습니다.)",
+    "downloadNow": "📦 지금 고화질 사진 다운로드 (.zip)",
+    "preparingDownload": "고화질 사진 준비 중...",
+    "leaveAnyway": "그래도 나가기"
+  },
+
+  "successPage": {
+    "verifying": "결제를 확인하는 중…",
+    "paidTitle": "결제가 완료되었습니다!",
+    "paidDescription": "결제가 확인되었습니다. 아래에서 워터마크 없는 고화질 파일을 다운로드하세요. 계정에 미리보기 {previewCredits}회도 추가되었습니다.",
+    "photoAlt": "고객님의 증명사진",
+    "downloadSingle": "⬇️ 증명사진 다운로드",
+    "downloadSheet": "⬇️ 4R 인화 시트 다운로드 (JPEG)",
+    "makeAnother": "← 다른 사진 만들기",
+    "topupTitle": "결제가 완료되었습니다! 🎉",
+    "topupDescription": "계정에 고화질 사진 잠금 해제 1회와 미리보기 {previewCredits}회가 충전되었습니다. 이제 준비되었습니다!",
+    "startMakingPhotos": "✨ 사진 만들기 시작",
+    "unpaidTitle": "결제가 확인되지 않았습니다",
+    "unpaidDescription": "결제를 확인할 수 없습니다. 결제를 완료하셨다면 잠시 후 이 페이지를 새로고침해 주세요.",
+    "errorTitle": "문제가 발생했습니다",
+    "errorDescription": "결제 세션을 확인할 수 없습니다. 페이지를 새로고침하거나 스튜디오로 돌아가세요.",
+    "backToStudio": "← 스튜디오로 돌아가기"
+  },
+
+  "footer": {
+    "privacyNote": "AI Images Studio · 사진은 안전하게 처리되며 서버에 저장되지 않습니다.",
+    "support": "고객지원: {email}"
+  },
+
+  "pricing": {
+    "badge": "🔥 런칭 특가 — 60% 할인",
+    "productName": "공식 고화질 사진 & 4R 인화 시트",
+    "checkoutCta": "고화질 다운로드 잠금 해제",
+    "topupProductName": "AI Images Studio — 미리보기 충전 패키지"
+  },
+
+  "toasts": {
+    "photoRestored": "다시 오신 것을 환영합니다 — 사진이 복원되었습니다.",
+    "topupSuccess": "🎉 충전이 완료되었습니다! 고화질 잠금 해제 +{hdUnlocks}회, 미리보기 +{previewCredits}회가 추가되었습니다.",
+    "topupRefreshFailed": "결제는 완료되었지만 계정을 새로고침하지 못했습니다. 페이지를 새로고침해 주세요.",
+    "paymentDownloadStarted": "🎉 결제가 완료되었습니다! 300 DPI 고화질 사진 ZIP 파일이 자동으로 다운로드되고 있습니다. 보이지 않는다면 아래의 '고화질 사진 다운로드' 버튼을 이용해 주세요.",
+    "paymentUnlocked": "결제가 완료되어 사진이 잠금 해제되었습니다! '고화질 사진 다운로드'를 눌러 파일을 저장하세요.",
+    "paymentSessionNotFound": "결제는 완료되었지만 이 브라우저에서 사진 세션을 찾을 수 없습니다.",
+    "paymentRestoreFailed": "결제는 완료되었지만 사진을 복원하는 데 실패했습니다."
+  },
+
+  "errors": {
+    "highDemand": "현재 AI 서버 사용량이 많습니다. 잠시만 기다려 주세요 — 사진 생성을 재시도하고 있습니다. 평소보다 시간이 조금 더 걸릴 수 있습니다.",
+    "aiServiceUnavailable": "AI 사진 서비스를 일시적으로 이용할 수 없습니다. 크레딧은 차감되지 않았습니다 — 나중에 다시 시도하시거나 문제가 계속되면 고객지원팀에 문의해 주세요.",
+    "generationFailed": "AI 생성에 실패했습니다. 크레딧은 차감되지 않았습니다.",
+    "generationTimeout": "생성 시간이 초과되었습니다. AI 서버가 혼잡할 수 있습니다 — 다시 시도해 주세요.",
+    "networkError": "서버에 연결할 수 없습니다. 인터넷 연결을 확인한 후 다시 시도해 주세요.",
+    "signInRequired": "생성하려면 로그인해 주세요.",
+    "noPreviewCredits": "미리보기 크레딧이 남아있지 않습니다. 패키지를 구매해 주세요.",
+    "processingFailed": "처리에 실패했습니다.",
+    "invalidImageResponse": "생성된 이미지가 올바르지 않습니다. 다시 시도해 주세요.",
+    "processingFailedRetry": "처리에 실패했습니다. 다시 시도해 주세요.",
+    "checkoutFailed": "결제에 실패했습니다.",
+    "checkoutFailedRetry": "결제에 실패했습니다. 다시 시도해 주세요.",
+    "noHdTokens": "고화질 잠금 해제 토큰이 남아있지 않습니다.",
+    "signInToDownload": "다운로드하려면 로그인해 주세요.",
+    "downloadPrepareFailed": "고화질 다운로드를 준비할 수 없습니다.",
+    "downloadFailed": "고화질 다운로드에 실패했습니다. 다시 시도해 주세요.",
+    "googleSignInFailed": "Google 로그인에 실패했습니다. 다시 시도해 주세요.",
+    "lowResolutionWarning": "해상도가 낮습니다 ({width}×{height}px). 선명한 인쇄를 위해 최소 {minWidth}×{minHeight}px를 권장합니다.",
+    "dbSetupIncomplete": "데이터베이스 설정이 완료되지 않았습니다: Supabase SQL Editor에서 supabase/migrations/001_profiles_and_credits.sql을 다시 실행한 후 이 페이지를 새로고침해 주세요.",
+    "profileLoadFailed": "프로필을 불러올 수 없습니다.",
+    "couldNotLoadImage": "이미지를 불러올 수 없습니다.",
+    "couldNotReadFile": "파일을 읽을 수 없습니다."
+  },
+
+  "aria": {
+    "sourcePhotoAlt": "선택한 원본 사진"
+  }
+}

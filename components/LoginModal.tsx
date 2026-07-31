@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslation } from "react-i18next";
+
 interface LoginModalProps {
   open: boolean;
   onClose: () => void;
@@ -12,6 +14,7 @@ export default function LoginModal({
   onClose,
   onSignIn,
 }: LoginModalProps) {
+  const { t } = useTranslation();
   if (!open) return null;
 
   return (
@@ -30,24 +33,22 @@ export default function LoginModal({
           id="login-modal-title"
           className="text-xl font-bold text-slate-900"
         >
-          ✨ Claim Your 3 Free Preview Tokens!
+          {t("loginModal.title")}
         </h2>
-        <p className="mt-2 text-sm text-slate-600">
-          Sign in with Google to unlock instant AI photo generation and preview.
-        </p>
+        <p className="mt-2 text-sm text-slate-600">{t("loginModal.subtitle")}</p>
 
         <ul className="mt-5 space-y-2.5">
           <li className="flex items-start gap-2.5 text-sm text-slate-700">
             <span aria-hidden>🎁</span>
-            <span>3 Free Preview Tokens on your first sign in</span>
+            <span>{t("loginModal.benefit1")}</span>
           </li>
           <li className="flex items-start gap-2.5 text-sm text-slate-700">
             <span aria-hidden>📂</span>
-            <span>Save and access your photo generations anytime</span>
+            <span>{t("loginModal.benefit2")}</span>
           </li>
           <li className="flex items-start gap-2.5 text-sm text-slate-700">
             <span aria-hidden>📐</span>
-            <span>Guaranteed 100% Official Passport &amp; Visa specs</span>
+            <span>{t("loginModal.benefit3")}</span>
           </li>
         </ul>
 
@@ -57,12 +58,11 @@ export default function LoginModal({
           className="mt-6 flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-slate-200 bg-white px-5 py-3.5 text-sm font-bold text-slate-800 transition hover:border-slate-300 hover:bg-slate-50"
         >
           <GoogleIcon />
-          Continue with Google
+          {t("loginModal.continueWithGoogle")}
         </button>
 
         <p className="mt-3 text-center text-[11px] leading-relaxed text-slate-500">
-          🔒 Privacy Guaranteed: Your photos are strictly confidential and
-          auto-deleted after processing.
+          {t("loginModal.privacyNote")}
         </p>
 
         <button
@@ -70,7 +70,7 @@ export default function LoginModal({
           onClick={onClose}
           className="mt-3 w-full py-2 text-sm font-medium text-slate-500 hover:text-slate-700"
         >
-          Not now
+          {t("loginModal.notNow")}
         </button>
       </div>
     </div>

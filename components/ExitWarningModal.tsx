@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslation } from "react-i18next";
+
 interface ExitWarningModalProps {
   open: boolean;
   downloadLoading: boolean;
@@ -14,6 +16,7 @@ export default function ExitWarningModal({
   onDownloadNow,
   onLeaveAnyway,
 }: ExitWarningModalProps) {
+  const { t } = useTranslation();
   if (!open) return null;
 
   return (
@@ -28,12 +31,10 @@ export default function ExitWarningModal({
           id="exit-warning-modal-title"
           className="text-xl font-bold text-slate-900"
         >
-          ⚠️ Wait! You haven&apos;t saved your HD photos yet!
+          {t("exitWarningModal.title")}
         </h2>
         <p className="mt-2 text-sm text-slate-600">
-          Your 300 DPI passport photo session will expire once you leave.
-          Please download your files now. (Un-downloaded photo sessions
-          cannot be retrieved and are non-refundable).
+          {t("exitWarningModal.description")}
         </p>
 
         <button
@@ -45,10 +46,10 @@ export default function ExitWarningModal({
           {downloadLoading ? (
             <>
               <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-              Preparing HD Photo...
+              {t("exitWarningModal.preparingDownload")}
             </>
           ) : (
-            <>📦 Download HD Photos Now (.zip)</>
+            <>{t("exitWarningModal.downloadNow")}</>
           )}
         </button>
 
@@ -57,7 +58,7 @@ export default function ExitWarningModal({
           onClick={onLeaveAnyway}
           className="mt-3 w-full py-2 text-sm font-medium text-slate-400 hover:text-slate-600"
         >
-          Leave Anyway
+          {t("exitWarningModal.leaveAnyway")}
         </button>
       </div>
     </div>

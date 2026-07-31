@@ -5,7 +5,9 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { track } from "@vercel/analytics";
+import { useTranslation } from "react-i18next";
 import ExitWarningModal from "@/components/ExitWarningModal";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import LoginModal from "@/components/LoginModal";
 import PaywallModal from "@/components/PaywallModal";
 import PhotoInput from "@/components/PhotoInput";
@@ -16,12 +18,17 @@ import {
   CUSTOM_MM_MAX,
   CUSTOM_MM_MIN,
   PHOTO_SIZE_PRESETS,
-  formatDimensionLabel,
   getBackgroundById,
   resolvePhotoPreset,
 } from "@/constants/photoSizes";
 import { useAuth } from "@/hooks/useAuth";
 import { cropToAspect } from "@/lib/imageUtils";
+import {
+  backgroundLabel as translateBackgroundLabel,
+  dimensionLabel as translateDimensionLabel,
+  modeLabel as translateModeLabel,
+  presetLabel as translatePresetLabel,
+} from "@/lib/i18n/presetLabels";
 import { PRICING, formatUsd } from "@/lib/pricing";
 import { SUPPORT_EMAIL } from "@/lib/site";
 import {
@@ -49,7 +56,6 @@ import {
 } from "@/lib/purchaseStore";
 import { downloadHdPhotosZip } from "@/lib/zipDownload";
 import {
-  HIGH_DEMAND_MESSAGE,
   PROCESSING_MODES,
   type AiProvider,
   type BackgroundMode,
@@ -79,10 +85,10 @@ interface GeneratedResult {
   downloaded: boolean;
 }
 
-const STEPS: Array<{ id: Step; label: string }> = [
-  { id: 1, label: "Photo" },
-  { id: 2, label: "Specs" },
-  { id: 3, label: "Preview" },
+const STEPS: Array<{ id: Step; labelKey: string }> = [
+  { id: 1, labelKey: "steps.photo" },
+  { id: 2, labelKey: "steps.specs" },
+  { id: 3, labelKey: "steps.preview" },
 ];
 
 function clampMm(value: number): number {
@@ -123,19 +129,23 @@ async function downloadHdZipForSession(session: {
 
 export default function StudioPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex flex-1 items-center justify-center bg-slate-50 text-sm text-slate-500">
-          Loading studio…
-        </div>
-      }
-    >
+    <Suspense fallback={<StudioLoadingFallback />}>
       <StudioPageContent />
     </Suspense>
   );
 }
 
+function StudioLoadingFallback() {
+  const { t } = useTranslation();
+  return (
+    <div className="flex flex-1 items-center justify-center bg-slate-50 text-sm text-slate-500">
+      {t("common.loadingStudio")}
+    </div>
+  );
+}
+
 function StudioPageContent() {
+  const { t } = useTranslation();
   const searchParams = useSearchParams();
   const {
     user,
@@ -190,18 +200,20 @@ function StudioPageContent() {
   );
 
   const orderSummary: PurchaseSummary = useMemo(() => {
-    const styleLabel =
-      PROCESSING_MODES.find((m) => m.id === mode)?.label ?? mode;
-    const backgroundLabel =
+    const matchedMode = PROCESSING_MODES.find((m) => m.id === mode);
+    const styleLabel = matchedMode ? translateModeLabel(t, matchedMode) : mode;
+    const backgroundLabelText =
       backgroundMode === "solid"
-        ? `Solid Color — ${background.label}`
-        : "AI Studio Background";
+        ? t("common.solidColorBackground", {
+            color: translateBackgroundLabel(t, background),
+          })
+        : t("common.aiStudioBackground");
     return {
       styleLabel,
-      backgroundLabel,
-      dimensionLabel: formatDimensionLabel(preset),
+      backgroundLabel: backgroundLabelText,
+      dimensionLabel: translateDimensionLabel(t, preset),
     };
-  }, [mode, backgroundMode, background.label, preset]);
+  }, [mode, backgroundMode, background, preset, t]);
 
   /** Client-side checks only — no Gemini / backend calls on upload. */
   const handlePhotoSelected = useCallback(
@@ -285,7 +297,7 @@ function StudioPageContent() {
     if (!pending?.sourcePhoto) return;
 
     applyPendingPhotoUpload(pending);
-    showToast("Welcome back — your photo was restored.");
+    showToast(t("toasts.photoRestored"));
     // eslint-disable-next-line react-hooks/exhaustive-deps -- restore once on mount
   }, []);
 
@@ -325,15 +337,16 @@ function StudioPageContent() {
         }
         if (!cancelled) {
           showToast(
-            `🎉 Top-up successful! +${PRICING.hdUnlocksPerPurchase} HD Unlock and +${PRICING.previewCreditsBonus} Preview Tokens added.`,
+            t("toasts.topupSuccess", {
+              hdUnlocks: PRICING.hdUnlocksPerPurchase,
+              previewCredits: PRICING.previewCreditsBonus,
+            }),
           );
         }
       } catch (err) {
         console.error("[studio] topup restore failed:", err);
         if (!cancelled) {
-          showToast(
-            "Payment succeeded, but we couldn't refresh your account. Please refresh the page.",
-          );
+          showToast(t("toasts.topupRefreshFailed"));
         }
       } finally {
         if (!cancelled) {
@@ -484,23 +497,17 @@ function StudioPageContent() {
           });
           if (cancelled) return;
           if (attempted) {
-            showToast(
-              "🎉 Payment successful! Your 300 DPI HD photo ZIP is downloading now. If you don't see it, use the \"Download HD Photos\" button below.",
-            );
+            showToast(t("toasts.paymentDownloadStarted"));
           } else {
-            showToast(
-              "Payment successful — your photo is unlocked! Tap \"Download HD Photos\" to save your files.",
-            );
+            showToast(t("toasts.paymentUnlocked"));
           }
         } else if (!cancelled) {
-          showToast(
-            "Payment succeeded, but the photo session was not found in this browser.",
-          );
+          showToast(t("toasts.paymentSessionNotFound"));
         }
       } catch (err) {
         console.error("[studio] payment restore failed:", err);
         if (!cancelled) {
-          showToast("Payment succeeded, but restoring your photo failed.");
+          showToast(t("toasts.paymentRestoreFailed"));
         }
       } finally {
         if (!cancelled) {
@@ -557,9 +564,7 @@ function StudioPageContent() {
       } catch (err) {
         console.error("Checkout failed:", err);
         setProcessError(
-          err instanceof Error
-            ? err.message
-            : "Checkout failed. Please try again.",
+          err instanceof Error ? err.message : t("errors.checkoutFailedRetry"),
         );
         setCheckoutLoading(false);
       }
@@ -571,6 +576,7 @@ function StudioPageContent() {
       orderSummary,
       persistCurrentSession,
       persistPendingUploadForLogin,
+      t,
     ],
   );
 
@@ -584,7 +590,7 @@ function StudioPageContent() {
       // state, and never inherit unlock from a prior generation / upload.
       if (!result.unlocked && (hdUnlocks ?? 0) <= 0) {
         setPaywallOpen(true);
-        throw new Error("No HD unlock tokens left.");
+        throw new Error(t("errors.noHdTokens"));
       }
 
       const res = await fetch("/api/download-hd", {
@@ -601,13 +607,13 @@ function StudioPageContent() {
       if (!res.ok) {
         if (res.status === 401 || json.code === "NOT_AUTHENTICATED") {
           setLoginOpen(true);
-          throw new Error(json.error ?? "Please sign in to download.");
+          throw new Error(json.error ?? t("errors.signInToDownload"));
         }
         if (json.code === "NO_HD_UNLOCKS" || res.status === 400) {
           setPaywallOpen(true);
-          throw new Error(json.error ?? "No HD unlock tokens left.");
+          throw new Error(json.error ?? t("errors.noHdTokens"));
         }
-        throw new Error(json.error ?? "Could not prepare HD download.");
+        throw new Error(json.error ?? t("errors.downloadPrepareFailed"));
       }
 
       await downloadHdPhotosZip({
@@ -628,9 +634,7 @@ function StudioPageContent() {
       await refreshProfile();
     } catch (err) {
       const message =
-        err instanceof Error
-          ? err.message
-          : "HD download failed. Please try again.";
+        err instanceof Error ? err.message : t("errors.downloadFailed");
       showToast(message);
       setProcessError(message);
     } finally {
@@ -643,6 +647,7 @@ function StudioPageContent() {
     refreshProfile,
     showToast,
     persistCurrentSession,
+    t,
   ]);
 
   const generate = useCallback(async () => {
@@ -708,13 +713,9 @@ function StudioPageContent() {
           fetchErr.name === "AbortError"
         ) {
           setHighDemand(true);
-          throw new Error(
-            "Generation timed out. Our AI servers may be busy — please try again.",
-          );
+          throw new Error(t("errors.generationTimeout"));
         }
-        throw new Error(
-          "Could not reach the server. Please check your connection and try again.",
-        );
+        throw new Error(t("errors.networkError"));
       }
       const json = (await res.json()) as ProcessPhotoResponse & {
         error?: string;
@@ -725,7 +726,7 @@ function StudioPageContent() {
       if (!res.ok) {
         if (res.status === 401 || json.code === "NOT_AUTHENTICATED") {
           setLoginOpen(true);
-          throw new Error(json.error ?? "Please sign in to generate.");
+          throw new Error(json.error ?? t("errors.signInRequired"));
         }
         if (
           json.code === "NO_PREVIEW_CREDITS" ||
@@ -735,21 +736,19 @@ function StudioPageContent() {
             json.error.toLowerCase().includes("preview credit"))
         ) {
           setPaywallOpen(true);
-          throw new Error(
-            json.error ?? "No preview credits left. Please purchase a pack.",
-          );
+          throw new Error(json.error ?? t("errors.noPreviewCredits"));
         }
         if (json.highDemand || res.status === 503) {
           setHighDemand(true);
-          throw new Error(json.error ?? HIGH_DEMAND_MESSAGE);
+          throw new Error(json.error ?? t("errors.highDemand"));
         }
-        throw new Error(json.error ?? "Processing failed.");
+        throw new Error(json.error ?? t("errors.processingFailed"));
       }
 
       // API always returns an opaque JPEG with background already applied.
       const cleanSingle = json.imageDataUrl;
       if (!cleanSingle?.startsWith("data:image/")) {
-        throw new Error("Generation returned an invalid image. Please try again.");
+        throw new Error(t("errors.invalidImageResponse"));
       }
 
       const { canvas: sheetCanvas, layout } = await renderPrintSheet(
@@ -815,14 +814,10 @@ function StudioPageContent() {
       await refreshProfile();
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : "Processing failed. Please try again.";
-      if (
-        message.includes("high demand") ||
-        message.includes("AI_HIGH_DEMAND") ||
-        message.includes("patient")
-      ) {
-        setHighDemand(true);
-      }
+        err instanceof Error ? err.message : t("errors.processingFailedRetry");
+      // highDemand is already set explicitly at every throw site above (abort
+      // timeout, 503, json.highDemand) — no need to re-derive it from the
+      // (now possibly translated) message text.
       setProcessError(message);
       track("error_generation", { reason: message });
       // The inline banner sits below the button and is easy to miss if the
@@ -851,6 +846,7 @@ function StudioPageContent() {
     backgroundId,
     orderSummary,
     showToast,
+    t,
   ]);
 
   const backToSpecs = useCallback(() => {
@@ -912,12 +908,13 @@ function StudioPageContent() {
       <header className="border-b border-slate-200 bg-white/80 backdrop-blur">
         <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-3 px-5 py-4">
           <h1 className="font-sans text-xl font-extrabold tracking-tighter text-slate-900">
-            AI Images Studio
+            {t("brand.name")}
           </h1>
           <div className="flex items-center gap-2">
+            <LanguageSwitcher />
             {!authLoading && user && (
               <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
-                {previewCredits ?? 0} Preview Tokens
+                {t("nav.previewTokens", { count: previewCredits ?? 0 })}
               </span>
             )}
             {!authLoading && user ? (
@@ -926,7 +923,7 @@ function StudioPageContent() {
                 onClick={() => void signOut()}
                 className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 transition hover:bg-slate-200"
               >
-                Sign out
+                {t("nav.signOut")}
               </button>
             ) : (
               <button
@@ -938,7 +935,7 @@ function StudioPageContent() {
                 disabled={authLoading}
                 className="rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-700 transition hover:bg-sky-200 disabled:opacity-60"
               >
-                Sign in
+                {t("nav.signIn")}
               </button>
             )}
           </div>
@@ -946,7 +943,7 @@ function StudioPageContent() {
       </header>
 
       <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-5 py-6">
-        <nav aria-label="Progress" className="flex items-center gap-2">
+        <nav aria-label={t("nav.progressLabel")} className="flex items-center gap-2">
           {STEPS.map((s, i) => (
             <div key={s.id} className="flex flex-1 items-center gap-2">
               <div
@@ -965,7 +962,7 @@ function StudioPageContent() {
                   {step > s.id ? "✓" : s.id}
                 </span>
                 <span className="text-sm font-semibold text-slate-700">
-                  {s.label}
+                  {t(s.labelKey)}
                 </span>
               </div>
               {i < STEPS.length - 1 && (
@@ -987,11 +984,11 @@ function StudioPageContent() {
             {profileError}
             {needsDbSetup && (
               <p className="mt-2 text-xs">
-                Supabase → SQL Editor → paste the contents of{" "}
+                {t("common.dbSetupHintBefore")}
                 <code className="rounded bg-amber-100 px-1">
-                  supabase/migrations/001_profiles_and_credits.sql
-                </code>{" "}
-                → Run. Then refresh this page.
+                  {t("common.migrationFile")}
+                </code>
+                {t("common.dbSetupHintAfter")}
               </p>
             )}
           </div>
@@ -1000,17 +997,15 @@ function StudioPageContent() {
         {step === 1 && (
           <section className="rounded-3xl bg-white p-5 shadow-sm sm:p-7">
             <h2 className="mb-1 text-xl font-bold text-slate-900">
-              Add your photo
+              {t("step1.title")}
             </h2>
             <p className="mb-5 text-sm text-slate-500">
-              Choose your photo dimensions first, then upload or capture. You
-              can zoom and reposition before we process it. AI runs only when
-              you click Generate.
+              {t("step1.description")}
             </p>
 
             <div className="mb-5">
               <h3 className="mb-2.5 text-sm font-semibold text-slate-700">
-                Photo Dimensions
+                {t("common.photoDimensions")}
               </h3>
               <select
                 value={presetId}
@@ -1019,7 +1014,7 @@ function StudioPageContent() {
               >
                 {PHOTO_SIZE_PRESETS.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.icon} {p.label}
+                    {p.icon} {translatePresetLabel(t, p)}
                   </option>
                 ))}
               </select>
@@ -1027,7 +1022,7 @@ function StudioPageContent() {
                 <div className="mb-3 grid grid-cols-2 gap-3">
                   <label className="flex flex-col gap-1">
                     <span className="text-xs font-semibold text-slate-600">
-                      Width (mm)
+                      {t("common.widthMm")}
                     </span>
                     <input
                       type="number"
@@ -1043,7 +1038,7 @@ function StudioPageContent() {
                   </label>
                   <label className="flex flex-col gap-1">
                     <span className="text-xs font-semibold text-slate-600">
-                      Height (mm)
+                      {t("common.heightMm")}
                     </span>
                     <input
                       type="number"
@@ -1060,8 +1055,11 @@ function StudioPageContent() {
                 </div>
               )}
               <p className="text-xs text-slate-500">
-                Crop frame: {formatDimensionLabel(preset)} (
-                {preset.pixels.width}×{preset.pixels.height}px @ 300 DPI)
+                {t("common.cropFrame", {
+                  dimension: translateDimensionLabel(t, preset),
+                  width: preset.pixels.width,
+                  height: preset.pixels.height,
+                })}
               </p>
             </div>
 
@@ -1077,23 +1075,24 @@ function StudioPageContent() {
             <div className="mb-5 flex items-start gap-4">
               <img
                 src={sourcePhoto}
-                alt="Your selected source"
+                alt={t("aria.sourcePhotoAlt")}
                 className="h-24 w-20 rounded-xl border border-slate-200 object-cover"
               />
               <div className="flex-1">
                 <h2 className="text-xl font-bold text-slate-900">
-                  Choose your specs
+                  {t("step2.title")}
                 </h2>
                 <p className="text-sm text-slate-500">
-                  Pick the background and studio style. Dimension:{" "}
-                  {formatDimensionLabel(preset)}.
+                  {t("step2.description", {
+                    dimension: translateDimensionLabel(t, preset),
+                  })}
                 </p>
                 <button
                   type="button"
                   onClick={startOver}
                   className="mt-1.5 text-xs font-semibold text-sky-600 hover:underline"
                 >
-                  Change photo
+                  {t("step2.changePhoto")}
                 </button>
               </div>
             </div>
@@ -1128,9 +1127,7 @@ function StudioPageContent() {
                 data-testid="high-demand-status"
                 className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900"
               >
-                ⏳ Our AI servers can get busy during peak times. Please be
-                patient while we create your photo — automatic retries are in
-                progress if the network is congested.
+                {t("step2.highDemandStatus")}
               </p>
             )}
 
@@ -1163,20 +1160,20 @@ function StudioPageContent() {
               {processing ? (
                 <>
                   <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                  AI Generating (takes ~10s)...
+                  {t("step2.generating")}
                 </>
               ) : user ? (
                 <>
-                  ✨ Generate Free Preview (
-                  {previewCredits ?? PRICING.signupPreviewCredits} left)
+                  {t("step2.generatePreviewWithCredits", {
+                    count: previewCredits ?? PRICING.signupPreviewCredits,
+                  })}
                 </>
               ) : (
-                <>✨ Generate Free Preview</>
+                <>{t("step2.generatePreview")}</>
               )}
             </button>
             <p className="mt-2 text-center text-xs text-slate-500">
-              🔒 Free preview • Watermarked preview • Unlock 300 DPI HD download
-              for {formatUsd(PRICING.saleUsd)}
+              {t("step2.previewNote", { price: formatUsd(PRICING.saleUsd) })}
             </p>
           </section>
         )}
@@ -1184,14 +1181,14 @@ function StudioPageContent() {
         {step === 3 && result && (
           <section className="rounded-3xl bg-white p-5 shadow-sm sm:p-7">
             <h2 className="mb-1 text-xl font-bold text-slate-900">
-              Your ID photo is ready
+              {t("step3.title")}
             </h2>
             <p className="mb-5 text-sm text-slate-500">
               {result.unlocked
-                ? "Your photo is unlocked — download the clean HD ZIP anytime with no extra charge."
+                ? t("step3.unlockedDescription")
                 : (hdUnlocks ?? 0) > 0
-                  ? "Your watermarked preview is ready — use an HD token to unlock and download this photo forever."
-                  : "Previews are watermarked — purchase once to unlock instant HD download for this photo."}
+                  ? t("step3.tokenAvailableDescription")
+                  : t("step3.lockedDescription")}
             </p>
             {processError && (
               <p className="mb-4 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">
@@ -1226,7 +1223,7 @@ function StudioPageContent() {
         {restoringSession && (
           <div className="fixed inset-0 z-40 flex items-center justify-center bg-white/70 backdrop-blur-sm">
             <p className="rounded-2xl bg-white px-5 py-4 text-sm font-semibold text-slate-700 shadow-lg">
-              Completing your purchase…
+              {t("common.completingPurchase")}
             </p>
           </div>
         )}
@@ -1243,11 +1240,10 @@ function StudioPageContent() {
 
       <footer className="border-t border-slate-200 bg-white py-4">
         <p className="text-center text-xs text-slate-400">
-          AI Images Studio · Photos are processed securely and never stored on our
-          servers.
+          {t("footer.privacyNote")}
         </p>
         <p className="mt-1.5 text-center text-xs text-slate-400">
-          Support:{" "}
+          {t("footer.support", { email: "" })}
           <a
             href={`mailto:${SUPPORT_EMAIL}`}
             className="text-slate-600 hover:underline"
@@ -1267,9 +1263,7 @@ function StudioPageContent() {
           } catch (err) {
             clearPendingPhotoUpload();
             setProcessError(
-              err instanceof Error
-                ? err.message
-                : "Google sign-in failed. Please try again.",
+              err instanceof Error ? err.message : t("errors.googleSignInFailed"),
             );
             setLoginOpen(false);
           }

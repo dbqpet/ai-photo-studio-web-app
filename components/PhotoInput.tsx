@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { track } from "@vercel/analytics";
+import { useTranslation } from "react-i18next";
 import CameraCapture from "./CameraCapture";
 import CropEditor from "./CropEditor";
 import {
@@ -23,39 +24,43 @@ export default function PhotoInput({
   onPhotoSelected,
   aspectRatio = 3 / 4,
 }: PhotoInputProps) {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<InputTab>("upload");
   const [error, setError] = useState<string | null>(null);
   const [rawImage, setRawImage] = useState<string | null>(null);
   const [pendingWarning, setPendingWarning] = useState<string | undefined>();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const beginCrop = useCallback(async (dataUrl: string) => {
-    setError(null);
-    try {
-      const validation = await validateSourceImage(dataUrl);
-      setPendingWarning(validation.warning);
-      setRawImage(dataUrl);
-    } catch {
-      setError("That file does not look like a valid image. Please try another.");
-    }
-  }, []);
+  const beginCrop = useCallback(
+    async (dataUrl: string) => {
+      setError(null);
+      try {
+        const validation = await validateSourceImage(dataUrl);
+        setPendingWarning(validation.warning);
+        setRawImage(dataUrl);
+      } catch {
+        setError(t("photoInput.errorInvalidImage"));
+      }
+    },
+    [t],
+  );
 
   const handleFile = useCallback(
     async (file: File | undefined) => {
       if (!file) return;
       setError(null);
       if (!file.type.startsWith("image/")) {
-        setError("Please choose an image file (JPEG, PNG or WebP).");
+        setError(t("photoInput.errorWrongFileType"));
         return;
       }
       if (file.size > MAX_UPLOAD_BYTES) {
-        setError("Image is larger than 10 MB. Please choose a smaller file.");
+        setError(t("photoInput.errorFileTooLarge"));
         return;
       }
       const dataUrl = await fileToDataUrl(file);
       await beginCrop(dataUrl);
     },
-    [beginCrop],
+    [beginCrop, t],
   );
 
   const tabClass = (active: boolean) =>
@@ -93,7 +98,7 @@ export default function PhotoInput({
           className={tabClass(tab === "upload")}
           onClick={() => setTab("upload")}
         >
-          ⬆️ Upload Photo
+          {t("photoInput.uploadPhoto")}
         </button>
         <button
           type="button"
@@ -102,7 +107,7 @@ export default function PhotoInput({
           className={tabClass(tab === "camera")}
           onClick={() => setTab("camera")}
         >
-          📷 Take Photo
+          {t("photoInput.takePhoto")}
         </button>
       </div>
 
@@ -127,11 +132,11 @@ export default function PhotoInput({
             🖼️
           </span>
           <span className="text-sm font-medium">
-            Tap to choose a photo
-            <span className="hidden sm:inline"> or drag &amp; drop</span>
+            {t("photoInput.tapToChoose")}
+            <span className="hidden sm:inline">{t("photoInput.orDragDrop")}</span>
           </span>
           <span className="text-xs text-slate-400">
-            JPEG / PNG / WebP · Recommended ≥ 600×600px
+            {t("photoInput.fileFormats")}
           </span>
           <input
             ref={fileInputRef}

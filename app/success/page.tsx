@@ -6,6 +6,7 @@ import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { track } from "@vercel/analytics";
+import { useTranslation } from "react-i18next";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import { downloadDataUrl, studioDownloadFilename } from "@/lib/imageUtils";
 import { PRICING } from "@/lib/pricing";
@@ -19,6 +20,7 @@ function purchaseStyle(purchase: PendingPurchase): string {
 }
 
 function SuccessContent() {
+  const { t } = useTranslation();
   const params = useSearchParams();
   const sessionId = params.get("session_id");
   const [status, setStatus] = useState<Status>("verifying");
@@ -71,7 +73,7 @@ function SuccessContent() {
       {status === "verifying" && (
         <>
           <span className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-sky-500" />
-          <p className="text-slate-600">Verifying your payment…</p>
+          <p className="text-slate-600">{t("successPage.verifying")}</p>
         </>
       )}
 
@@ -80,11 +82,13 @@ function SuccessContent() {
           <span className="text-5xl" aria-hidden>
             ✅
           </span>
-          <h1 className="text-2xl font-bold text-slate-900">Payment successful!</h1>
+          <h1 className="text-2xl font-bold text-slate-900">
+            {t("successPage.paidTitle")}
+          </h1>
           <p className="text-sm text-slate-600">
-            Your payment is confirmed. Download your watermark-free high-res
-            files below. +{PRICING.previewCreditsBonus} preview tokens were also
-            added to your account.
+            {t("successPage.paidDescription", {
+              previewCredits: PRICING.previewCreditsBonus,
+            })}
           </p>
           {purchase.summary && (
             <OrderSummaryCard summary={purchase.summary} className="w-full" />
@@ -92,7 +96,7 @@ function SuccessContent() {
           {purchase.singleDataUrl?.startsWith("data:image/") && (
             <img
               src={purchase.singleDataUrl}
-              alt="Your ID photo"
+              alt={t("successPage.photoAlt")}
               className="mx-auto w-40 rounded-lg border border-slate-200 shadow-md"
             />
           )}
@@ -112,7 +116,7 @@ function SuccessContent() {
               }}
               className="rounded-xl bg-sky-600 px-5 py-3.5 text-sm font-semibold text-white shadow transition hover:bg-sky-500"
             >
-              ⬇️ Download Single ID Photo
+              {t("successPage.downloadSingle")}
             </button>
             <button
               type="button"
@@ -125,11 +129,11 @@ function SuccessContent() {
               }}
               className="rounded-xl bg-slate-800 px-5 py-3.5 text-sm font-semibold text-white shadow transition hover:bg-slate-700"
             >
-              ⬇️ Download 4R Print Sheet (JPEG)
+              {t("successPage.downloadSheet")}
             </button>
           </div>
           <Link href="/" className="text-sm font-medium text-sky-600 hover:underline">
-            ← Make another photo
+            {t("successPage.makeAnother")}
           </Link>
         </>
       )}
@@ -137,17 +141,18 @@ function SuccessContent() {
       {status === "topup" && (
         <>
           <h1 className="text-2xl font-bold text-slate-900">
-            Payment Successful! 🎉
+            {t("successPage.topupTitle")}
           </h1>
           <p className="text-sm text-slate-600">
-            Your account has been topped up with 1 HD Photo Unlock and{" "}
-            {PRICING.previewCreditsBonus} Preview Tokens. You&apos;re all set!
+            {t("successPage.topupDescription", {
+              previewCredits: PRICING.previewCreditsBonus,
+            })}
           </p>
           <Link
             href="/"
             className="flex w-full items-center justify-center rounded-2xl bg-gradient-to-r from-sky-600 to-indigo-600 px-6 py-4 text-base font-bold text-white shadow-lg transition hover:from-sky-500 hover:to-indigo-500"
           >
-            ✨ Start Making Photos
+            {t("successPage.startMakingPhotos")}
           </Link>
         </>
       )}
@@ -157,13 +162,14 @@ function SuccessContent() {
           <span className="text-5xl" aria-hidden>
             ⏳
           </span>
-          <h1 className="text-xl font-bold text-slate-900">Payment not confirmed</h1>
+          <h1 className="text-xl font-bold text-slate-900">
+            {t("successPage.unpaidTitle")}
+          </h1>
           <p className="text-sm text-slate-600">
-            We could not confirm this payment. If you completed checkout,
-            please wait a moment and refresh this page.
+            {t("successPage.unpaidDescription")}
           </p>
           <Link href="/" className="text-sm font-medium text-sky-600 hover:underline">
-            ← Back to studio
+            {t("successPage.backToStudio")}
           </Link>
         </>
       )}
@@ -173,13 +179,14 @@ function SuccessContent() {
           <span className="text-5xl" aria-hidden>
             ⚠️
           </span>
-          <h1 className="text-xl font-bold text-slate-900">Something went wrong</h1>
+          <h1 className="text-xl font-bold text-slate-900">
+            {t("successPage.errorTitle")}
+          </h1>
           <p className="text-sm text-slate-600">
-            We could not verify the payment session. Please refresh or return
-            to the studio.
+            {t("successPage.errorDescription")}
           </p>
           <Link href="/" className="text-sm font-medium text-sky-600 hover:underline">
-            ← Back to studio
+            {t("successPage.backToStudio")}
           </Link>
         </>
       )}

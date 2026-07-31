@@ -1,11 +1,20 @@
 "use client";
 
+import { useTranslation } from "react-i18next";
 import {
   BACKGROUND_COLORS,
   CUSTOM_MM_MAX,
   CUSTOM_MM_MIN,
   PHOTO_SIZE_PRESETS,
 } from "@/constants/photoSizes";
+import {
+  backgroundLabel,
+  backgroundSubLabel,
+  modeDescription,
+  modeLabel,
+  presetDescription,
+  presetLabel,
+} from "@/lib/i18n/presetLabels";
 import { PROCESSING_MODES, type ProcessingMode } from "@/lib/types";
 
 interface SpecSelectorProps {
@@ -37,15 +46,18 @@ export default function SpecSelector({
   onModeChange,
   hideDimensions = false,
 }: SpecSelectorProps) {
+  const { t } = useTranslation();
+  const selectedPreset = PHOTO_SIZE_PRESETS.find((p) => p.id === presetId);
+
   return (
     <div className="flex flex-col gap-6">
       {!hideDimensions && (
         <section>
           <h3 className="mb-2.5 text-sm font-semibold text-slate-700">
-            Photo Dimensions
+            {t("common.photoDimensions")}
           </h3>
           <label className="mb-3 block">
-            <span className="sr-only">Photo dimension preset</span>
+            <span className="sr-only">{t("common.dimensionPresetSrOnly")}</span>
             <select
               value={presetId}
               onChange={(e) => onPresetChange(e.target.value)}
@@ -53,7 +65,7 @@ export default function SpecSelector({
             >
               {PHOTO_SIZE_PRESETS.map((preset) => (
                 <option key={preset.id} value={preset.id}>
-                  {preset.icon} {preset.label}
+                  {preset.icon} {presetLabel(t, preset)}
                 </option>
               ))}
             </select>
@@ -62,7 +74,7 @@ export default function SpecSelector({
             <div className="grid grid-cols-2 gap-3">
               <label className="flex flex-col gap-1">
                 <span className="text-xs font-semibold text-slate-600">
-                  Width (mm)
+                  {t("common.widthMm")}
                 </span>
                 <input
                   type="number"
@@ -76,7 +88,7 @@ export default function SpecSelector({
               </label>
               <label className="flex flex-col gap-1">
                 <span className="text-xs font-semibold text-slate-600">
-                  Height (mm)
+                  {t("common.heightMm")}
                 </span>
                 <input
                   type="number"
@@ -89,12 +101,15 @@ export default function SpecSelector({
                 />
               </label>
               <p className="col-span-2 text-xs text-slate-500">
-                Allowed range: {CUSTOM_MM_MIN}–{CUSTOM_MM_MAX} mm at 300 DPI.
+                {t("common.customDimensionRange", {
+                  min: CUSTOM_MM_MIN,
+                  max: CUSTOM_MM_MAX,
+                })}
               </p>
             </div>
           ) : (
             <p className="text-xs text-slate-500">
-              {PHOTO_SIZE_PRESETS.find((p) => p.id === presetId)?.description}
+              {selectedPreset ? presetDescription(t, selectedPreset) : null}
             </p>
           )}
         </section>
@@ -102,7 +117,7 @@ export default function SpecSelector({
 
       <section>
         <h3 className="mb-2.5 text-sm font-semibold text-slate-700">
-          Background Color
+          {t("specs.backgroundColor")}
         </h3>
         <div className="grid grid-cols-3 gap-3 sm:gap-4">
           {BACKGROUND_COLORS.map((color) => {
@@ -113,7 +128,7 @@ export default function SpecSelector({
                 type="button"
                 onClick={() => onBackgroundChange(color.id)}
                 aria-pressed={active}
-                title={color.label}
+                title={backgroundLabel(t, color)}
                 className={`flex flex-col items-center justify-center gap-1 rounded-xl border-2 p-3 text-center transition sm:p-4 ${
                   active
                     ? "border-blue-600 bg-blue-50/30"
@@ -131,10 +146,10 @@ export default function SpecSelector({
                   )}
                 </span>
                 <span className="mt-1 block text-sm font-semibold text-slate-900">
-                  {color.label}
+                  {backgroundLabel(t, color)}
                 </span>
                 <span className="block text-[11px] text-slate-500">
-                  {color.subLabel}
+                  {backgroundSubLabel(t, color)}
                 </span>
               </button>
             );
@@ -143,7 +158,9 @@ export default function SpecSelector({
       </section>
 
       <section>
-        <h3 className="mb-2.5 text-sm font-semibold text-slate-700">AI Style</h3>
+        <h3 className="mb-2.5 text-sm font-semibold text-slate-700">
+          {t("specs.aiStyle")}
+        </h3>
         <div className="grid gap-2">
           {PROCESSING_MODES.map((option) => {
             const active = option.id === mode;
@@ -164,10 +181,10 @@ export default function SpecSelector({
                 </span>
                 <span>
                   <span className="block text-sm font-semibold text-slate-900">
-                    {option.label}
+                    {modeLabel(t, option)}
                   </span>
                   <span className="block text-xs leading-5 text-slate-500">
-                    {option.description}
+                    {modeDescription(t, option)}
                   </span>
                 </span>
               </button>

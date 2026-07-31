@@ -1,0 +1,281 @@
+{
+  "meta": {
+    "title": "AI Images Studio — 幾秒內生成專業護照及簽證相片",
+    "titleTemplate": "%s | AI Images Studio",
+    "description": "使用 AI Images Studio 即時製作官方標準、300 DPI 超高清護照、簽證及證件相。具備自動去背、各國官方規格（香港、英國、美國、申根區等）、韓式影樓美顏修圖，以及可直接列印的 4R 排版貼紙。全球用戶信賴，快速符合合規標準。",
+    "ogTitle": "AI Images Studio — 即時生成專業證件相與護照相",
+    "ogDescription": "用 AI Images Studio 將任何自拍秒變官方 300 DPI 護照及簽證相片。自動去背，完全符合官方規格。"
+  },
+
+  "brand": {
+    "name": "AI Images Studio",
+    "watermark": "AI Images Studio - 預覽圖"
+  },
+
+  "nav": {
+    "previewTokens": "{count} 次預覽點數",
+    "signIn": "登入",
+    "signOut": "登出",
+    "progressLabel": "進度"
+  },
+
+  "steps": {
+    "photo": "相片",
+    "specs": "規格",
+    "preview": "預覽"
+  },
+
+  "common": {
+    "loadingStudio": "正在載入工作室…",
+    "cancel": "取消",
+    "widthMm": "寬度 (mm)",
+    "heightMm": "高度 (mm)",
+    "photoDimensions": "相片尺寸",
+    "dimensionPresetSrOnly": "相片預設尺寸",
+    "customDimensionRange": "允許範圍：{min}–{max} mm（300 DPI）。",
+    "cropFrame": "裁切框：{dimension} ({width}×{height}px @ 300 DPI)",
+    "customDimensionLabel": "{width}×{height} mm (自訂)",
+    "dimensionLabel": "{width}×{height} mm",
+    "solidColorBackground": "純色背景 — {color}",
+    "aiStudioBackground": "AI 影樓背景",
+    "completingPurchase": "正在完成您的購買…",
+    "dbSetupHintBefore": "Supabase → SQL Editor → 貼上 ",
+    "dbSetupHintAfter": " 的內容 → 執行 (Run)。然後重新整理此頁面。",
+    "migrationFile": "supabase/migrations/001_profiles_and_credits.sql"
+  },
+
+  "step1": {
+    "title": "上傳您的相片",
+    "description": "請先選擇相片尺寸，然後上傳或拍攝相片。在 AI 處理前，您可以自由放大和調整位置。只有在按下「生成」後才會使用 AI。"
+  },
+
+  "step2": {
+    "title": "選擇相片規格",
+    "description": "選擇背景顏色與影樓風格。尺寸：{dimension}。",
+    "changePhoto": "更換相片",
+    "generatePreview": "✨ 生成免費預覽",
+    "generatePreviewWithCredits": "✨ 生成免費預覽（剩餘 {count} 次）",
+    "generating": "AI 生成中（約需 10 秒）...",
+    "previewNote": "🔒 免費預覽 • 帶水印預覽圖 • 只需要 {price} 即可解鎖 300 DPI 高清下載",
+    "highDemandStatus": "⏳ 高峰時段 AI 伺服器較為繁忙，生成相片時請耐性等候 — 如遇網路壅塞，系統會自動重試。"
+  },
+
+  "step3": {
+    "title": "您的證件相已準備好",
+    "unlockedDescription": "相片已解鎖 — 您可以隨時下載無水印高清 ZIP 包，無需額外付費。",
+    "tokenAvailableDescription": "帶水印的預覽圖已完成 — 使用 1 個高清代幣即可解鎖並永久下載此相片。",
+    "lockedDescription": "預覽圖帶有水印 — 一次性購買即可即時解鎖高清下載。"
+  },
+
+  "photoInput": {
+    "uploadPhoto": "⬆️ 上傳相片",
+    "takePhoto": "📷 即時拍攝",
+    "tapToChoose": "點擊選擇相片",
+    "orDragDrop": " 或拖放檔案至此",
+    "fileFormats": "JPEG / PNG / WebP · 建議解像度 ≥ 600×600px",
+    "errorInvalidImage": "檔案格式無效，請選擇其他相片。",
+    "errorWrongFileType": "請選擇圖片檔案（JPEG、PNG 或 WebP）。",
+    "errorFileTooLarge": "檔案大小超過 10 MB，請選擇較小的相片。"
+  },
+
+  "cropEditor": {
+    "title": "調整相片位置",
+    "description": "請放大或縮放相片，確保面部置於證件相框中心。",
+    "zoomLabel": "縮放 · {level}×",
+    "zoomAriaLabel": "縮放",
+    "preparing": "準備中…",
+    "confirm": "✓ 套用此裁切",
+    "errorCropFailed": "裁切失敗。"
+  },
+
+  "camera": {
+    "alignFaceGuide": "請將面部對準橢圓形對焦框",
+    "takePhotoAriaLabel": "拍照",
+    "unavailable": "無法使用相機。請允許相機存取權限，或改用「上傳相片」。"
+  },
+
+  "specs": {
+    "backgroundColor": "背景顏色",
+    "aiStyle": "AI 影樓風格"
+  },
+
+  "presets": {
+    "eu-35x45": {
+      "label": "35×45 mm (香港 / 英國 / 歐盟標準)",
+      "description": "35mm × 45mm · 通用護照與簽證尺寸"
+    },
+    "us-2x2": {
+      "label": "2×2 吋 (美國護照 / 簽證)",
+      "description": "2吋 × 2吋 (51mm × 51mm)"
+    },
+    "hk-passport": {
+      "label": "40×50 mm (香港特區護照 / BNO)",
+      "description": "40mm × 50mm"
+    },
+    "cn-travel-permit": {
+      "label": "33×48 mm (回鄉證 / 中國簽證)",
+      "description": "33mm × 48mm"
+    },
+    "custom": {
+      "label": "自訂尺寸",
+      "description": "自行輸入寬度 × 高度 (mm)",
+      "descriptionFormatted": "{width}mm × {height}mm"
+    }
+  },
+
+  "backgrounds": {
+    "white": {
+      "label": "白色",
+      "subLabel": "護照 / 簽證"
+    },
+    "off-white-grey": {
+      "label": "米白",
+      "subLabel": "淺灰色"
+    },
+    "blue": {
+      "label": "藍色",
+      "subLabel": "標準藍"
+    }
+  },
+
+  "modes": {
+    "classic": {
+      "label": "經典護照風",
+      "description": "自然乾淨的光線，呈現專業正規的證件相質感。"
+    },
+    "korean": {
+      "label": "韓式影樓修圖",
+      "description": "柔和高調光影、自然修飾肌膚，打造精緻的高質感影樓照。"
+    },
+    "corporate": {
+      "label": "商務精英風",
+      "description": "清晰銳利、冷色調專業氛圍，適合商務及正裝場合。"
+    }
+  },
+
+  "orderSummary": {
+    "heading": "您的選擇",
+    "style": "風格",
+    "background": "背景",
+    "dimension": "尺寸"
+  },
+
+  "preview": {
+    "singlePhotoAlt": "已處理的 {preset} 帶水印預覽相片",
+    "sheetAlt": "4R 排版列印紙帶水印預覽",
+    "aiModeBadge": "⚡ 真 AI 模式",
+    "unlockedBadge": "已解鎖",
+    "singleCaption": "單張相片 · {description} @ 300 DPI",
+    "sheetCaption": "4R 列印排版紙 (4×6吋, 300 DPI) · {count} 張相片 ({columns}×{rows}) 含裁切線",
+    "unlockButton": "🔓 解鎖高清檔 & 4R 列印排版 ({price})",
+    "unlockNote": "⚡ 即時下載 • 300 DPI 官方合規規格 • 包含 4R 沖印排版圖",
+    "downloadButton": "📦 下載高清相片 (.zip)",
+    "downloadedButton": "✅ 已下載 — 再次下載",
+    "preparingDownload": "正在準備高清相片...",
+    "downloadNote": "包含單張高清相片 (300 DPI) + 4R 沖印排版檔 (ZIP 格式)",
+    "hdTokensRemaining_one": "您還剩餘 {count} 個高清點數。第一次下載即可永久解鎖此相片。",
+    "hdTokensRemaining_other": "您還剩餘 {count} 個高清點數。第一次下載即可永久解鎖此相片。",
+    "redirectingCheckout": "正在前往安全結帳頁面…",
+    "backToEdit": "← 返回修改 (尺寸、顏色、風格)",
+    "startOver": "↺ 使用新相片重新開始",
+    "supportQuestion": "對訂單有疑問？請聯絡支援人員：{email}"
+  },
+
+  "loginModal": {
+    "title": "✨ 立即領取 3 次免費預覽點數！",
+    "subtitle": "使用 Google 帳號登入，即可體驗 AI 即時生成與預覽相片。",
+    "benefit1": "首次登入即送 3 次免費預覽點數",
+    "benefit2": "隨時儲存並存取您生成的證件相",
+    "benefit3": "100% 保證符合官方護照與簽證規格",
+    "continueWithGoogle": "使用 Google 帳號繼續",
+    "privacyNote": "🔒 隱私安全承諾：您的相片嚴格保密，處理完成後會自動刪除。",
+    "notNow": "暫不登入"
+  },
+
+  "paywallModal": {
+    "title": "解鎖更多預覽次數 ✨",
+    "description": "您的免費預覽點數已用完。購買新套餐，繼續製作完美的證件相！",
+    "includesPack": "💎 包含 1 次高清相片下載 + {previewCredits} 次額外預覽點數",
+    "unlockForPrice": "以 {price} 解鎖",
+    "redirectingCheckout": "正在前往安全結帳頁面…",
+    "supportQuestion": "對訂單有疑問？請聯絡支援人員：{email}",
+    "maybeLater": "稍後再說"
+  },
+
+  "exitWarningModal": {
+    "title": "⚠️ 等等！您尚未儲存高清相片！",
+    "description": "離開此頁面後，您的 300 DPI 證件相工作階段將會失效。請立即下載檔案。（未下載的相片工作階段無法找回，且不予退款）。",
+    "downloadNow": "📦 立即下載高清相片 (.zip)",
+    "preparingDownload": "正在準備高清相片...",
+    "leaveAnyway": "仍要離開"
+  },
+
+  "successPage": {
+    "verifying": "正在驗證您的付款…",
+    "paidTitle": "付款成功！",
+    "paidDescription": "您的付款已確認。請在下方下載無水印高清檔案。帳戶亦已新增 +{previewCredits} 次預覽點數。",
+    "photoAlt": "您的證件相",
+    "downloadSingle": "⬇️ 下載單張證件相",
+    "downloadSheet": "⬇️ 下載 4R 列印排版 (JPEG)",
+    "makeAnother": "← 製作另一張相片",
+    "topupTitle": "付款成功！🎉",
+    "topupDescription": "您的帳戶已成功充值 1 次高清相片解鎖及 {previewCredits} 次預覽點數。一切就緒！",
+    "startMakingPhotos": "✨ 開始製作相片",
+    "unpaidTitle": "付款尚未確認",
+    "unpaidDescription": "我們無法確認此付款。若您已完成結帳，請稍候片刻後重新整理此頁面。",
+    "errorTitle": "發生錯誤",
+    "errorDescription": "我們無法驗證付款工作階段。請重新整理或返回工作室。",
+    "backToStudio": "← 返回工作室"
+  },
+
+  "footer": {
+    "privacyNote": "AI Images Studio · 相片經安全處理，絕不儲存於我們的伺服器。",
+    "support": "支援：{email}"
+  },
+
+  "pricing": {
+    "badge": "🔥 上線優惠 — 節省 60%",
+    "productName": "官方高清相片 & 4R 列印排版",
+    "checkoutCta": "解鎖高清下載",
+    "topupProductName": "AI Images Studio — 預覽點數充值包"
+  },
+
+  "toasts": {
+    "photoRestored": "歡迎回來 — 您的相片已還原。",
+    "topupSuccess": "🎉 充值成功！已新增 +{hdUnlocks} 次高清解鎖及 +{previewCredits} 次預覽點數。",
+    "topupRefreshFailed": "付款已成功，但無法更新您的帳戶。請重新整理頁面。",
+    "paymentDownloadStarted": "🎉 付款成功！您的 300 DPI 高清相片 ZIP 正在下載中。如未看到下載，請使用下方的「下載高清相片」按鈕。",
+    "paymentUnlocked": "付款成功 — 您的相片已解鎖！請點擊「下載高清相片」以儲存檔案。",
+    "paymentSessionNotFound": "付款已成功，但在此瀏覽器中找不到相片工作階段。",
+    "paymentRestoreFailed": "付款已成功，但還原您的相片時發生錯誤。"
+  },
+
+  "errors": {
+    "highDemand": "AI 伺服器目前需求量大。請耐性等候 — 我們正在重試生成您的相片，可能需要比平常稍長時間。",
+    "aiServiceUnavailable": "AI 相片服務暫時無法使用。點數未被扣除 — 請稍後再試，或如問題持續請聯絡支援。",
+    "generationFailed": "AI 生成失敗，點數未被扣除。",
+    "generationTimeout": "生成逾時。AI 伺服器可能較為繁忙 — 請再試一次。",
+    "networkError": "無法連接伺服器。請檢查您的網路連線後再試。",
+    "signInRequired": "請先登入以生成相片。",
+    "noPreviewCredits": "預覽點數已用完。請購買套餐。",
+    "processingFailed": "處理失敗。",
+    "invalidImageResponse": "生成回傳無效的圖片。請再試一次。",
+    "processingFailedRetry": "處理失敗。請再試一次。",
+    "checkoutFailed": "結帳失敗。",
+    "checkoutFailedRetry": "結帳失敗。請再試一次。",
+    "noHdTokens": "高清解鎖點數已用完。",
+    "signInToDownload": "請先登入以下載。",
+    "downloadPrepareFailed": "無法準備高清下載。",
+    "downloadFailed": "高清下載失敗。請再試一次。",
+    "googleSignInFailed": "Google 登入失敗。請再試一次。",
+    "lowResolutionWarning": "解像度偏低 ({width}×{height}px)。為獲得清晰沖印效果，建議至少 {minWidth}×{minHeight}px。",
+    "dbSetupIncomplete": "資料庫設定未完成：請在 Supabase SQL Editor 重新執行 supabase/migrations/001_profiles_and_credits.sql，然後重新整理此頁面。",
+    "profileLoadFailed": "無法載入您的個人資料。",
+    "couldNotLoadImage": "無法載入圖片。",
+    "couldNotReadFile": "無法讀取檔案。"
+  },
+
+  "aria": {
+    "sourcePhotoAlt": "您選擇的原始相片"
+  }
+}

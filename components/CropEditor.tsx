@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import Cropper, { type Area } from "react-easy-crop";
 import "react-easy-crop/react-easy-crop.css";
+import { useTranslation } from "react-i18next";
 import { getCroppedDataUrl } from "@/lib/cropImage";
 
 /** Default ID portrait aspect ratio (3:4). */
@@ -23,6 +24,7 @@ export default function CropEditor({
   onConfirm,
   onCancel,
 }: CropEditorProps) {
+  const { t } = useTranslation();
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
@@ -41,20 +43,18 @@ export default function CropEditor({
       const dataUrl = await getCroppedDataUrl(imageSrc, croppedAreaPixels);
       onConfirm(dataUrl);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Crop failed.");
+      setError(err instanceof Error ? err.message : t("cropEditor.errorCropFailed"));
       setBusy(false);
     }
-  }, [croppedAreaPixels, imageSrc, onConfirm]);
+  }, [croppedAreaPixels, imageSrc, onConfirm, t]);
 
   return (
     <div className="flex flex-col gap-4">
       <div>
         <h3 className="text-base font-bold text-slate-900">
-          Adjust your photo
+          {t("cropEditor.title")}
         </h3>
-        <p className="text-sm text-slate-500">
-          Zoom and drag so your face is centred in the ID portrait frame.
-        </p>
+        <p className="text-sm text-slate-500">{t("cropEditor.description")}</p>
       </div>
 
       <div
@@ -76,7 +76,7 @@ export default function CropEditor({
 
       <label className="flex flex-col gap-1.5">
         <span className="text-xs font-semibold text-slate-600">
-          Zoom · {zoom.toFixed(1)}×
+          {t("cropEditor.zoomLabel", { level: zoom.toFixed(1) })}
         </span>
         <input
           type="range"
@@ -86,7 +86,7 @@ export default function CropEditor({
           value={zoom}
           onChange={(e) => setZoom(Number(e.target.value))}
           className="w-full accent-sky-600"
-          aria-label="Zoom"
+          aria-label={t("cropEditor.zoomAriaLabel")}
         />
       </label>
 
@@ -103,7 +103,7 @@ export default function CropEditor({
           disabled={busy || !croppedAreaPixels}
           className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-sky-600 px-5 py-3.5 text-sm font-bold text-white transition hover:bg-sky-500 disabled:opacity-60"
         >
-          {busy ? "Preparing…" : "✓ Use this crop"}
+          {busy ? t("cropEditor.preparing") : t("cropEditor.confirm")}
         </button>
         <button
           type="button"
@@ -111,7 +111,7 @@ export default function CropEditor({
           disabled={busy}
           className="rounded-2xl border border-slate-300 bg-transparent px-5 py-3.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
         >
-          Cancel
+          {t("common.cancel")}
         </button>
       </div>
     </div>

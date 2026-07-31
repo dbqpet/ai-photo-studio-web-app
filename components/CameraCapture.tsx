@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface CameraCaptureProps {
   onCapture: (dataUrl: string) => void;
@@ -11,6 +12,7 @@ interface CameraCaptureProps {
  * help the user frame their head before capturing.
  */
 export default function CameraCapture({ onCapture }: CameraCaptureProps) {
+  const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [ready, setReady] = useState(false);
@@ -26,7 +28,7 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
           audio: false,
         });
         if (cancelled) {
-          stream.getTracks().forEach((t) => t.stop());
+          stream.getTracks().forEach((track) => track.stop());
           return;
         }
         streamRef.current = stream;
@@ -37,9 +39,7 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
         setReady(true);
       } catch {
         if (!cancelled) {
-          setError(
-            "Camera unavailable. Please allow camera access, or use Upload Photo instead.",
-          );
+          setError(t("camera.unavailable"));
         }
       }
     }
@@ -47,8 +47,9 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
     start();
     return () => {
       cancelled = true;
-      streamRef.current?.getTracks().forEach((t) => t.stop());
+      streamRef.current?.getTracks().forEach((track) => track.stop());
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- start the camera once on mount
   }, []);
 
   const capture = useCallback(() => {
@@ -113,7 +114,7 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
               />
             </svg>
             <p className="absolute bottom-3 inset-x-0 text-center text-xs font-medium text-sky-200 drop-shadow">
-              Align your face inside the oval guide
+              {t("camera.alignFaceGuide")}
             </p>
           </>
         )}
@@ -123,7 +124,7 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
         onClick={capture}
         disabled={!ready}
         className="inline-flex h-14 w-14 items-center justify-center rounded-full border-4 border-slate-300 bg-white shadow-lg transition active:scale-95 disabled:opacity-40"
-        aria-label="Take photo"
+        aria-label={t("camera.takePhotoAriaLabel")}
       >
         <span className="h-10 w-10 rounded-full bg-rose-500" />
       </button>

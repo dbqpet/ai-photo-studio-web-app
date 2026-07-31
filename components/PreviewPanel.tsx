@@ -2,8 +2,10 @@
 
 /* eslint-disable @next/next/no-img-element -- previews are dynamic data URLs */
 
+import { useTranslation } from "react-i18next";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import type { PhotoSizePreset } from "@/constants/photoSizes";
+import { presetDescription, presetLabel } from "@/lib/i18n/presetLabels";
 import { PRICING, formatUsd } from "@/lib/pricing";
 import { SUPPORT_EMAIL } from "@/lib/site";
 import type { PurchaseSummary } from "@/lib/purchaseStore";
@@ -49,12 +51,13 @@ export default function PreviewPanel({
   onBack,
   onStartOver,
 }: PreviewPanelProps) {
+  const { t } = useTranslation();
   const showUnlock = !unlocked && hdUnlocks <= 0;
   const showDownload = unlocked || hdUnlocks > 0;
 
   const downloadLabel = downloaded
-    ? "✅ Downloaded — Download Again"
-    : "📦 Download HD Photos (.zip)";
+    ? t("preview.downloadedButton")
+    : t("preview.downloadButton");
 
   return (
     <div className="flex flex-col gap-6">
@@ -63,34 +66,37 @@ export default function PreviewPanel({
           <div className="relative w-full max-w-56">
             <img
               src={singlePreviewUrl}
-              alt={`Watermarked preview of the processed ${preset.label} photo`}
+              alt={t("preview.singlePhotoAlt", { preset: presetLabel(t, preset) })}
               className="w-full rounded-lg border border-slate-200 shadow-md"
             />
             <span
               data-testid="ai-mode-badge"
               className="absolute left-2 top-2 rounded-full bg-emerald-600 px-2.5 py-1 text-[11px] font-bold text-white shadow"
             >
-              ⚡ Real AI Mode
+              {t("preview.aiModeBadge")}
             </span>
             {unlocked && (
               <span className="absolute right-2 top-2 rounded-full bg-sky-600 px-2.5 py-1 text-[11px] font-bold text-white shadow">
-                Unlocked
+                {t("preview.unlockedBadge")}
               </span>
             )}
           </div>
           <figcaption className="text-xs text-slate-500">
-            Single photo · {preset.description} @ 300 DPI
+            {t("preview.singleCaption", { description: presetDescription(t, preset) })}
           </figcaption>
         </figure>
         <figure className="flex flex-col items-center gap-2">
           <img
             src={sheetPreviewUrl}
-            alt="Watermarked preview of the 4R print sheet"
+            alt={t("preview.sheetAlt")}
             className="w-full rounded-lg border border-slate-200 shadow-md"
           />
           <figcaption className="text-xs text-slate-500">
-            4R print sheet (4×6in, 300 DPI) · {layout.count} photos (
-            {layout.columns}×{layout.rows}) with cut guides
+            {t("preview.sheetCaption", {
+              count: layout.count,
+              columns: layout.columns,
+              rows: layout.rows,
+            })}
           </figcaption>
         </figure>
       </div>
@@ -109,20 +115,17 @@ export default function PreviewPanel({
               {checkoutLoading ? (
                 <>
                   <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                  Redirecting to secure checkout…
+                  {t("preview.redirectingCheckout")}
                 </>
               ) : (
-                <>
-                  🔓 Unlock HD &amp; 4R Print Sheet ({formatUsd(PRICING.saleUsd)})
-                </>
+                <>{t("preview.unlockButton", { price: formatUsd(PRICING.saleUsd) })}</>
               )}
             </button>
             <p className="text-center text-xs leading-relaxed text-slate-600">
-              ⚡ Instant Download • 300 DPI Official Spec • Includes 4R Print
-              Sheet
+              {t("preview.unlockNote")}
             </p>
             <p className="text-center text-[11px] text-slate-500">
-              Questions about your order? Contact support at{" "}
+              {t("preview.supportQuestion", { email: "" })}
               <a
                 href={`mailto:${SUPPORT_EMAIL}`}
                 className="text-slate-600 hover:underline"
@@ -144,19 +147,18 @@ export default function PreviewPanel({
               {downloadLoading ? (
                 <>
                   <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                  Preparing HD Photo...
+                  {t("preview.preparingDownload")}
                 </>
               ) : (
                 <>{downloadLabel}</>
               )}
             </button>
             <p className="text-center text-xs leading-relaxed text-slate-600">
-              Includes Single HD Photo (300 DPI) + 4R Print Layout (ZIP format)
+              {t("preview.downloadNote")}
             </p>
             {!unlocked && hdUnlocks > 0 && (
               <p className="text-center text-[11px] text-slate-500">
-                You have {hdUnlocks} HD token{hdUnlocks === 1 ? "" : "s"}{" "}
-                remaining. First download unlocks this photo forever.
+                {t("preview.hdTokensRemaining", { count: hdUnlocks })}
               </p>
             )}
           </>
@@ -167,14 +169,14 @@ export default function PreviewPanel({
           onClick={onBack}
           className="rounded-2xl border border-slate-300 bg-transparent px-6 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
         >
-          ← Back to Edit (Size, Color, Style)
+          {t("preview.backToEdit")}
         </button>
         <button
           type="button"
           onClick={onStartOver}
           className="self-center px-4 py-2 text-sm font-medium text-slate-400 underline-offset-4 transition hover:text-slate-600 hover:underline"
         >
-          ↺ Start over with a new photo
+          {t("preview.startOver")}
         </button>
       </div>
     </div>

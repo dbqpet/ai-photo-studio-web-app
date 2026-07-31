@@ -1,0 +1,281 @@
+{
+  "meta": {
+    "title": "AI Images Studio — 数秒でプロ品質のパスポート・ビザ写真を作成",
+    "titleTemplate": "%s | AI Images Studio",
+    "description": "AI Images Studio なら、公式基準・300 DPI の高解像度パスポート、ビザ、証明写真を即座に作成できます。自動背景除去、各国公式サイズ対応（香港、英国、米国、シェンゲン協定国など）、韓国スタジオ風美肌加工、印刷用 4R シートレイアウトを搭載。世界中で信頼される、迅速で規格準拠の証明写真作成サービスです。",
+    "ogTitle": "AI Images Studio — 証明写真・パスポート写真を即座に生成",
+    "ogDescription": "AI Images Studio で自撮り写真を公式基準の 300 DPI パスポート・ビザ写真に瞬時に変換。自動背景除去と公式規格準拠。"
+  },
+
+  "brand": {
+    "name": "AI Images Studio",
+    "watermark": "AI Images Studio - プレビュー"
+  },
+
+  "nav": {
+    "previewTokens": "プレビュー残り {count} 回",
+    "signIn": "ログイン",
+    "signOut": "ログアウト",
+    "progressLabel": "進行状況"
+  },
+
+  "steps": {
+    "photo": "写真",
+    "specs": "規格",
+    "preview": "プレビュー"
+  },
+
+  "common": {
+    "loadingStudio": "スタジオを読み込み中…",
+    "cancel": "キャンセル",
+    "widthMm": "幅 (mm)",
+    "heightMm": "高さ (mm)",
+    "photoDimensions": "写真サイズ",
+    "dimensionPresetSrOnly": "写真サイズプリセット",
+    "customDimensionRange": "許容範囲：{min}〜{max} mm（300 DPI）。",
+    "cropFrame": "トリミング枠：{dimension} ({width}×{height}px @ 300 DPI)",
+    "customDimensionLabel": "{width}×{height} mm (カスタム)",
+    "dimensionLabel": "{width}×{height} mm",
+    "solidColorBackground": "単色背景 — {color}",
+    "aiStudioBackground": "AI スタジオ背景",
+    "completingPurchase": "購入手続きを完了しています…",
+    "dbSetupHintBefore": "Supabase → SQL Editor → ",
+    "dbSetupHintAfter": " の内容を貼り付け → 実行 (Run)。その後このページを更新してください。",
+    "migrationFile": "supabase/migrations/001_profiles_and_credits.sql"
+  },
+
+  "step1": {
+    "title": "写真をアップロード",
+    "description": "まず写真のサイズを選択し、写真をアップロードまたは撮影してください。AI 処理の前にズームや位置調整が可能です。「生成」をクリックしたときのみ AI が実行されます。"
+  },
+
+  "step2": {
+    "title": "写真の仕様を選択",
+    "description": "背景色とスタジオスタイルを選択してください。サイズ：{dimension}。",
+    "changePhoto": "写真を変更",
+    "generatePreview": "✨ 無料プレビューを生成",
+    "generatePreviewWithCredits": "✨ 無料プレビューを生成（残り {count} 回）",
+    "generating": "AI 生成中（約10秒）...",
+    "previewNote": "🔒 無料プレビュー • 透かし入りプレビュー • {price} で 300 DPI 高画質ダウンロードを解除",
+    "highDemandStatus": "⏳ ピーク時は AI サーバーが混み合うことがあります。写真作成中はしばらくお待ちください — ネットワークが混雑している場合は自動的に再試行します。"
+  },
+
+  "step3": {
+    "title": "証明写真の準備が完了しました",
+    "unlockedDescription": "写真はロック解除されています — 追加料金なしで、いつでもクリーンな高画質 ZIP をダウンロードできます。",
+    "tokenAvailableDescription": "透かし入りプレビューの準備ができました — 高画質トークンを1つ使用すると、この写真を永久にロック解除してダウンロードできます。",
+    "lockedDescription": "プレビューには透かしが入っています — 一度購入すると、即座に高画質ダウンロードが解除されます。"
+  },
+
+  "photoInput": {
+    "uploadPhoto": "⬆️ 写真をアップロード",
+    "takePhoto": "📷 写真を撮る",
+    "tapToChoose": "タップして写真を選択",
+    "orDragDrop": " またはドラッグ＆ドロップ",
+    "fileFormats": "JPEG / PNG / WebP · 推奨解像度 600×600px 以上",
+    "errorInvalidImage": "有効な画像ファイルではないようです。別のファイルをお試しください。",
+    "errorWrongFileType": "画像ファイル（JPEG、PNG、WebP）を選択してください。",
+    "errorFileTooLarge": "画像サイズが 10MB を超えています。より小さいファイルを選択してください。"
+  },
+
+  "cropEditor": {
+    "title": "写真の位置を調整",
+    "description": "証明写真の枠の中心に顔が来るように、ズーム・ドラッグして調整してください。",
+    "zoomLabel": "ズーム · {level}×",
+    "zoomAriaLabel": "ズーム",
+    "preparing": "準備中…",
+    "confirm": "✓ このトリミングを使用",
+    "errorCropFailed": "トリミングに失敗しました。"
+  },
+
+  "camera": {
+    "alignFaceGuide": "楕円形のガイド枠に顔を合わせてください",
+    "takePhotoAriaLabel": "写真を撮る",
+    "unavailable": "カメラを使用できません。カメラへのアクセスを許可するか、「写真をアップロード」をご利用ください。"
+  },
+
+  "specs": {
+    "backgroundColor": "背景色",
+    "aiStyle": "AI スタイル"
+  },
+
+  "presets": {
+    "eu-35x45": {
+      "label": "35×45 mm (香港 / 英国 / EU 標準)",
+      "description": "35mm × 45mm · 一般的なパスポート・ビザサイズ"
+    },
+    "us-2x2": {
+      "label": "2×2 インチ (米国パスポート)",
+      "description": "2インチ × 2インチ (51mm × 51mm)"
+    },
+    "hk-passport": {
+      "label": "40×50 mm (香港パスポート / BNO)",
+      "description": "40mm × 50mm"
+    },
+    "cn-travel-permit": {
+      "label": "33×48 mm (中国往来証)",
+      "description": "33mm × 48mm"
+    },
+    "custom": {
+      "label": "カスタム",
+      "description": "幅×高さ (mm) を自由に入力",
+      "descriptionFormatted": "{width}mm × {height}mm"
+    }
+  },
+
+  "backgrounds": {
+    "white": {
+      "label": "白",
+      "subLabel": "パスポート / ビザ"
+    },
+    "off-white-grey": {
+      "label": "オフホワイト",
+      "subLabel": "ライトグレー"
+    },
+    "blue": {
+      "label": "青",
+      "subLabel": "標準ブルー"
+    }
+  },
+
+  "modes": {
+    "classic": {
+      "label": "クラシックパスポート",
+      "description": "自然な光で仕上げる、清潔感のあるプロフェッショナルな証明写真。"
+    },
+    "korean": {
+      "label": "韓国スタジオスタイル",
+      "description": "柔らかいハイキー照明と自然な美肌加工で、上質なスタジオ風の仕上がりに。"
+    },
+    "corporate": {
+      "label": "コーポレートプロ",
+      "description": "シャープなフォーカスとクールな色調で、フォーマルなビジネス仕上がりに。"
+    }
+  },
+
+  "orderSummary": {
+    "heading": "選択内容",
+    "style": "スタイル",
+    "background": "背景",
+    "dimension": "サイズ"
+  },
+
+  "preview": {
+    "singlePhotoAlt": "加工済みの {preset} 透かし入りプレビュー写真",
+    "sheetAlt": "4R 印刷シートの透かし入りプレビュー",
+    "aiModeBadge": "⚡ リアル AI モード",
+    "unlockedBadge": "ロック解除済み",
+    "singleCaption": "写真1枚 · {description} @ 300 DPI",
+    "sheetCaption": "4R 印刷シート (4×6インチ, 300 DPI) · {count} 枚 ({columns}×{rows}) カットガイド付き",
+    "unlockButton": "🔓 高画質写真 & 4R 印刷シートを解除 ({price})",
+    "unlockNote": "⚡ 即時ダウンロード • 300 DPI 公式規格準拠 • 4R 印刷シート付き",
+    "downloadButton": "📦 高画質写真をダウンロード (.zip)",
+    "downloadedButton": "✅ ダウンロード済み — もう一度ダウンロード",
+    "preparingDownload": "高画質写真を準備中...",
+    "downloadNote": "高画質写真1枚 (300 DPI) + 4R 印刷レイアウト (ZIP 形式) を含む",
+    "hdTokensRemaining_one": "高画質トークンが残り {count} 個あります。初回ダウンロードでこの写真が永久にロック解除されます。",
+    "hdTokensRemaining_other": "高画質トークンが残り {count} 個あります。初回ダウンロードでこの写真が永久にロック解除されます。",
+    "redirectingCheckout": "安全な決済ページへ移動しています…",
+    "backToEdit": "← 編集に戻る (サイズ・色・スタイル)",
+    "startOver": "↺ 新しい写真でやり直す",
+    "supportQuestion": "ご注文についてご質問がありますか？サポートまでご連絡ください：{email}"
+  },
+
+  "loginModal": {
+    "title": "✨ 3回分の無料プレビュー特典をゲット！",
+    "subtitle": "Google アカウントでログインすると、AI による写真生成とプレビューをすぐにご利用いただけます。",
+    "benefit1": "初回ログインで無料プレビュー3回をプレゼント",
+    "benefit2": "生成した証明写真をいつでも保存・閲覧可能",
+    "benefit3": "公式パスポート・ビザ規格に100%準拠を保証",
+    "continueWithGoogle": "Google アカウントで続ける",
+    "privacyNote": "🔒 プライバシー保護：お客様の写真は厳重に管理され、処理後は自動的に削除されます。",
+    "notNow": "今はしない"
+  },
+
+  "paywallModal": {
+    "title": "プレビューをもっと解除 ✨",
+    "description": "無料プレビュー回数を使い切りました。新しいパックを購入して、理想の証明写真作りを続けましょう！",
+    "includesPack": "💎 高画質写真ダウンロード1回 + 特典プレビュー {previewCredits} 回分を含む",
+    "unlockForPrice": "{price} で解除する",
+    "redirectingCheckout": "安全な決済ページへ移動しています…",
+    "supportQuestion": "ご注文についてご質問がありますか？サポートまでご連絡ください：{email}",
+    "maybeLater": "後でする"
+  },
+
+  "exitWarningModal": {
+    "title": "⚠️ お待ちください！高画質写真がまだ保存されていません！",
+    "description": "このページを離れると、300 DPI の証明写真セッションは失効します。今すぐファイルをダウンロードしてください。（ダウンロードされなかった写真セッションは復元できず、返金の対象にもなりません）。",
+    "downloadNow": "📦 今すぐ高画質写真をダウンロード (.zip)",
+    "preparingDownload": "高画質写真を準備中...",
+    "leaveAnyway": "それでも離れる"
+  },
+
+  "successPage": {
+    "verifying": "お支払いを確認しています…",
+    "paidTitle": "お支払いが完了しました！",
+    "paidDescription": "お支払いが確認されました。下記から透かしなしの高画質ファイルをダウンロードしてください。アカウントにプレビュー {previewCredits} 回分も追加されました。",
+    "photoAlt": "あなたの証明写真",
+    "downloadSingle": "⬇️ 証明写真をダウンロード",
+    "downloadSheet": "⬇️ 4R 印刷シートをダウンロード (JPEG)",
+    "makeAnother": "← 別の写真を作成する",
+    "topupTitle": "お支払いが完了しました！🎉",
+    "topupDescription": "アカウントに高画質写真ロック解除1回分と、プレビュー {previewCredits} 回分がチャージされました。準備は万端です！",
+    "startMakingPhotos": "✨ 写真作成をはじめる",
+    "unpaidTitle": "お支払いが確認できません",
+    "unpaidDescription": "お支払いを確認できませんでした。決済を完了された場合は、しばらくしてからこのページを更新してください。",
+    "errorTitle": "問題が発生しました",
+    "errorDescription": "決済セッションを確認できませんでした。ページを更新するか、スタジオに戻ってください。",
+    "backToStudio": "← スタジオに戻る"
+  },
+
+  "footer": {
+    "privacyNote": "AI Images Studio · 写真は安全に処理され、サーバーに保存されることはありません。",
+    "support": "サポート：{email}"
+  },
+
+  "pricing": {
+    "badge": "🔥 ローンチ記念セール — 60% オフ",
+    "productName": "公式高画質写真 & 4R 印刷シート",
+    "checkoutCta": "高画質ダウンロードを解除",
+    "topupProductName": "AI Images Studio — プレビューチャージパック"
+  },
+
+  "toasts": {
+    "photoRestored": "お帰りなさい — 写真を復元しました。",
+    "topupSuccess": "🎉 チャージが完了しました！高画質解除 +{hdUnlocks} 回、プレビュー +{previewCredits} 回が追加されました。",
+    "topupRefreshFailed": "お支払いは完了しましたが、アカウント情報を更新できませんでした。ページを更新してください。",
+    "paymentDownloadStarted": "🎉 お支払いが完了しました！300 DPI の高画質写真 ZIP を自動ダウンロード中です。表示されない場合は、下記の「高画質写真をダウンロード」ボタンをご利用ください。",
+    "paymentUnlocked": "お支払いが完了し、写真のロックが解除されました！「高画質写真をダウンロード」をタップしてファイルを保存してください。",
+    "paymentSessionNotFound": "お支払いは完了しましたが、このブラウザで写真セッションが見つかりませんでした。",
+    "paymentRestoreFailed": "お支払いは完了しましたが、写真の復元に失敗しました。"
+  },
+
+  "errors": {
+    "highDemand": "現在 AI サーバーが混み合っています。しばらくお待ちください — 写真の生成を再試行しています。通常より時間がかかる場合があります。",
+    "aiServiceUnavailable": "AI 写真サービスが一時的にご利用いただけません。クレジットは差し引かれていません — しばらくしてから再度お試しいただくか、解決しない場合はサポートまでご連絡ください。",
+    "generationFailed": "AI 生成に失敗しました。クレジットは差し引かれていません。",
+    "generationTimeout": "生成がタイムアウトしました。AI サーバーが混雑している可能性があります — もう一度お試しください。",
+    "networkError": "サーバーに接続できませんでした。ネットワーク接続を確認してから再度お試しください。",
+    "signInRequired": "生成するにはログインしてください。",
+    "noPreviewCredits": "プレビュー残数がありません。パックをご購入ください。",
+    "processingFailed": "処理に失敗しました。",
+    "invalidImageResponse": "生成結果が無効な画像でした。もう一度お試しください。",
+    "processingFailedRetry": "処理に失敗しました。もう一度お試しください。",
+    "checkoutFailed": "決済に失敗しました。",
+    "checkoutFailedRetry": "決済に失敗しました。もう一度お試しください。",
+    "noHdTokens": "高画質解除トークンがありません。",
+    "signInToDownload": "ダウンロードするにはログインしてください。",
+    "downloadPrepareFailed": "高画質ダウンロードを準備できませんでした。",
+    "downloadFailed": "高画質ダウンロードに失敗しました。もう一度お試しください。",
+    "googleSignInFailed": "Google ログインに失敗しました。もう一度お試しください。",
+    "lowResolutionWarning": "解像度が低いです ({width}×{height}px)。鮮明な印刷のため、少なくとも {minWidth}×{minHeight}px を推奨します。",
+    "dbSetupIncomplete": "データベースの設定が未完了です：Supabase の SQL Editor で supabase/migrations/001_profiles_and_credits.sql を再実行し、このページを更新してください。",
+    "profileLoadFailed": "プロフィールを読み込めませんでした。",
+    "couldNotLoadImage": "画像を読み込めませんでした。",
+    "couldNotReadFile": "ファイルを読み込めませんでした。"
+  },
+
+  "aria": {
+    "sourcePhotoAlt": "選択された元の写真"
+  }
+}

@@ -1,0 +1,281 @@
+{
+  "meta": {
+    "title": "AI Images Studio — Professional Passport & Visa Photos in Seconds",
+    "titleTemplate": "%s | AI Images Studio",
+    "description": "Create official, high-resolution 300 DPI passport, visa, and ID photos instantly with AI Images Studio. Features automatic background removal, official size compliance (Hong Kong, UK, US, Schengen, etc.), Korean studio style enhancement, and printable 4R print sheet layouts. Trusted worldwide for fast, compliant ID photo creation.",
+    "ogTitle": "AI Images Studio — Instant Professional ID & Passport Photos",
+    "ogDescription": "Turn any selfie into official 300 DPI passport & visa photos instantly with AI Images Studio. Automatic background removal & official spec compliance."
+  },
+
+  "brand": {
+    "name": "AI Images Studio",
+    "watermark": "AI Images Studio - Preview"
+  },
+
+  "nav": {
+    "previewTokens": "{count} Preview Tokens",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "progressLabel": "Progress"
+  },
+
+  "steps": {
+    "photo": "Photo",
+    "specs": "Specs",
+    "preview": "Preview"
+  },
+
+  "common": {
+    "loadingStudio": "Loading studio…",
+    "cancel": "Cancel",
+    "widthMm": "Width (mm)",
+    "heightMm": "Height (mm)",
+    "photoDimensions": "Photo Dimensions",
+    "dimensionPresetSrOnly": "Photo dimension preset",
+    "customDimensionRange": "Allowed range: {min}–{max} mm at 300 DPI.",
+    "cropFrame": "Crop frame: {dimension} ({width}×{height}px @ 300 DPI)",
+    "customDimensionLabel": "{width}×{height} mm (Custom)",
+    "dimensionLabel": "{width}×{height} mm",
+    "solidColorBackground": "Solid Color — {color}",
+    "aiStudioBackground": "AI Studio Background",
+    "completingPurchase": "Completing your purchase…",
+    "dbSetupHintBefore": "Supabase → SQL Editor → paste the contents of ",
+    "dbSetupHintAfter": " → Run. Then refresh this page.",
+    "migrationFile": "supabase/migrations/001_profiles_and_credits.sql"
+  },
+
+  "step1": {
+    "title": "Add your photo",
+    "description": "Choose your photo dimensions first, then upload or capture. You can zoom and reposition before we process it. AI runs only when you click Generate."
+  },
+
+  "step2": {
+    "title": "Choose your specs",
+    "description": "Pick the background and studio style. Dimension: {dimension}.",
+    "changePhoto": "Change photo",
+    "generatePreview": "✨ Generate Free Preview",
+    "generatePreviewWithCredits": "✨ Generate Free Preview ({count} left)",
+    "generating": "AI Generating (takes ~10s)...",
+    "previewNote": "🔒 Free preview • Watermarked preview • Unlock 300 DPI HD download for {price}",
+    "highDemandStatus": "⏳ Our AI servers can get busy during peak times. Please be patient while we create your photo — automatic retries are in progress if the network is congested."
+  },
+
+  "step3": {
+    "title": "Your ID photo is ready",
+    "unlockedDescription": "Your photo is unlocked — download the clean HD ZIP anytime with no extra charge.",
+    "tokenAvailableDescription": "Your watermarked preview is ready — use an HD token to unlock and download this photo forever.",
+    "lockedDescription": "Previews are watermarked — purchase once to unlock instant HD download for this photo."
+  },
+
+  "photoInput": {
+    "uploadPhoto": "⬆️ Upload Photo",
+    "takePhoto": "📷 Take Photo",
+    "tapToChoose": "Tap to choose a photo",
+    "orDragDrop": " or drag & drop",
+    "fileFormats": "JPEG / PNG / WebP · Recommended ≥ 600×600px",
+    "errorInvalidImage": "That file does not look like a valid image. Please try another.",
+    "errorWrongFileType": "Please choose an image file (JPEG, PNG or WebP).",
+    "errorFileTooLarge": "Image is larger than 10 MB. Please choose a smaller file."
+  },
+
+  "cropEditor": {
+    "title": "Adjust your photo",
+    "description": "Zoom and drag so your face is centred in the ID portrait frame.",
+    "zoomLabel": "Zoom · {level}×",
+    "zoomAriaLabel": "Zoom",
+    "preparing": "Preparing…",
+    "confirm": "✓ Use this crop",
+    "errorCropFailed": "Crop failed."
+  },
+
+  "camera": {
+    "alignFaceGuide": "Align your face inside the oval guide",
+    "takePhotoAriaLabel": "Take photo",
+    "unavailable": "Camera unavailable. Please allow camera access, or use Upload Photo instead."
+  },
+
+  "specs": {
+    "backgroundColor": "Background Color",
+    "aiStyle": "AI Style"
+  },
+
+  "presets": {
+    "eu-35x45": {
+      "label": "35×45 mm (HK / UK / EU Standard)",
+      "description": "35mm × 45mm · common passport & visa size"
+    },
+    "us-2x2": {
+      "label": "2×2 inches (US Passport)",
+      "description": "2in × 2in (51mm × 51mm)"
+    },
+    "hk-passport": {
+      "label": "40×50 mm (Hong Kong Passport / BNO)",
+      "description": "40mm × 50mm"
+    },
+    "cn-travel-permit": {
+      "label": "33×48 mm (Mainland China Travel Permit)",
+      "description": "33mm × 48mm"
+    },
+    "custom": {
+      "label": "Custom",
+      "description": "Enter your own width × height in mm",
+      "descriptionFormatted": "{width}mm × {height}mm"
+    }
+  },
+
+  "backgrounds": {
+    "white": {
+      "label": "White",
+      "subLabel": "Passport / Visa"
+    },
+    "off-white-grey": {
+      "label": "Off-White",
+      "subLabel": "Light Grey"
+    },
+    "blue": {
+      "label": "Blue",
+      "subLabel": "Standard Blue"
+    }
+  },
+
+  "modes": {
+    "classic": {
+      "label": "Classic Passport",
+      "description": "Clean natural lighting with a professional ID-photo finish."
+    },
+    "korean": {
+      "label": "Korean Studio Style",
+      "description": "Soft high-key lighting, gentle skin smoothing and a refined studio tone."
+    },
+    "corporate": {
+      "label": "Corporate Pro",
+      "description": "Sharp focus, cool professional tint and a formal corporate finish."
+    }
+  },
+
+  "orderSummary": {
+    "heading": "Your selection",
+    "style": "Style",
+    "background": "Background",
+    "dimension": "Dimension"
+  },
+
+  "preview": {
+    "singlePhotoAlt": "Watermarked preview of the processed {preset} photo",
+    "sheetAlt": "Watermarked preview of the 4R print sheet",
+    "aiModeBadge": "⚡ Real AI Mode",
+    "unlockedBadge": "Unlocked",
+    "singleCaption": "Single photo · {description} @ 300 DPI",
+    "sheetCaption": "4R print sheet (4×6in, 300 DPI) · {count} photos ({columns}×{rows}) with cut guides",
+    "unlockButton": "🔓 Unlock HD & 4R Print Sheet ({price})",
+    "unlockNote": "⚡ Instant Download • 300 DPI Official Spec • Includes 4R Print Sheet",
+    "downloadButton": "📦 Download HD Photos (.zip)",
+    "downloadedButton": "✅ Downloaded — Download Again",
+    "preparingDownload": "Preparing HD Photo...",
+    "downloadNote": "Includes Single HD Photo (300 DPI) + 4R Print Layout (ZIP format)",
+    "hdTokensRemaining_one": "You have {count} HD token remaining. First download unlocks this photo forever.",
+    "hdTokensRemaining_other": "You have {count} HD tokens remaining. First download unlocks this photo forever.",
+    "redirectingCheckout": "Redirecting to secure checkout…",
+    "backToEdit": "← Back to Edit (Size, Color, Style)",
+    "startOver": "↺ Start over with a new photo",
+    "supportQuestion": "Questions about your order? Contact support at {email}"
+  },
+
+  "loginModal": {
+    "title": "✨ Claim Your 3 Free Preview Tokens!",
+    "subtitle": "Sign in with Google to unlock instant AI photo generation and preview.",
+    "benefit1": "3 Free Preview Tokens on your first sign in",
+    "benefit2": "Save and access your photo generations anytime",
+    "benefit3": "Guaranteed 100% Official Passport & Visa specs",
+    "continueWithGoogle": "Continue with Google",
+    "privacyNote": "🔒 Privacy Guaranteed: Your photos are strictly confidential and auto-deleted after processing.",
+    "notNow": "Not now"
+  },
+
+  "paywallModal": {
+    "title": "Unlock More Previews ✨",
+    "description": "You've run out of free preview tokens. Grab a new pack to continue creating your perfect ID photo!",
+    "includesPack": "💎 Includes 1 HD Photo Download + {previewCredits} Bonus Preview Tokens",
+    "unlockForPrice": "Unlock for {price}",
+    "redirectingCheckout": "Redirecting to secure checkout…",
+    "supportQuestion": "Questions about your order? Contact support at {email}",
+    "maybeLater": "Maybe later"
+  },
+
+  "exitWarningModal": {
+    "title": "⚠️ Wait! You haven't saved your HD photos yet!",
+    "description": "Your 300 DPI passport photo session will expire once you leave. Please download your files now. (Un-downloaded photo sessions cannot be retrieved and are non-refundable).",
+    "downloadNow": "📦 Download HD Photos Now (.zip)",
+    "preparingDownload": "Preparing HD Photo...",
+    "leaveAnyway": "Leave Anyway"
+  },
+
+  "successPage": {
+    "verifying": "Verifying your payment…",
+    "paidTitle": "Payment successful!",
+    "paidDescription": "Your payment is confirmed. Download your watermark-free high-res files below. +{previewCredits} preview tokens were also added to your account.",
+    "photoAlt": "Your ID photo",
+    "downloadSingle": "⬇️ Download Single ID Photo",
+    "downloadSheet": "⬇️ Download 4R Print Sheet (JPEG)",
+    "makeAnother": "← Make another photo",
+    "topupTitle": "Payment Successful! 🎉",
+    "topupDescription": "Your account has been topped up with 1 HD Photo Unlock and {previewCredits} Preview Tokens. You're all set!",
+    "startMakingPhotos": "✨ Start Making Photos",
+    "unpaidTitle": "Payment not confirmed",
+    "unpaidDescription": "We could not confirm this payment. If you completed checkout, please wait a moment and refresh this page.",
+    "errorTitle": "Something went wrong",
+    "errorDescription": "We could not verify the payment session. Please refresh or return to the studio.",
+    "backToStudio": "← Back to studio"
+  },
+
+  "footer": {
+    "privacyNote": "AI Images Studio · Photos are processed securely and never stored on our servers.",
+    "support": "Support: {email}"
+  },
+
+  "pricing": {
+    "badge": "🔥 Launch Special - Save 60%",
+    "productName": "Official HD Photo & 4R Print Sheet",
+    "checkoutCta": "Unlock High-Res Download",
+    "topupProductName": "AI Images Studio — Preview Top-up Pack"
+  },
+
+  "toasts": {
+    "photoRestored": "Welcome back — your photo was restored.",
+    "topupSuccess": "🎉 Top-up successful! +{hdUnlocks} HD Unlock and +{previewCredits} Preview Tokens added.",
+    "topupRefreshFailed": "Payment succeeded, but we couldn't refresh your account. Please refresh the page.",
+    "paymentDownloadStarted": "🎉 Payment successful! Your 300 DPI HD photo ZIP is downloading now. If you don't see it, use the \"Download HD Photos\" button below.",
+    "paymentUnlocked": "Payment successful — your photo is unlocked! Tap \"Download HD Photos\" to save your files.",
+    "paymentSessionNotFound": "Payment succeeded, but the photo session was not found in this browser.",
+    "paymentRestoreFailed": "Payment succeeded, but restoring your photo failed."
+  },
+
+  "errors": {
+    "highDemand": "Our AI servers are currently in high demand. Please be patient — we're retrying your photo. This can take a little longer than usual.",
+    "aiServiceUnavailable": "Our AI photo service is temporarily unavailable. No credits were deducted — please try again later or contact support if this continues.",
+    "generationFailed": "AI generation failed, no credits were deducted.",
+    "generationTimeout": "Generation timed out. Our AI servers may be busy — please try again.",
+    "networkError": "Could not reach the server. Please check your connection and try again.",
+    "signInRequired": "Please sign in to generate.",
+    "noPreviewCredits": "No preview credits left. Please purchase a pack.",
+    "processingFailed": "Processing failed.",
+    "invalidImageResponse": "Generation returned an invalid image. Please try again.",
+    "processingFailedRetry": "Processing failed. Please try again.",
+    "checkoutFailed": "Checkout failed.",
+    "checkoutFailedRetry": "Checkout failed. Please try again.",
+    "noHdTokens": "No HD unlock tokens left.",
+    "signInToDownload": "Please sign in to download.",
+    "downloadPrepareFailed": "Could not prepare HD download.",
+    "downloadFailed": "HD download failed. Please try again.",
+    "googleSignInFailed": "Google sign-in failed. Please try again.",
+    "lowResolutionWarning": "Low resolution ({width}×{height}px). For crisp prints we recommend at least {minWidth}×{minHeight}px.",
+    "dbSetupIncomplete": "Database setup incomplete: re-run supabase/migrations/001_profiles_and_credits.sql in the Supabase SQL editor, then refresh this page.",
+    "profileLoadFailed": "Could not load your profile.",
+    "couldNotLoadImage": "Could not load the image.",
+    "couldNotReadFile": "Could not read the file."
+  },
+
+  "aria": {
+    "sourcePhotoAlt": "Your selected source"
+  }
+}

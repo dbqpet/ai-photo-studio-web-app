@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslation } from "react-i18next";
 import { PRICING, formatUsd } from "@/lib/pricing";
 import { SUPPORT_EMAIL } from "@/lib/site";
 
@@ -17,6 +18,7 @@ export default function PaywallModal({
   onCheckout,
   checkoutLoading = false,
 }: PaywallModalProps) {
+  const { t } = useTranslation();
   if (!open) return null;
 
   return (
@@ -35,11 +37,10 @@ export default function PaywallModal({
           id="paywall-modal-title"
           className="text-xl font-bold text-slate-900"
         >
-          Unlock More Previews ✨
+          {t("paywallModal.title")}
         </h2>
         <p className="mt-2 text-sm text-slate-600">
-          You&apos;ve run out of free preview tokens. Grab a new pack to
-          continue creating your perfect ID photo!
+          {t("paywallModal.description")}
         </p>
 
         <div className="mt-6 rounded-2xl border border-rose-100 bg-rose-50/60 px-5 py-5">
@@ -51,12 +52,13 @@ export default function PaywallModal({
               {formatUsd(PRICING.saleUsd)}
             </span>
             <span className="rounded-full bg-red-600 px-3 py-1 text-xs font-bold text-white shadow-sm">
-              {PRICING.badge}
+              {t("pricing.badge")}
             </span>
           </div>
           <p className="mt-3 text-sm font-semibold text-slate-800">
-            💎 Includes 1 HD Photo Download + {PRICING.previewCreditsBonus}{" "}
-            Bonus Preview Tokens
+            {t("paywallModal.includesPack", {
+              previewCredits: PRICING.previewCreditsBonus,
+            })}
           </p>
         </div>
 
@@ -69,15 +71,15 @@ export default function PaywallModal({
           {checkoutLoading ? (
             <>
               <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-              Redirecting to secure checkout…
+              {t("paywallModal.redirectingCheckout")}
             </>
           ) : (
-            <>Unlock for {formatUsd(PRICING.saleUsd)}</>
+            <>{t("paywallModal.unlockForPrice", { price: formatUsd(PRICING.saleUsd) })}</>
           )}
         </button>
 
         <p className="mt-4 text-center text-[11px] text-slate-500">
-          Questions about your order? Contact support at{" "}
+          {t("paywallModal.supportQuestion", { email: "" })}
           <a
             href={`mailto:${SUPPORT_EMAIL}`}
             className="text-slate-600 hover:underline"
@@ -91,7 +93,7 @@ export default function PaywallModal({
           onClick={onClose}
           className="mt-3 w-full py-2 text-sm font-medium text-slate-500 hover:text-slate-700"
         >
-          Maybe later
+          {t("paywallModal.maybeLater")}
         </button>
       </div>
     </div>
