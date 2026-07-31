@@ -25,6 +25,15 @@
     "preview": "Preview"
   },
 
+  "hero": {
+    "title": "Official Passport & Visa Photos in 3 Seconds",
+    "subtitle": "Turn any casual selfie into 300 DPI compliance-ready passport photos & standard 4R print sheets. Save $15+ per photo!",
+    "badge_ai": "⚡ Instant AI Sizing & BG Removal",
+    "badge_print": "🖨️ Ready-to-Print 4R Layout",
+    "badge_privacy": "🔒 Privacy First & Auto-Deleted",
+    "cta_button": "Upload Your Photo Now"
+  },
+
   "common": {
     "loadingStudio": "Loading studio…",
     "cancel": "Cancel",

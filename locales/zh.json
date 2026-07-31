@@ -25,6 +25,15 @@
     "preview": "預覽"
   },
 
+  "hero": {
+    "title": "3 秒生成官方護照及簽證相片",
+    "subtitle": "將任何日常自拍變成符合規格的 300 DPI 護照相及標準 4R 列印排版。每張相片節省 $15 以上！",
+    "badge_ai": "⚡ 即時 AI 裁切與去背",
+    "badge_print": "🖨️ 可直接列印的 4R 排版",
+    "badge_privacy": "🔒 私隱優先，自動刪除",
+    "cta_button": "立即上傳相片"
+  },
+
   "common": {
     "loadingStudio": "正在載入工作室…",
     "cancel": "取消",

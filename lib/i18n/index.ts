@@ -24,7 +24,11 @@ if (!i18n.isInitialized) {
     },
     lng: DEFAULT_LOCALE,
     fallbackLng: DEFAULT_LOCALE,
-    interpolation: { escapeValue: false },
+    // All locale JSON files use single-brace placeholders (e.g. "{count}"),
+    // not i18next's default "{{count}}" — override the delimiters to match,
+    // otherwise interpolation silently no-ops and placeholders render as the
+    // literal "{count}" text (e.g. the header's Preview Tokens badge).
+    interpolation: { escapeValue: false, prefix: "{", suffix: "}" },
     returnEmptyString: false,
   });
 }

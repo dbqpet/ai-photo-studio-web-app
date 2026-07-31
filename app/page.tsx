@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { track } from "@vercel/analytics";
 import { useTranslation } from "react-i18next";
 import ExitWarningModal from "@/components/ExitWarningModal";
+import HeroSection from "@/components/HeroSection";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import LoginModal from "@/components/LoginModal";
 import PaywallModal from "@/components/PaywallModal";
@@ -995,7 +996,10 @@ function StudioPageContent() {
         )}
 
         {step === 1 && (
-          <section className="rounded-3xl bg-white p-5 shadow-sm sm:p-7">
+          <>
+            <HeroSection uploadTargetId="photo-upload" />
+
+            <section className="rounded-3xl bg-white p-5 shadow-sm sm:p-7">
             <h2 className="mb-1 text-xl font-bold text-slate-900">
               {t("step1.title")}
             </h2>
@@ -1063,11 +1067,14 @@ function StudioPageContent() {
               </p>
             </div>
 
-            <PhotoInput
-              onPhotoSelected={handlePhotoSelected}
-              aspectRatio={preset.aspectRatio}
-            />
+            <div id="photo-upload" tabIndex={-1} className="scroll-mt-6 outline-none">
+              <PhotoInput
+                onPhotoSelected={handlePhotoSelected}
+                aspectRatio={preset.aspectRatio}
+              />
+            </div>
           </section>
+          </>
         )}
 
         {step === 2 && sourcePhoto && (

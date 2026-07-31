@@ -25,6 +25,15 @@
     "preview": "预览"
   },
 
+  "hero": {
+    "title": "3 秒生成官方护照及签证照片",
+    "subtitle": "将任何日常自拍变成符合规格的 300 DPI 护照照及标准 4R 打印排版。每张照片节省 $15 以上！",
+    "badge_ai": "⚡ 即时 AI 裁切与去背",
+    "badge_print": "🖨️ 可直接打印的 4R 排版",
+    "badge_privacy": "🔒 隐私优先，自动删除",
+    "cta_button": "立即上传照片"
+  },
+
   "common": {
     "loadingStudio": "正在加载工作室…",
     "cancel": "取消",
