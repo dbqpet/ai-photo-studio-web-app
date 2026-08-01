@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { ensureProfile, type Profile } from "@/lib/supabase/profile";
+import { trackGAEvent } from "@/lib/ga";
 
 export interface AuthState {
   user: User | null;
@@ -90,10 +91,16 @@ export function useAuth(): AuthState {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       const nextUser = session?.user ?? null;
       setUser(nextUser);
       void loadProfile(nextUser);
+      // "SIGNED_IN" fires only for a fresh sign-in (e.g. completing the Google
+      // OAuth redirect) — unlike "INITIAL_SESSION", it does not re-fire when
+      // an existing session is simply resumed on page load/refresh.
+      if (event === "SIGNED_IN") {
+        trackGAEvent("login", { method: "google" });
+      }
     });
 
     return () => {

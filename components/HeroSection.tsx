@@ -2,6 +2,7 @@
 
 import { useTranslation } from "react-i18next";
 import { track } from "@vercel/analytics";
+import { trackGAEvent } from "@/lib/ga";
 
 const BADGE_KEYS = ["hero.badge_ai", "hero.badge_print", "hero.badge_privacy"] as const;
 
@@ -15,6 +16,7 @@ export default function HeroSection({ uploadTargetId = "photo-upload" }: HeroSec
 
   const scrollToUpload = () => {
     track("click_upload");
+    trackGAEvent("click_upload_hero");
     const target = document.getElementById(uploadTargetId);
     if (target) {
       target.scrollIntoView({ behavior: "smooth", block: "start" });

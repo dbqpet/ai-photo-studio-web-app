@@ -5,6 +5,7 @@ import Cropper, { type Area } from "react-easy-crop";
 import "react-easy-crop/react-easy-crop.css";
 import { useTranslation } from "react-i18next";
 import { getCroppedDataUrl } from "@/lib/cropImage";
+import { trackGAEvent } from "@/lib/ga";
 
 /** Default ID portrait aspect ratio (3:4). */
 export const ID_CROP_ASPECT = 3 / 4;
@@ -37,6 +38,7 @@ export default function CropEditor({
 
   const confirm = useCallback(async () => {
     if (!croppedAreaPixels) return;
+    trackGAEvent("click_generate_photo", { stage: "apply_crop" });
     setBusy(true);
     setError(null);
     try {

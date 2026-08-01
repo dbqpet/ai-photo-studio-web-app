@@ -32,6 +32,7 @@ import {
 } from "@/lib/i18n/presetLabels";
 import { PRICING, formatUsd } from "@/lib/pricing";
 import { SUPPORT_EMAIL } from "@/lib/site";
+import { trackGAEvent } from "@/lib/ga";
 import {
   clearActivePhotoSession,
   createGenerationId,
@@ -1154,6 +1155,7 @@ function StudioPageContent() {
               type="button"
               onClick={() => {
                 track("click_generate_preview");
+                trackGAEvent("click_generate_photo", { stage: "generate_preview" });
                 if (user && previewCredits !== null && previewCredits <= 0) {
                   setPaywallOpen(true);
                   return;
@@ -1214,10 +1216,12 @@ function StudioPageContent() {
               downloadLoading={downloadLoading}
               onCheckout={() => {
                 track("click_checkout", { intent: "unlock_photo" });
+                trackGAEvent("click_checkout", { intent: "unlock_photo" });
                 void checkout("unlock_photo");
               }}
               onDownloadHd={() => {
                 track("click_download_hd");
+                trackGAEvent("click_download");
                 void downloadHd();
               }}
               onBack={() => guardExit(backToSpecs)}
@@ -1286,6 +1290,7 @@ function StudioPageContent() {
         onClose={() => setPaywallOpen(false)}
         onCheckout={() => {
           track("click_checkout", { intent: "topup" });
+          trackGAEvent("click_checkout", { intent: "topup" });
           void checkout("topup");
         }}
         checkoutLoading={checkoutLoading}

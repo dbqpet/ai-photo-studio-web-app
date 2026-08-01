@@ -10,6 +10,7 @@ import {
   fileToDataUrl,
   validateSourceImage,
 } from "@/lib/imageUtils";
+import { trackGAEvent } from "@/lib/ga";
 
 interface PhotoInputProps {
   onPhotoSelected: (dataUrl: string, warning?: string) => void;
@@ -48,6 +49,7 @@ export default function PhotoInput({
   const handleFile = useCallback(
     async (file: File | undefined) => {
       if (!file) return;
+      trackGAEvent("upload_photo_started");
       setError(null);
       if (!file.type.startsWith("image/")) {
         setError(t("photoInput.errorWrongFileType"));
