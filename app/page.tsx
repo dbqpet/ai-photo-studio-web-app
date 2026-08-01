@@ -186,6 +186,8 @@ function StudioPageContent() {
   const [hasDownloadedHD, setHasDownloadedHD] = useState(false);
   const [exitWarningOpen, setExitWarningOpen] = useState(false);
   const pendingExitRef = useRef<(() => void) | null>(null);
+  /** Blocks duplicate GA / API calls before `processing` state disables the button. */
+  const generateLockedRef = useRef(false);
 
   const preset = useMemo(
     () =>
@@ -1154,13 +1156,22 @@ function StudioPageContent() {
             <button
               type="button"
               onClick={() => {
+                // Guard synchronously — `processing` only flips async inside generate().
+                if (processing || generateLockedRef.current) return;
+                generateLockedRef.current = true;
+
                 track("click_generate_preview");
-                trackGAEvent("click_generate_photo", { stage: "generate_preview" });
+                trackGAEvent("click_generate_photo");
+
                 if (user && previewCredits !== null && previewCredits <= 0) {
+                  generateLockedRef.current = false;
                   setPaywallOpen(true);
                   return;
                 }
-                void generate();
+
+                void generate().finally(() => {
+                  generateLockedRef.current = false;
+                });
               }}
               disabled={processing}
               className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-600 to-indigo-600 px-6 py-4 text-base font-bold text-white shadow-lg transition hover:from-sky-500 hover:to-indigo-500 disabled:opacity-60"

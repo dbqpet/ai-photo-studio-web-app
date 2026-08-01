@@ -38,7 +38,7 @@ export default function CropEditor({
 
   const confirm = useCallback(async () => {
     if (!croppedAreaPixels) return;
-    trackGAEvent("click_generate_photo", { stage: "apply_crop" });
+    trackGAEvent("click_apply_crop");
     setBusy(true);
     setError(null);
     try {
