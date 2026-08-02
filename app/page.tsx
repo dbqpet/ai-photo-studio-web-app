@@ -932,6 +932,12 @@ function StudioPageContent() {
               <button
                 type="button"
                 onClick={() => {
+                  // Manual click intent only — distinct from the `login` event
+                  // in useAuth.ts, which fires later on a successful
+                  // SIGNED_IN session (e.g. after the Google OAuth redirect
+                  // completes). These are separate GA4 events, so counting
+                  // both is intentional and never double-counts one action.
+                  trackGAEvent("click_login");
                   persistPendingUploadForLogin();
                   setLoginOpen(true);
                 }}
