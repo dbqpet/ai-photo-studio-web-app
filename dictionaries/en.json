@@ -1,0 +1,113 @@
+{
+  "meta": {
+    "title": "AI ID Photo Maker | Hong Kong Passport, Visa & 4R Print Sheets",
+    "description": "Create Hong Kong passport, visa, and international ID photos from home on your phone or computer. AI background removal, auto-cropping, and 4R print layouts — save time, save money, skip the queue.",
+    "keywords": [
+      "Hong Kong passport photo",
+      "ID photo maker",
+      "AI ID photo",
+      "4R print sheet",
+      "background removal",
+      "visa photo",
+      "passport photo online",
+      "AI Images Studio"
+    ],
+    "locale": "en_US",
+    "htmlLang": "en"
+  },
+  "nav": {
+    "headerCta": "Create Free Now"
+  },
+  "langSwitcher": {
+    "label": "Language",
+    "current": "English",
+    "switchTo": "繁體中文"
+  },
+  "hero": {
+    "title": "AI ID Photo Maker | 3-Second Background Removal & Compliant 4R Print Sheets",
+    "subtitle": "Create Hong Kong passport, visa, and international ID photos from home on your phone or computer. Smart background removal, auto-cropping, and 4R print layouts — save time, save money, skip the queue.",
+    "primaryCta": "Create Your ID Photo Free",
+    "secondaryCta": "Explore Features"
+  },
+  "features": {
+    "title": "Why do so many users choose AI Images Studio?",
+    "items": [
+      {
+        "icon": "🤖",
+        "title": "AI Precision Background Removal",
+        "subtitle": "AI Background Removal",
+        "description": "Advanced AI detects facial contours in one second, replacing cluttered backgrounds with compliant pure white or light blue — even fine hair details are preserved."
+      },
+      {
+        "icon": "📏",
+        "title": "One-Click International Standards",
+        "subtitle": "Standard Size Presets",
+        "description": "Built-in presets for Hong Kong and global ID photo sizes (HK passport 40×50 mm, ID card, Home Return Permit, visa photos, and more). Auto-cropped to the exact ratio — never out of bounds."
+      },
+      {
+        "icon": "🖨️",
+        "title": "Exclusive 4R Print Layout",
+        "subtitle": "4R Print Layout",
+        "description": "Download a single photo or get multiple ID shots arranged on one standard 4R (4×6 inch) print sheet. Print one sheet at a kiosk for just a few dollars — unbeatable value."
+      },
+      {
+        "icon": "🔒",
+        "title": "Privacy First",
+        "subtitle": "Privacy & Security",
+        "description": "Uploaded photos are used only for instant AI processing. Your privacy is protected and data is handled securely."
+      }
+    ]
+  },
+  "steps": {
+    "title": "Get your ID photo done in 3 simple steps",
+    "stepLabel": "Step",
+    "items": [
+      {
+        "step": 1,
+        "title": "Upload Your Photo",
+        "subtitle": "Upload",
+        "description": "Take a front-facing, head-and-shoulders photo with your phone or camera, then drag-and-drop or upload it to the page."
+      },
+      {
+        "step": 2,
+        "title": "AI Auto-Processing",
+        "subtitle": "AI Processing",
+        "description": "The system removes the background, adjusts lighting, aligns facial proportions, and applies your chosen ID photo dimensions."
+      },
+      {
+        "step": 3,
+        "title": "Pay & Download",
+        "subtitle": "Instant Download",
+        "description": "When you're happy with the preview, unlock and download high-resolution ID photos or a 4R print sheet — ready for printing or online submission."
+      }
+    ]
+  },
+  "faq": {
+    "title": "Frequently Asked Questions (FAQ)",
+    "questionPrefix": "Q",
+    "answerPrefix": "A",
+    "items": [
+      {
+        "question": "Are the ID photos compliant with Hong Kong government / Immigration Department standards?",
+        "answer": "Our system is designed to match official Hong Kong passport and ID card dimensions (photo size, head proportion, etc.). For best results, face the camera directly, keep eyes open, no teeth showing, and ears clearly visible."
+      },
+      {
+        "question": "What is a 4R print layout?",
+        "answer": "A 4R layout automatically arranges multiple standard ID photos on one 4×6 inch (4R) print sheet. You pay for a single 4R print at a photo kiosk or convenience store and cut out multiple ID photos — extremely cost-effective!"
+      },
+      {
+        "question": "How long does the whole process take?",
+        "answer": "From upload to download takes about 1 minute — no waiting in line at a photo booth."
+      }
+    ]
+  },
+  "bottomCta": {
+    "title": "Ready to create your perfect ID photo?",
+    "subtitle": "Experience AI background removal and fast print layouts — save time and money.",
+    "button": "Start Free Now"
+  },
+  "footer": {
+    "privacy": "AI Images Studio · Photos are processed securely and never stored long-term on our servers.",
+    "supportLabel": "Support: "
+  }
+}

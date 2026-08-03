@@ -1,0 +1,114 @@
+{
+  "meta": {
+    "title": "AI 智能證件相製作神器 | 香港護照、簽證及 4R 拼圖相片",
+    "description": "安坐家中，隨時隨地用手機或電腦製作香港特區護照、簽證及各國證件相。AI 智能去背、自動裁剪、4R 拼圖排版，省時慳錢免排隊。",
+    "keywords": [
+      "香港證件相",
+      "香港護照相片",
+      "AI 證件相",
+      "4R 拼圖",
+      "智能去背",
+      "回鄉證相片",
+      "Visa 簽證相片",
+      "證件相製作",
+      "AI Images Studio"
+    ],
+    "locale": "zh_HK",
+    "htmlLang": "zh-HK"
+  },
+  "nav": {
+    "headerCta": "立即免費製作"
+  },
+  "langSwitcher": {
+    "label": "語言",
+    "current": "繁體中文",
+    "switchTo": "English"
+  },
+  "hero": {
+    "title": "AI 智能證件相製作神器 | 3 秒自動去背、一鍵生成合規格 4R 相片",
+    "subtitle": "安坐家中，隨時隨地用手機或電腦製作香港特區護照、簽證及各國證件相。支援智能去背、自動裁剪與 4R 拼圖排版，省時、慳錢、免排隊。",
+    "primaryCta": "立即免費製作證件相",
+    "secondaryCta": "了解功能特色"
+  },
+  "features": {
+    "title": "點解咁多用戶選擇 AI Images Studio？",
+    "items": [
+      {
+        "icon": "🤖",
+        "title": "AI 智能精準去背",
+        "subtitle": "AI Background Removal",
+        "description": "先進 AI 技術一秒識別輪廓，自動將雜亂背景轉為符合標準的純白或淺藍色，髮絲細節毫無遺漏。"
+      },
+      {
+        "icon": "📏",
+        "title": "一鍵符合國際規格",
+        "subtitle": "Standard Size Presets",
+        "description": "內置多國及香港常用證件相尺寸（如香港護照 40x50mm、身分證、回鄉證、Visa 簽證等），系統自動幫你比例裁剪，絕不超界。"
+      },
+      {
+        "icon": "🖨️",
+        "title": "獨家 4R 拼圖輸出",
+        "subtitle": "4R Print Layout",
+        "description": "唔單止單張下載，仲可以將多張證件相自動拼在一張標準 4R 相片（4x6 吋）入面。去自助洗相舖只需幾蚊雞就印到一大版，性價比極高。"
+      },
+      {
+        "icon": "🔒",
+        "title": "絕對私隱保障",
+        "subtitle": "Privacy & Security",
+        "description": "上載的照片僅供即時 AI 處理，系統自動保護個人隱私，安全可靠。"
+      }
+    ]
+  },
+  "steps": {
+    "title": "只需 3 個簡單步驟，輕鬆搞掂證件相",
+    "stepLabel": "Step",
+    "items": [
+      {
+        "step": 1,
+        "title": "上載相片",
+        "subtitle": "Upload",
+        "description": "用手機或相機隨手拍一張正面免冠相片，直接拖拉或上載到網頁。"
+      },
+      {
+        "step": 2,
+        "title": "AI 自動執相",
+        "subtitle": "AI Processing",
+        "description": "系統自動去背、微調光線、對齊面部比例，並套用你選擇嘅證件相尺寸。"
+      },
+      {
+        "step": 3,
+        "title": "付款並下載",
+        "subtitle": "Instant Download",
+        "description": "滿意後即可即時解鎖下載高畫質證件相或 4R 拼圖，隨時拎去沖曬或網上遞交。"
+      }
+    ]
+  },
+  "faq": {
+    "title": "常見問題 (FAQ)",
+    "questionPrefix": "Q",
+    "answerPrefix": "A",
+    "items": [
+      {
+        "question": "呢個網站製作嘅證件相符合香港政府／入境處標準嗎？",
+        "answer": "本系統嚴格根據香港特區護照及身分證的官方尺寸（如相片大小、頭部佔比等）進行比例設計。建議拍攝時保持正面、雙眼直視前方、不露齒及耳朵清晰，即可順利通過審查。"
+      },
+      {
+        "question": "乜嘢叫做 4R 拼圖排版？",
+        "answer": "4R 拼圖即係將幾張標準尺寸的證件相自動排版在同一張 4x6 吋的 4R 相相紙入面。你只需要畀曬一張 4R 嘅錢（去快圖美或便利店自助機只需幾蚊），就可以剪出多張證件相，極之抵玩！"
+      },
+      {
+        "question": "整個製作過程需要幾耐？",
+        "answer": "由上載到完成下載只需大約 1 分鐘，完全唔需要排隊影快相機。"
+      }
+    ]
+  },
+  "bottomCta": {
+    "title": "準備好整你專屬嘅靚靚證件相未？",
+    "subtitle": "立即體驗 AI 智能去背與快捷排版，省時又省錢。",
+    "button": "立即免費開始"
+  },
+  "footer": {
+    "privacy": "AI Images Studio · 相片安全處理，絕不長期儲存於伺服器。",
+    "supportLabel": "支援："
+  }
+}
