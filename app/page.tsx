@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import ExitWarningModal from "@/components/ExitWarningModal";
 import HeroSection from "@/components/HeroSection";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import ProductHuntBadge from "@/components/ProductHuntBadge";
 import LoginModal from "@/components/LoginModal";
 import PaywallModal from "@/components/PaywallModal";
 import PhotoInput from "@/components/PhotoInput";
@@ -1266,22 +1267,27 @@ function StudioPageContent() {
       )}
 
       <footer className="border-t border-slate-200 bg-white py-4">
-        <div className="mx-auto flex w-full max-w-3xl flex-col items-center justify-between gap-4 px-5 sm:flex-row">
-          <div className="text-center sm:text-left">
-            <p className="text-xs text-slate-400">
-              {t("footer.privacyNote")}
-            </p>
-            <p className="mt-1.5 text-xs text-slate-400">
-              {t("footer.support", { email: "" })}
-              <a
-                href={`mailto:${SUPPORT_EMAIL}`}
-                className="text-slate-600 hover:underline"
-              >
-                {SUPPORT_EMAIL}
-              </a>
-            </p>
+        <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-4 px-5">
+          <div className="flex w-full flex-col items-center justify-between gap-4 sm:flex-row sm:items-end">
+            <div className="text-center sm:text-left">
+              <p className="text-xs text-slate-400">
+                {t("footer.privacyNote")}
+              </p>
+              <p className="mt-1.5 text-xs text-slate-400">
+                {t("footer.support", { email: "" })}
+                <a
+                  href={`mailto:${SUPPORT_EMAIL}`}
+                  className="text-slate-600 hover:underline"
+                >
+                  {SUPPORT_EMAIL}
+                </a>
+              </p>
+            </div>
+            <div className="flex flex-col items-center gap-3 sm:items-end">
+              <LanguageSwitcher />
+              <ProductHuntBadge className="opacity-90" />
+            </div>
           </div>
-          <LanguageSwitcher />
         </div>
       </footer>
 
