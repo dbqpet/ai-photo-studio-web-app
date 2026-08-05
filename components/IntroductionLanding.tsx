@@ -50,10 +50,7 @@ export default function IntroductionLanding({ lang, dict }: IntroductionLandingP
           >
             AI Images Studio
           </Link>
-          <div className="flex flex-wrap items-center gap-3">
-            <IntroductionLangSwitcher lang={lang} dict={dict} />
-            <PrimaryCta label={dict.nav.headerCta} className="px-5 py-2.5 text-sm" />
-          </div>
+          <PrimaryCta label={dict.nav.headerCta} className="px-5 py-2.5 text-sm" />
         </div>
       </header>
 
