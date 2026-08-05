@@ -3,6 +3,7 @@
 import Link from "next/link";
 import IntroductionLangSwitcher from "@/components/IntroductionLangSwitcher";
 import ProductHuntBadge from "@/components/ProductHuntBadge";
+import SocialMediaLinks from "@/components/SocialMediaLinks";
 import { trackGAEvent } from "@/lib/ga";
 import {
   type IntroLang,
@@ -236,6 +237,7 @@ export default function IntroductionLanding({ lang, dict }: IntroductionLandingP
       <footer className="border-t border-slate-200 bg-white py-6">
         <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 px-5">
           <IntroductionLangSwitcher lang={lang} dict={dict} />
+          <SocialMediaLinks />
           <ProductHuntBadge />
           <div className="text-center text-xs text-slate-400">
             <p>{dict.footer.privacy}</p>
