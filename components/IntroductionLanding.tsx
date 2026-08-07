@@ -4,6 +4,7 @@ import Link from "next/link";
 import IntroductionLangSwitcher from "@/components/IntroductionLangSwitcher";
 import ProductHuntBadge from "@/components/ProductHuntBadge";
 import SocialMediaLinks from "@/components/SocialMediaLinks";
+import TechBaseDirectoryBadge from "@/components/TechBaseDirectoryBadge";
 import { trackGAEvent } from "@/lib/ga";
 import {
   type IntroLang,
@@ -235,7 +236,10 @@ export default function IntroductionLanding({ lang, dict }: IntroductionLandingP
         <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 px-5">
           <IntroductionLangSwitcher lang={lang} dict={dict} />
           <SocialMediaLinks />
-          <ProductHuntBadge />
+          <div className="flex flex-col items-center gap-3">
+            <ProductHuntBadge />
+            <TechBaseDirectoryBadge />
+          </div>
           <div className="text-center text-xs text-slate-400">
             <p>{dict.footer.privacy}</p>
             <p className="mt-1.5">

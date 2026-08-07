@@ -11,6 +11,7 @@ import HeroSection from "@/components/HeroSection";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import ProductHuntBadge from "@/components/ProductHuntBadge";
 import SocialMediaLinks from "@/components/SocialMediaLinks";
+import TechBaseDirectoryBadge from "@/components/TechBaseDirectoryBadge";
 import LoginModal from "@/components/LoginModal";
 import PaywallModal from "@/components/PaywallModal";
 import PhotoInput from "@/components/PhotoInput";
@@ -1287,7 +1288,10 @@ function StudioPageContent() {
             <div className="flex flex-col items-center gap-3 sm:items-end">
               <LanguageSwitcher />
               <SocialMediaLinks />
-              <ProductHuntBadge className="opacity-90" />
+              <div className="flex flex-col items-center gap-3">
+                <ProductHuntBadge className="opacity-90" />
+                <TechBaseDirectoryBadge className="opacity-90" />
+              </div>
             </div>
           </div>
         </div>
