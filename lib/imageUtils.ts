@@ -112,6 +112,29 @@ export async function downscaleDataUrl(
   return canvas.toDataURL("image/jpeg", 0.85);
 }
 
+export const PREVIEW_DISPLAY_MAX_WIDTH = 400;
+export const PREVIEW_DISPLAY_JPEG_QUALITY = 0.5;
+
+/** Low-res JPEG for on-screen watermarked previews (discourages saving full-size copies). */
+export async function compressPreviewForDisplay(dataUrl: string): Promise<string> {
+  const img = await loadImage(dataUrl);
+  const scale =
+    img.naturalWidth > PREVIEW_DISPLAY_MAX_WIDTH
+      ? PREVIEW_DISPLAY_MAX_WIDTH / img.naturalWidth
+      : 1;
+  const width = Math.max(1, Math.round(img.naturalWidth * scale));
+  const height = Math.max(1, Math.round(img.naturalHeight * scale));
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Canvas 2D context unavailable.");
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(img, 0, 0, width, height);
+  return canvas.toDataURL("image/jpeg", PREVIEW_DISPLAY_JPEG_QUALITY);
+}
+
 /** `YYYYMMDD-HHmmss` timestamp for download filenames. */
 export function downloadTimestamp(date = new Date()): string {
   const pad = (n: number) => String(n).padStart(2, "0");

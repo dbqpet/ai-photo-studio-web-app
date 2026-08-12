@@ -2,9 +2,11 @@
 
 /* eslint-disable @next/next/no-img-element -- previews are dynamic data URLs */
 
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import OrderSummaryCard from "@/components/OrderSummaryCard";
 import type { PhotoSizePreset } from "@/constants/photoSizes";
+import { compressPreviewForDisplay } from "@/lib/imageUtils";
 import { presetDescription, presetLabel } from "@/lib/i18n/presetLabels";
 import { PRICING, formatUsd } from "@/lib/pricing";
 import { SUPPORT_EMAIL } from "@/lib/site";
@@ -34,6 +36,61 @@ const UNLOCK_BTN =
 const DOWNLOAD_BTN =
   "flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 px-6 py-4 text-base font-bold text-white shadow-lg shadow-emerald-500/25 transition-all duration-200 hover:scale-[1.02] hover:from-emerald-500 hover:via-teal-500 hover:to-cyan-500 hover:shadow-xl hover:shadow-emerald-500/35 active:scale-[0.98] disabled:scale-100 disabled:opacity-60 disabled:shadow-lg";
 
+const PREVIEW_IMG =
+  "w-full rounded-lg border border-slate-200 shadow-md select-none";
+
+function useCompressedPreviewDisplayUrl(sourceUrl: string) {
+  const [displayUrl, setDisplayUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setDisplayUrl(null);
+
+    void compressPreviewForDisplay(sourceUrl)
+      .then((url) => {
+        if (!cancelled) setDisplayUrl(url);
+      })
+      .catch(() => {
+        if (!cancelled) setDisplayUrl(sourceUrl);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [sourceUrl]);
+
+  return displayUrl;
+}
+
+function PreviewImage({
+  displayUrl,
+  alt,
+  className = PREVIEW_IMG,
+}: {
+  displayUrl: string | null;
+  alt: string;
+  className?: string;
+}) {
+  if (!displayUrl) {
+    return (
+      <div
+        aria-hidden
+        className={`${className} aspect-[3/4] animate-pulse bg-slate-100`}
+      />
+    );
+  }
+
+  return (
+    <img
+      src={displayUrl}
+      alt={alt}
+      className={className}
+      draggable={false}
+      onContextMenu={(event) => event.preventDefault()}
+    />
+  );
+}
+
 /** Watermarked previews of the single ID photo and the 4R print sheet. */
 export default function PreviewPanel({
   preset,
@@ -52,6 +109,8 @@ export default function PreviewPanel({
   onStartOver,
 }: PreviewPanelProps) {
   const { t } = useTranslation();
+  const displaySingleUrl = useCompressedPreviewDisplayUrl(singlePreviewUrl);
+  const displaySheetUrl = useCompressedPreviewDisplayUrl(sheetPreviewUrl);
   const showUnlock = !unlocked && hdUnlocks <= 0;
   const showDownload = unlocked || hdUnlocks > 0;
 
@@ -64,10 +123,9 @@ export default function PreviewPanel({
       <div className="grid gap-6 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
         <figure className="flex flex-col items-center gap-2">
           <div className="relative w-full max-w-56">
-            <img
-              src={singlePreviewUrl}
+            <PreviewImage
+              displayUrl={displaySingleUrl}
               alt={t("preview.singlePhotoAlt", { preset: presetLabel(t, preset) })}
-              className="w-full rounded-lg border border-slate-200 shadow-md"
             />
             <span
               data-testid="ai-mode-badge"
@@ -86,10 +144,9 @@ export default function PreviewPanel({
           </figcaption>
         </figure>
         <figure className="flex flex-col items-center gap-2">
-          <img
-            src={sheetPreviewUrl}
+          <PreviewImage
+            displayUrl={displaySheetUrl}
             alt={t("preview.sheetAlt")}
-            className="w-full rounded-lg border border-slate-200 shadow-md"
           />
           <figcaption className="text-xs text-slate-500">
             {t("preview.sheetCaption", {
