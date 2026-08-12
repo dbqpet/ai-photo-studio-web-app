@@ -11,6 +11,7 @@ import {
   type IntroductionDictionary,
 } from "@/lib/introduction/dictionaries";
 import { SUPPORT_EMAIL } from "@/lib/site";
+import { SEO_GUIDE_LINKS_EN } from "@/lib/seo/guide-links";
 
 interface IntroductionLandingProps {
   lang: IntroLang;
@@ -200,6 +201,31 @@ export default function IntroductionLanding({ lang, dict }: IntroductionLandingP
             </div>
           </div>
         </section>
+
+        {/* Related SEO guides (English) */}
+        {lang === "en" && (
+          <section aria-labelledby="related-guides-title" className="border-b border-slate-200 bg-white py-12 sm:py-14">
+            <div className="mx-auto max-w-3xl px-5">
+              <h2 id="related-guides-title" className="text-center text-xl font-extrabold text-slate-900 sm:text-2xl">
+                Photo guides
+              </h2>
+              <p className="mt-3 text-center text-sm text-slate-600">
+                Step-by-step help for passport photos, ID photos, visa photos, printing, and more.
+              </p>
+              <nav aria-label="Photo guides" className="mt-6 flex flex-wrap justify-center gap-2">
+                {SEO_GUIDE_LINKS_EN.map((link) => (
+                  <Link
+                    key={link.slug}
+                    href={`/en/${link.slug}`}
+                    className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-800"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+          </section>
+        )}
 
         {/* Bottom CTA */}
         <section

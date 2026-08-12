@@ -8,9 +8,7 @@ import {
   isIntroLang,
   type IntroLang,
 } from "@/lib/introduction/dictionaries";
-
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://aiimagesstudio.com";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 
 type PageProps = {
   params: Promise<{ lang: string }>;
@@ -36,7 +34,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: dict.meta.title,
       description: dict.meta.description,
       url: pageUrl,
-      siteName: "AI Images Studio",
+      siteName: SITE_NAME,
       locale: introOpenGraphLocale(lang),
       type: "website",
     },

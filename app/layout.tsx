@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import I18nProvider from "@/components/I18nProvider";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
@@ -17,9 +18,6 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
-
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://aiimagesstudio.com";
 
 const SITE_DESCRIPTION =
   "Create official, high-resolution 300 DPI passport, visa, and ID photos instantly with AI Images Studio. Features automatic background removal, official size compliance (Hong Kong, UK, US, Schengen, etc.), Korean studio style enhancement, and printable 4R sheet layouts. Trusted worldwide for fast, compliant ID photo creation.";
@@ -45,16 +43,16 @@ export const metadata: Metadata = {
     "online passport photo generator",
     "300 DPI ID photo",
   ],
-  applicationName: "AI Images Studio",
-  authors: [{ name: "AI Images Studio" }],
-  creator: "AI Images Studio",
-  publisher: "AI Images Studio",
+  applicationName: SITE_NAME,
+  authors: [{ name: SITE_NAME }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
   category: "Photography",
   openGraph: {
     type: "website",
     locale: "en_US",
     url: SITE_URL,
-    siteName: "AI Images Studio",
+    siteName: SITE_NAME,
     title: "AI Images Studio — Instant Professional ID & Passport Photos",
     description: OG_DESCRIPTION,
   },
