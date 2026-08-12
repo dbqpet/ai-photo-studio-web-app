@@ -72,6 +72,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: SITE_URL,
   },
+  icons: {
+    icon: "/images/logos/aiimagesstudio_logo.png",
+    apple: "/images/logos/aiimagesstudio_logo.png",
+    shortcut: "/images/logos/aiimagesstudio_logo.png",
+  },
   other: {
     "p:domain_verify": "e579a791126af1c925de72aa96cf3cd5",
   },
