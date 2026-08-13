@@ -1,4 +1,4 @@
-import type { SeoPageContent } from "@/lib/seo/types";
+import type { SeoLang, SeoPageContent } from "@/lib/seo/types";
 import { idPhotoPage } from "@/lib/seo/content/id-photo";
 import { passportPhotoPage } from "@/lib/seo/content/passport-photo";
 import { passportPhotoAtHomePage } from "@/lib/seo/content/passport-photo-at-home";
@@ -7,8 +7,12 @@ import { passportPhotoPrintingPage } from "@/lib/seo/content/passport-photo-prin
 import { passportPhotoWithPhonePage } from "@/lib/seo/content/passport-photo-with-phone";
 import { usPassportPhotoPage } from "@/lib/seo/content/us-passport-photo";
 import { visaPhotoPage } from "@/lib/seo/content/visa-photo";
+import { ZH_TW_SEO_PAGES } from "@/lib/seo/content/zh-tw";
+import { ZH_CN_SEO_PAGES } from "@/lib/seo/content/zh-cn";
 
-export const SEO_PAGES: SeoPageContent[] = [
+export { SEO_LANGS } from "@/lib/seo/types";
+
+const EN_SEO_PAGES: SeoPageContent[] = [
   passportPhotoPage,
   passportPhotoAtHomePage,
   idPhotoPage,
@@ -19,12 +23,23 @@ export const SEO_PAGES: SeoPageContent[] = [
   passportPhotoBackgroundPage,
 ];
 
-export const SEO_PAGE_SLUGS = SEO_PAGES.map((page) => page.slug);
+export const SEO_PAGES_BY_LANG: Record<SeoLang, SeoPageContent[]> = {
+  en: EN_SEO_PAGES,
+  zh: ZH_TW_SEO_PAGES,
+  "zh-cn": ZH_CN_SEO_PAGES,
+};
 
-export function isSeoPageSlug(value: string): boolean {
-  return SEO_PAGE_SLUGS.includes(value);
+/** @deprecated Use getSeoPageSlugs(lang) */
+export const SEO_PAGE_SLUGS = EN_SEO_PAGES.map((page) => page.slug);
+
+export function getSeoPageSlugs(lang: SeoLang): string[] {
+  return SEO_PAGES_BY_LANG[lang].map((page) => page.slug);
 }
 
-export function getSeoPage(slug: string): SeoPageContent | undefined {
-  return SEO_PAGES.find((page) => page.slug === slug);
+export function isSeoPageSlug(lang: SeoLang, slug: string): boolean {
+  return getSeoPageSlugs(lang).includes(slug);
+}
+
+export function getSeoPage(lang: SeoLang, slug: string): SeoPageContent | undefined {
+  return SEO_PAGES_BY_LANG[lang].find((page) => page.slug === slug);
 }

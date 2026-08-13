@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { buildHreflangAlternates } from "@/lib/seo/hreflang";
 import type { SeoLang, SeoPageContent } from "@/lib/seo/types";
 
 export function buildSeoMetadata(lang: SeoLang, page: SeoPageContent): Metadata {
   const pageUrl = `${SITE_URL}/${lang}/${page.slug}`;
+  const languages = buildHreflangAlternates(lang, page.slug);
 
   return {
     title: page.meta.title,
@@ -24,10 +26,7 @@ export function buildSeoMetadata(lang: SeoLang, page: SeoPageContent): Metadata 
     },
     alternates: {
       canonical: pageUrl,
-      languages: {
-        en: pageUrl,
-        "x-default": pageUrl,
-      },
+      languages: Object.keys(languages).length > 0 ? languages : undefined,
     },
     robots: {
       index: true,

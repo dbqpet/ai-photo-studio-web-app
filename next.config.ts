@@ -17,6 +17,11 @@ const nextConfig: NextConfig = {
         destination: "/zh/introduction",
         permanent: true,
       },
+      {
+        source: "/zh-tw/:slug",
+        destination: "/zh/:slug",
+        permanent: true,
+      },
     ];
   },
 };

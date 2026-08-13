@@ -1,4 +1,4 @@
-export const SEO_LANGS = ["en"] as const;
+export const SEO_LANGS = ["en", "zh", "zh-cn"] as const;
 export type SeoLang = (typeof SEO_LANGS)[number];
 
 export function isSeoLang(value: string): value is SeoLang {
@@ -107,6 +107,8 @@ export interface SeoPageContent {
     button: string;
   };
   relatedPages: SeoRelatedLink[];
+  /** Localized heading for the related-pages nav; defaults to English. */
+  relatedPagesTitle?: string;
   footer: {
     privacy: string;
     supportLabel: string;

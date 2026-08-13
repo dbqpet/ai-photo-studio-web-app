@@ -254,7 +254,18 @@ function SeoSectionBlock({ section }: { section: SeoSection }) {
   return null;
 }
 
+function introLinkForLang(lang: SeoLang): { href: string; label: string } {
+  if (lang === "en") {
+    return { href: "/en/introduction", label: "About AI Images Studio" };
+  }
+  if (lang === "zh") {
+    return { href: "/zh/introduction", label: "認識 AI Images Studio" };
+  }
+  return { href: "/", label: "AI Images Studio 主页" };
+}
+
 export default function SeoLandingPage({ lang, page }: SeoLandingPageProps) {
+  const introLink = introLinkForLang(lang);
   return (
     <div lang={page.meta.htmlLang} className="flex min-h-full flex-col bg-slate-50">
       <header className="border-b border-slate-200 bg-white/80 backdrop-blur">
@@ -337,7 +348,7 @@ export default function SeoLandingPage({ lang, page }: SeoLandingPageProps) {
           <section aria-labelledby="related-title" className="border-b border-slate-200 bg-white py-12 sm:py-14">
             <div className="mx-auto max-w-3xl px-5">
               <h2 id="related-title" className="text-center text-xl font-extrabold text-slate-900 sm:text-2xl">
-                Related guides
+                {page.relatedPagesTitle ?? "Related guides"}
               </h2>
               <nav aria-label="Related guides" className="mt-6 flex flex-wrap justify-center gap-2">
                 {page.relatedPages.map((link) => (
@@ -350,10 +361,10 @@ export default function SeoLandingPage({ lang, page }: SeoLandingPageProps) {
                   </Link>
                 ))}
                 <Link
-                  href={`/${lang}/introduction`}
+                  href={introLink.href}
                   className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-800"
                 >
-                  About AI Images Studio
+                  {introLink.label}
                 </Link>
               </nav>
             </div>

@@ -2,38 +2,37 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import SeoLandingPage from "@/components/SeoLandingPage";
 import { buildSeoMetadata } from "@/lib/seo/metadata";
-import { getSeoPage, isSeoPageSlug, SEO_PAGE_SLUGS } from "@/lib/seo/pages";
+import { getSeoPage, getSeoPageSlugs, isSeoPageSlug, SEO_LANGS } from "@/lib/seo/pages";
 import { buildPageSchemas } from "@/lib/seo/schema";
-import { SEO_LANGS, type SeoLang, isSeoLang } from "@/lib/seo/types";
-import { isIntroLang } from "@/lib/introduction/dictionaries";
+import { isSeoLang, type SeoLang } from "@/lib/seo/types";
 
 type PageProps = {
   params: Promise<{ lang: string; slug: string }>;
 };
 
 export function generateStaticParams() {
-  return SEO_PAGE_SLUGS.flatMap((slug) =>
-    SEO_LANGS.map((lang) => ({ lang, slug })),
+  return SEO_LANGS.flatMap((lang) =>
+    getSeoPageSlugs(lang).map((slug) => ({ lang, slug })),
   );
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { lang: rawLang, slug } = await params;
-  if (!isSeoLang(rawLang) || !isSeoPageSlug(slug)) return {};
+  if (!isSeoLang(rawLang) || !isSeoPageSlug(rawLang, slug)) return {};
 
-  const page = getSeoPage(slug)!;
-  return buildSeoMetadata(rawLang as SeoLang, page);
+  const page = getSeoPage(rawLang, slug)!;
+  return buildSeoMetadata(rawLang, page);
 }
 
 export default async function SeoGuidePage({ params }: PageProps) {
   const { lang: rawLang, slug } = await params;
 
-  if (!isIntroLang(rawLang) || !isSeoLang(rawLang) || !isSeoPageSlug(slug)) {
+  if (!isSeoLang(rawLang) || !isSeoPageSlug(rawLang, slug)) {
     notFound();
   }
 
   const lang = rawLang as SeoLang;
-  const page = getSeoPage(slug)!;
+  const page = getSeoPage(lang, slug)!;
   const schemas = buildPageSchemas(lang, page);
 
   return (
