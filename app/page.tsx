@@ -192,6 +192,14 @@ function StudioPageContent() {
   /** Blocks duplicate GA / API calls before `processing` state disables the button. */
   const generateLockedRef = useRef(false);
 
+  /** Ref attached to the step-3 preview section for auto-scroll after generation. */
+  const previewSectionRef = useRef<HTMLElement>(null);
+  /**
+   * Tracks which generationId we've already scrolled for, so the scroll
+   * fires exactly once per new generation and never on unrelated re-renders.
+   */
+  const scrolledGenerationRef = useRef<string | null>(null);
+
   const preset = useMemo(
     () =>
       resolvePhotoPreset(
@@ -910,6 +918,18 @@ function StudioPageContent() {
     return () => window.removeEventListener("beforeunload", handler);
   }, [needsExitProtection]);
 
+  // Scroll to preview section exactly once per new generation.
+  useEffect(() => {
+    if (step !== 3 || !result) return;
+    if (scrolledGenerationRef.current === result.generationId) return;
+    scrolledGenerationRef.current = result.generationId;
+    // Short timeout so the section has rendered before we scroll.
+    const id = window.setTimeout(() => {
+      previewSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 80);
+    return () => window.clearTimeout(id);
+  }, [step, result]);
+
   return (
     <div className="flex flex-1 flex-col bg-slate-50">
       <header className="border-b border-slate-200 bg-white/80 backdrop-blur">
@@ -1207,7 +1227,7 @@ function StudioPageContent() {
         )}
 
         {step === 3 && result && (
-          <section className="rounded-3xl bg-white p-5 shadow-sm sm:p-7">
+          <section ref={previewSectionRef} className="rounded-3xl bg-white p-5 shadow-sm sm:p-7">
             <h2 className="mb-1 text-xl font-bold text-slate-900">
               {t("step3.title")}
             </h2>

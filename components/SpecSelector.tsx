@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   BACKGROUND_COLORS,
@@ -32,6 +33,9 @@ interface SpecSelectorProps {
   hideDimensions?: boolean;
 }
 
+const RECOMMENDED_MODE_ID: ProcessingMode = "classic";
+const ALTERNATIVE_MODE_IDS: ProcessingMode[] = ["korean", "corporate"];
+
 /** Document size, official background colour and AI style selection. */
 export default function SpecSelector({
   presetId,
@@ -48,6 +52,29 @@ export default function SpecSelector({
 }: SpecSelectorProps) {
   const { t } = useTranslation();
   const selectedPreset = PHOTO_SIZE_PRESETS.find((p) => p.id === presetId);
+
+  // If an alternative style is already active (e.g. restored from session), open expanded.
+  const isAlternativeActive = ALTERNATIVE_MODE_IDS.includes(mode);
+  const [showAlternatives, setShowAlternatives] = useState(isAlternativeActive);
+
+  const recommendedOption = PROCESSING_MODES.find((m) => m.id === RECOMMENDED_MODE_ID)!;
+  const alternativeOptions = PROCESSING_MODES.filter((m) =>
+    ALTERNATIVE_MODE_IDS.includes(m.id),
+  );
+
+  function handleRecommendedClick() {
+    onModeChange(RECOMMENDED_MODE_ID);
+    setShowAlternatives(false);
+  }
+
+  function toggleAlternatives() {
+    const next = !showAlternatives;
+    setShowAlternatives(next);
+    // When collapsing, revert to recommended if an alternative is active.
+    if (!next && isAlternativeActive) {
+      onModeChange(RECOMMENDED_MODE_ID);
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -161,36 +188,83 @@ export default function SpecSelector({
         <h3 className="mb-2.5 text-sm font-semibold text-slate-700">
           {t("specs.aiStyle")}
         </h3>
-        <div className="grid gap-2">
-          {PROCESSING_MODES.map((option) => {
-            const active = option.id === mode;
-            return (
-              <button
-                key={option.id}
-                type="button"
-                onClick={() => onModeChange(option.id)}
-                aria-pressed={active}
-                className={`flex items-start gap-3 rounded-xl border-2 px-4 py-3 text-left transition ${
-                  active
-                    ? "border-sky-500 bg-sky-50"
-                    : "border-slate-200 bg-white hover:border-slate-300"
-                }`}
-              >
-                <span className="text-2xl" aria-hidden>
-                  {option.icon}
-                </span>
-                <span>
-                  <span className="block text-sm font-semibold text-slate-900">
-                    {modeLabel(t, option)}
+
+        {/* Recommended / default style */}
+        <button
+          type="button"
+          onClick={handleRecommendedClick}
+          aria-pressed={mode === RECOMMENDED_MODE_ID}
+          className={`flex w-full items-start gap-3 rounded-xl border-2 px-4 py-3 text-left transition ${
+            mode === RECOMMENDED_MODE_ID
+              ? "border-sky-500 bg-sky-50"
+              : "border-slate-200 bg-white hover:border-slate-300"
+          }`}
+        >
+          <span className="mt-0.5 text-2xl" aria-hidden>✨</span>
+          <span className="flex-1">
+            <span className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-semibold text-slate-900">
+                {t("specs.recommendedStyleLabel")}
+              </span>
+              <span className="rounded-full bg-sky-100 px-2 py-0.5 text-[11px] font-bold text-sky-700">
+                {t("specs.recommendedBadge")}
+              </span>
+            </span>
+            <span className="mt-0.5 block text-xs leading-5 text-slate-500">
+              {t("specs.recommendedStyleDescription")}
+            </span>
+          </span>
+        </button>
+
+        {/* Try another style toggle */}
+        <button
+          type="button"
+          onClick={toggleAlternatives}
+          aria-expanded={showAlternatives}
+          className="mt-2 flex w-full items-center gap-1.5 px-1 py-1.5 text-xs font-semibold text-slate-500 transition hover:text-slate-700"
+        >
+          <span
+            className={`inline-block transition-transform duration-200 ${showAlternatives ? "rotate-180" : ""}`}
+            aria-hidden
+          >
+            ▾
+          </span>
+          {t("specs.tryAnotherStyle")}
+        </button>
+
+        {/* Alternative styles (expandable) */}
+        {showAlternatives && (
+          <div className="mt-1 grid gap-2">
+            {alternativeOptions.map((option) => {
+              const active = option.id === mode;
+              return (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => onModeChange(option.id)}
+                  aria-pressed={active}
+                  className={`flex items-start gap-3 rounded-xl border-2 px-4 py-3 text-left transition ${
+                    active
+                      ? "border-sky-500 bg-sky-50"
+                      : "border-slate-200 bg-white hover:border-slate-300"
+                  }`}
+                >
+                  <span className="text-2xl" aria-hidden>
+                    {option.icon}
                   </span>
-                  <span className="block text-xs leading-5 text-slate-500">
-                    {modeDescription(t, option)}
+                  <span>
+                    <span className="block text-sm font-semibold text-slate-900">
+                      {modeLabel(t, option)}
+                    </span>
+                    <span className="block text-xs leading-5 text-slate-500">
+                      {modeDescription(t, option)}
+                    </span>
                   </span>
-                </span>
-              </button>
-            );
-          })}
-        </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </section>
     </div>
   );

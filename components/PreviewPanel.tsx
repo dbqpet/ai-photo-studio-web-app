@@ -133,9 +133,13 @@ export default function PreviewPanel({
             >
               {t("preview.aiModeBadge")}
             </span>
-            {unlocked && (
+            {unlocked ? (
               <span className="absolute right-2 top-2 rounded-full bg-sky-600 px-2.5 py-1 text-[11px] font-bold text-white shadow">
                 {t("preview.unlockedBadge")}
+              </span>
+            ) : (
+              <span className="absolute bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/60 px-2.5 py-1 text-[10px] font-bold text-white/90 shadow backdrop-blur-sm">
+                {t("preview.freePreviewBadge")}
               </span>
             )}
           </div>
@@ -163,6 +167,10 @@ export default function PreviewPanel({
       <div className="flex flex-col gap-3">
         {showUnlock && (
           <>
+            {/* Divider + value-prop header before the CTA */}
+            <div className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 text-center text-xs text-slate-500">
+              {t("preview.unlockNote")}
+            </div>
             <button
               type="button"
               onClick={onCheckout}
@@ -178,9 +186,6 @@ export default function PreviewPanel({
                 <>{t("preview.unlockButton", { price: formatUsd(PRICING.saleUsd) })}</>
               )}
             </button>
-            <p className="text-center text-xs leading-relaxed text-slate-600">
-              {t("preview.unlockNote")}
-            </p>
             <p className="text-center text-[11px] text-slate-500">
               {t("preview.supportQuestion", { email: "" })}
               <a

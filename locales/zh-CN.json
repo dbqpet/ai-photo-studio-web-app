@@ -105,7 +105,11 @@
 
   "specs": {
     "backgroundColor": "背景颜色",
-    "aiStyle": "AI 影楼风格"
+    "aiStyle": "AI 影楼风格",
+    "recommendedStyleLabel": "专业证件照",
+    "recommendedStyleDescription": "自然光线，呈现整洁、专业的证件照效果。",
+    "recommendedBadge": "推荐",
+    "tryAnotherStyle": "尝试其他风格"
   },
 
   "presets": {
@@ -149,8 +153,8 @@
 
   "modes": {
     "classic": {
-      "label": "经典护照风",
-      "description": "自然干净的光线，呈现专业正规的证件照质感。"
+      "label": "专业证件照",
+      "description": "自然光线，呈现整洁、专业的证件照效果。"
     },
     "korean": {
       "label": "韩式影楼修图",
@@ -174,10 +178,11 @@
     "sheetAlt": "4R 排版打印纸带水印预览",
     "aiModeBadge": "⚡ 真 AI 模式",
     "unlockedBadge": "已解锁",
+    "freePreviewBadge": "免费水印预览",
     "singleCaption": "单张照片 · {description} @ 300 DPI",
     "sheetCaption": "4R 打印排版纸 (4×6英寸, 300 DPI) · {count} 张照片 ({columns}×{rows}) 含裁切线",
-    "unlockButton": "🔓 解锁高清文件 & 4R 打印排版 ({price})",
-    "unlockNote": "⚡ 即时下载 • 300 DPI 官方合规规格 • 包含 4R 冲印排版图",
+    "unlockButton": "🔓 解锁高清文件 & 4R 打印排版 — {price}",
+    "unlockNote": "⚡ 高清下载 · 300 DPI · 无水印 · 4R 冲印排版图",
     "downloadButton": "📦 下载高清照片 (.zip)",
     "downloadedButton": "✅ 已下载 — 再次下载",
     "preparingDownload": "正在准备高清照片...",
@@ -202,10 +207,14 @@
   },
 
   "paywallModal": {
-    "title": "解锁更多预览次数 ✨",
-    "description": "您的免费预览点数已用完。购买新套餐，继续制作完美的证件照！",
+    "title": "免费预览已用完",
+    "description": "您的免费预览点数已用完。以 {price} 解锁即可继续使用，并获得高清、无水印照片下载，以及 {previewCredits} 次额外预览。",
     "includesPack": "💎 包含 1 次高清照片下载 + {previewCredits} 次额外预览点数",
-    "unlockForPrice": "以 {price} 解锁",
+    "whatYouGet": "此方案包含：",
+    "benefit1": "继续生成 AI 预览",
+    "benefit2": "<0>1 次高清照片下载</0> — 300 DPI，<1>无水印</1>",
+    "benefit3": "{previewCredits} 次额外预览点数",
+    "unlockForPrice": "🔓 解锁并继续 — {price}",
     "redirectingCheckout": "正在前往安全结账页面…",
     "supportQuestion": "对订单有疑问？请联系支持人员：{email}",
     "maybeLater": "稍后再说"
@@ -243,7 +252,7 @@
   },
 
   "pricing": {
-    "badge": "🔥 上线优惠 — 节省 60%",
+    "badge": "🔥 上线优惠 · 节省 60%",
     "productName": "官方高清照片 & 4R 打印排版",
     "checkoutCta": "解锁高清下载",
     "topupProductName": "AI Images Studio — 预览点数充值包"

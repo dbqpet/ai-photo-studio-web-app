@@ -105,7 +105,11 @@
 
   "specs": {
     "backgroundColor": "背景色",
-    "aiStyle": "AI スタイル"
+    "aiStyle": "AI スタイル",
+    "recommendedStyleLabel": "プロフェッショナル ID 写真",
+    "recommendedStyleDescription": "清潔感のあるプロフェッショナルな ID 写真仕上げのための自然な照明。",
+    "recommendedBadge": "おすすめ",
+    "tryAnotherStyle": "別のスタイルを試す"
   },
 
   "presets": {
@@ -149,8 +153,8 @@
 
   "modes": {
     "classic": {
-      "label": "クラシックパスポート",
-      "description": "自然な光で仕上げる、清潔感のあるプロフェッショナルな証明写真。"
+      "label": "プロフェッショナル ID 写真",
+      "description": "清潔感のあるプロフェッショナルな ID 写真仕上げのための自然な照明。"
     },
     "korean": {
       "label": "韓国スタジオスタイル",
@@ -174,10 +178,11 @@
     "sheetAlt": "4R 印刷シートの透かし入りプレビュー",
     "aiModeBadge": "⚡ リアル AI モード",
     "unlockedBadge": "ロック解除済み",
+    "freePreviewBadge": "無料透かし入りプレビュー",
     "singleCaption": "写真1枚 · {description} @ 300 DPI",
     "sheetCaption": "4R 印刷シート (4×6インチ, 300 DPI) · {count} 枚 ({columns}×{rows}) カットガイド付き",
-    "unlockButton": "🔓 高画質写真 & 4R 印刷シートを解除 ({price})",
-    "unlockNote": "⚡ 即時ダウンロード • 300 DPI 公式規格準拠 • 4R 印刷シート付き",
+    "unlockButton": "🔓 高画質写真 & 4R 印刷シートを解除 — {price}",
+    "unlockNote": "⚡ HD ダウンロード · 300 DPI · 透かしなし · 4R 印刷シート",
     "downloadButton": "📦 高画質写真をダウンロード (.zip)",
     "downloadedButton": "✅ ダウンロード済み — もう一度ダウンロード",
     "preparingDownload": "高画質写真を準備中...",
@@ -202,10 +207,14 @@
   },
 
   "paywallModal": {
-    "title": "プレビューをもっと解除 ✨",
-    "description": "無料プレビュー回数を使い切りました。新しいパックを購入して、理想の証明写真作りを続けましょう！",
+    "title": "無料プレビューを使い切りました",
+    "description": "無料プレビュートークンをすべて使用しました。{price} で解除すると続けられ、透かしなしの HD 写真ダウンロードと {previewCredits} 回分の追加プレビューも受け取れます。",
     "includesPack": "💎 高画質写真ダウンロード1回 + 特典プレビュー {previewCredits} 回分を含む",
-    "unlockForPrice": "{price} で解除する",
+    "whatYouGet": "このプランに含まれるもの：",
+    "benefit1": "AI プレビューの生成を続ける",
+    "benefit2": "<0>高画質写真ダウンロード 1 回</0> — 300 DPI、<1>透かしなし</1>",
+    "benefit3": "追加プレビュー {previewCredits} 回分",
+    "unlockForPrice": "🔓 解除して続ける — {price}",
     "redirectingCheckout": "安全な決済ページへ移動しています…",
     "supportQuestion": "ご注文についてご質問がありますか？サポートまでご連絡ください：{email}",
     "maybeLater": "後でする"
@@ -243,7 +252,7 @@
   },
 
   "pricing": {
-    "badge": "🔥 ローンチ記念セール — 60% オフ",
+    "badge": "🔥 ローンチ記念セール · 60% オフ",
     "productName": "公式高画質写真 & 4R 印刷シート",
     "checkoutCta": "高画質ダウンロードを解除",
     "topupProductName": "AI Images Studio — プレビューチャージパック"

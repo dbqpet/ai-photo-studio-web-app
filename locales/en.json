@@ -105,7 +105,11 @@
 
   "specs": {
     "backgroundColor": "Background Color",
-    "aiStyle": "AI Style"
+    "aiStyle": "AI Style",
+    "recommendedStyleLabel": "Professional ID Photo",
+    "recommendedStyleDescription": "Natural lighting with a clean, professional ID-photo finish.",
+    "recommendedBadge": "Recommended",
+    "tryAnotherStyle": "Try another style"
   },
 
   "presets": {
@@ -149,8 +153,8 @@
 
   "modes": {
     "classic": {
-      "label": "Classic Passport",
-      "description": "Clean natural lighting with a professional ID-photo finish."
+      "label": "Professional ID Photo",
+      "description": "Natural lighting with a clean, professional ID-photo finish."
     },
     "korean": {
       "label": "Korean Studio Style",
@@ -174,10 +178,11 @@
     "sheetAlt": "Watermarked preview of the 4R print sheet",
     "aiModeBadge": "⚡ Real AI Mode",
     "unlockedBadge": "Unlocked",
+    "freePreviewBadge": "Free Watermarked Preview",
     "singleCaption": "Single photo · {description} @ 300 DPI",
     "sheetCaption": "4R print sheet (4×6in, 300 DPI) · {count} photos ({columns}×{rows}) with cut guides",
-    "unlockButton": "🔓 Unlock HD & 4R Print Sheet ({price})",
-    "unlockNote": "⚡ Instant Download • 300 DPI Official Spec • Includes 4R Print Sheet",
+    "unlockButton": "🔓 Unlock HD & 4R Print Sheet — {price}",
+    "unlockNote": "⚡ HD Download · 300 DPI · Watermark-Free · 4R Print Sheet",
     "downloadButton": "📦 Download HD Photos (.zip)",
     "downloadedButton": "✅ Downloaded — Download Again",
     "preparingDownload": "Preparing HD Photo...",
@@ -202,10 +207,14 @@
   },
 
   "paywallModal": {
-    "title": "Unlock More Previews ✨",
-    "description": "You've run out of free preview tokens. Grab a new pack to continue creating your perfect ID photo!",
-    "includesPack": "💎 Includes 1 HD Photo Download + {previewCredits} Bonus Preview Tokens",
-    "unlockForPrice": "Unlock for {price}",
+    "title": "Free Previews Used Up",
+    "description": "You've used all your free preview tokens. Unlock for {price} to continue — and get your HD, watermark-free photo download plus {previewCredits} more previews.",
+    "includesPack": "💎 Includes 1 HD Photo Download + {previewCredits} Preview Tokens",
+    "whatYouGet": "What you get:",
+    "benefit1": "Continue generating AI previews",
+    "benefit2": "<0>1 HD Photo Download</0> — 300 DPI, <1>watermark-free</1>",
+    "benefit3": "{previewCredits} additional preview tokens",
+    "unlockForPrice": "🔓 Unlock & Continue — {price}",
     "redirectingCheckout": "Redirecting to secure checkout…",
     "supportQuestion": "Questions about your order? Contact support at {email}",
     "maybeLater": "Maybe later"
@@ -243,7 +252,7 @@
   },
 
   "pricing": {
-    "badge": "🔥 Launch Special - Save 60%",
+    "badge": "🔥 Launch Special · Save 60%",
     "productName": "Official HD Photo & 4R Print Sheet",
     "checkoutCta": "Unlock High-Res Download",
     "topupProductName": "AI Images Studio — Preview Top-up Pack"
