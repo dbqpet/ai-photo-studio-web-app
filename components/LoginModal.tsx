@@ -43,11 +43,11 @@ export default function LoginModal({
             <span>{t("loginModal.benefit1")}</span>
           </li>
           <li className="flex items-start gap-2.5 text-sm text-slate-700">
-            <span aria-hidden>📂</span>
+            <span aria-hidden>✨</span>
             <span>{t("loginModal.benefit2")}</span>
           </li>
           <li className="flex items-start gap-2.5 text-sm text-slate-700">
-            <span aria-hidden>📐</span>
+            <span aria-hidden>🔒</span>
             <span>{t("loginModal.benefit3")}</span>
           </li>
         </ul>
@@ -55,7 +55,8 @@ export default function LoginModal({
         <button
           type="button"
           onClick={() => void onSignIn()}
-          className="mt-6 flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-slate-200 bg-white px-5 py-3.5 text-sm font-bold text-slate-800 transition hover:border-slate-300 hover:bg-slate-50"
+          aria-label={t("loginModal.continueWithGoogle")}
+          className="mt-6 flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-slate-200 bg-white px-5 py-3.5 text-sm font-bold text-slate-800 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:shadow"
         >
           <GoogleIcon />
           {t("loginModal.continueWithGoogle")}
@@ -68,7 +69,7 @@ export default function LoginModal({
         <button
           type="button"
           onClick={onClose}
-          className="mt-3 w-full py-2 text-sm font-medium text-slate-500 hover:text-slate-700"
+          className="mt-3 w-full py-2 text-sm text-slate-400 transition hover:text-slate-600"
         >
           {t("loginModal.notNow")}
         </button>

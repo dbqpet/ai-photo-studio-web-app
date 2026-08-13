@@ -1210,12 +1210,6 @@ function StudioPageContent() {
                   <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
                   {t("step2.generating")}
                 </>
-              ) : user ? (
-                <>
-                  {t("step2.generatePreviewWithCredits", {
-                    count: previewCredits ?? PRICING.signupPreviewCredits,
-                  })}
-                </>
               ) : (
                 <>{t("step2.generatePreview")}</>
               )}

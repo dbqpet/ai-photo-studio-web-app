@@ -26,12 +26,14 @@
   },
 
   "hero": {
-    "title": "Official Passport & Visa Photos in 3 Seconds",
-    "subtitle": "Turn any casual selfie into 300 DPI compliance-ready passport photos & standard 4R print sheets. Save $15+ per photo!",
-    "badge_ai": "⚡ Instant AI Sizing & BG Removal",
-    "badge_print": "🖨️ Ready-to-Print 4R Layout",
-    "badge_privacy": "🔒 Privacy First & Auto-Deleted",
-    "cta_button": "Upload Your Photo Now"
+    "title": "Turn Any Selfie Into a Professional ID Photo in 3 Seconds",
+    "subtitle": "Create passport, visa and ID photos with AI-powered sizing, background removal and 300 DPI output.",
+    "subtitle_savings": "Save $15+ compared with a photo studio.",
+    "badge_ai": "⚡ Automatic Size & Background Removal",
+    "badge_print": "🖨 Ready-to-Print 4R Photo Sheet",
+    "badge_privacy": "🔒 Your Photo Is Automatically Deleted",
+    "cta_button": "✨ Create My Free Preview",
+    "cta_note": "Free preview • No credit card required"
   },
 
   "common": {
@@ -55,7 +57,7 @@
 
   "step1": {
     "title": "Add your photo",
-    "description": "Choose your photo dimensions first, then upload or capture. You can zoom and reposition before we process it. AI runs only when you click Generate."
+    "description": "Choose your photo size, upload your selfie, and let AI do the rest."
   },
 
   "step2": {
@@ -65,7 +67,7 @@
     "generatePreview": "✨ Generate Free Preview",
     "generatePreviewWithCredits": "✨ Generate Free Preview ({count} left)",
     "generating": "AI Generating (takes ~10s)...",
-    "previewNote": "🔒 Free preview • Watermarked preview • Unlock 300 DPI HD download for {price}",
+    "previewNote": "Free preview · Watermarked · Unlock HD for {price}",
     "highDemandStatus": "⏳ Our AI servers can get busy during peak times. Please be patient while we create your photo — automatic retries are in progress if the network is congested."
   },
 
@@ -196,13 +198,13 @@
   },
 
   "loginModal": {
-    "title": "✨ Claim Your 3 Free Preview Tokens!",
-    "subtitle": "Sign in with Google to unlock instant AI photo generation and preview.",
-    "benefit1": "3 Free Preview Tokens on your first sign in",
-    "benefit2": "Save and access your photo generations anytime",
-    "benefit3": "Guaranteed 100% Official Passport & Visa specs",
+    "title": "✨ Get 3 Free Preview Tokens",
+    "subtitle": "Sign in with Google to create your first AI ID photo preview.",
+    "benefit1": "3 free AI photo previews",
+    "benefit2": "Try before you pay",
+    "benefit3": "Your photos are securely processed and automatically deleted",
     "continueWithGoogle": "Continue with Google",
-    "privacyNote": "🔒 Privacy Guaranteed: Your photos are strictly confidential and auto-deleted after processing.",
+    "privacyNote": "🔒 Your photos are processed securely and automatically deleted after processing.",
     "notNow": "Not now"
   },
 

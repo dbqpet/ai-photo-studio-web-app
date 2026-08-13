@@ -47,8 +47,11 @@ export default function HeroSection({ uploadTargetId = "photo-upload" }: HeroSec
           {t("hero.title")}
         </h2>
 
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-500 sm:text-base">
+        <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-600 sm:text-base">
           {t("hero.subtitle")}
+        </p>
+        <p className="mt-1.5 max-w-xl text-xs text-slate-400">
+          {t("hero.subtitle_savings")}
         </p>
 
         <ul className="mt-6 grid w-full max-w-2xl grid-cols-1 gap-2.5 sm:grid-cols-3 sm:gap-3">
@@ -69,6 +72,7 @@ export default function HeroSection({ uploadTargetId = "photo-upload" }: HeroSec
         >
           {t("hero.cta_button")}
         </button>
+        <p className="mt-2 text-xs text-slate-500">{t("hero.cta_note")}</p>
       </div>
     </section>
   );

@@ -26,12 +26,14 @@
   },
 
   "hero": {
-    "title": "3 秒生成官方護照及簽證相片",
-    "subtitle": "將任何日常自拍變成符合規格的 300 DPI 護照相及標準 4R 列印排版。每張相片節省 $15 以上！",
-    "badge_ai": "⚡ 即時 AI 裁切與去背",
-    "badge_print": "🖨️ 可直接列印的 4R 排版",
-    "badge_privacy": "🔒 私隱優先，自動刪除",
-    "cta_button": "立即上傳相片"
+    "title": "3 秒將自拍變成專業證件相",
+    "subtitle": "以 AI 自動調整尺寸、去除背景，輸出 300 DPI 護照、簽證及證件相。",
+    "subtitle_savings": "比影樓節省 $15 以上。",
+    "badge_ai": "⚡ 自動調整尺寸及去背",
+    "badge_print": "🖨️ 可直接列印的 4R 相片排版",
+    "badge_privacy": "🔒 相片處理後自動刪除",
+    "cta_button": "✨ 建立我的免費預覽",
+    "cta_note": "免費預覽 · 無需信用卡"
   },
 
   "common": {
@@ -55,7 +57,7 @@
 
   "step1": {
     "title": "上傳您的相片",
-    "description": "請先選擇相片尺寸，然後上傳或拍攝相片。在 AI 處理前，您可以自由放大和調整位置。只有在按下「生成」後才會使用 AI。"
+    "description": "選擇相片尺寸、上傳自拍，其餘交給 AI。"
   },
 
   "step2": {
@@ -65,7 +67,7 @@
     "generatePreview": "✨ 生成免費預覽",
     "generatePreviewWithCredits": "✨ 生成免費預覽（剩餘 {count} 次）",
     "generating": "AI 生成中（約需 10 秒）...",
-    "previewNote": "🔒 免費預覽 • 帶水印預覽圖 • 只需要 {price} 即可解鎖 300 DPI 高清下載",
+    "previewNote": "免費預覽 · 帶水印 · {price} 解鎖高清",
     "highDemandStatus": "⏳ 高峰時段 AI 伺服器較為繁忙，生成相片時請耐性等候 — 如遇網路壅塞，系統會自動重試。"
   },
 
@@ -196,13 +198,13 @@
   },
 
   "loginModal": {
-    "title": "✨ 立即領取 3 次免費預覽點數！",
-    "subtitle": "使用 Google 帳號登入，即可體驗 AI 即時生成與預覽相片。",
-    "benefit1": "首次登入即送 3 次免費預覽點數",
-    "benefit2": "隨時儲存並存取您生成的證件相",
-    "benefit3": "100% 保證符合官方護照與簽證規格",
+    "title": "✨ 獲取 3 次免費預覽點數",
+    "subtitle": "使用 Google 登入，即可建立您的第一張 AI 證件相預覽。",
+    "benefit1": "3 次免費 AI 相片預覽",
+    "benefit2": "先試後付",
+    "benefit3": "您的相片會安全處理並自動刪除",
     "continueWithGoogle": "使用 Google 帳號繼續",
-    "privacyNote": "🔒 隱私安全承諾：您的相片嚴格保密，處理完成後會自動刪除。",
+    "privacyNote": "🔒 您的相片會安全處理，並在處理完成後自動刪除。",
     "notNow": "暫不登入"
   },
 
