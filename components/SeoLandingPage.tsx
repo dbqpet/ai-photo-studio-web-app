@@ -264,8 +264,19 @@ function introLinkForLang(lang: SeoLang): { href: string; label: string } {
   return { href: "/", label: "AI Images Studio 主页" };
 }
 
+function termsLinkForLang(lang: SeoLang): { href: string; label: string } {
+  if (lang === "en") {
+    return { href: "/en/terms", label: "Terms & Conditions" };
+  }
+  if (lang === "zh-cn") {
+    return { href: "/zh/terms", label: "条款及细则" };
+  }
+  return { href: "/zh/terms", label: "條款及細則" };
+}
+
 export default function SeoLandingPage({ lang, page }: SeoLandingPageProps) {
   const introLink = introLinkForLang(lang);
+  const termsLink = termsLinkForLang(lang);
   return (
     <div lang={page.meta.htmlLang} className="flex min-h-full flex-col bg-slate-50">
       <header className="border-b border-slate-200 bg-white/80 backdrop-blur">
@@ -404,6 +415,14 @@ export default function SeoLandingPage({ lang, page }: SeoLandingPageProps) {
           </div>
           <div className="text-center text-xs text-slate-400">
             <p>{page.footer.privacy}</p>
+            <p className="mt-1.5">
+              <Link
+                href={termsLink.href}
+                className="text-slate-500 hover:text-slate-700 hover:underline"
+              >
+                {termsLink.label}
+              </Link>
+            </p>
             <p className="mt-1.5">
               {page.footer.supportLabel}
               <a href={`mailto:${SUPPORT_EMAIL}`} className="text-slate-600 hover:underline">

@@ -250,7 +250,8 @@
 
   "footer": {
     "privacyNote": "AI Images Studio · 写真は安全に処理され、サーバーに保存されることはありません。",
-    "support": "サポート：{email}"
+    "support": "サポート：{email}",
+    "terms": "Terms & Conditions"
   },
 
   "pricing": {

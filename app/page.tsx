@@ -3,6 +3,7 @@
 /* eslint-disable @next/next/no-img-element -- previews are dynamic data URLs */
 
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { track } from "@vercel/analytics";
 import { useTranslation } from "react-i18next";
@@ -35,6 +36,7 @@ import {
 } from "@/lib/i18n/presetLabels";
 import { PRICING, formatUsd } from "@/lib/pricing";
 import { SUPPORT_EMAIL } from "@/lib/site";
+import { termsPathForAppLocale } from "@/lib/terms/dictionaries";
 import { trackGAEvent } from "@/lib/ga";
 import {
   clearActivePhotoSession,
@@ -150,7 +152,7 @@ function StudioLoadingFallback() {
 }
 
 function StudioPageContent() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const searchParams = useSearchParams();
   const {
     user,
@@ -1288,6 +1290,14 @@ function StudioPageContent() {
             <div className="text-center sm:text-left">
               <p className="text-xs text-slate-400">
                 {t("footer.privacyNote")}
+              </p>
+              <p className="mt-1.5 text-xs text-slate-400">
+                <Link
+                  href={termsPathForAppLocale(i18n.language)}
+                  className="text-slate-500 hover:text-slate-700 hover:underline"
+                >
+                  {t("footer.terms")}
+                </Link>
               </p>
               <p className="mt-1.5 text-xs text-slate-400">
                 {t("footer.support", { email: "" })}

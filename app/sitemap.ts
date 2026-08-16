@@ -22,6 +22,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: lang === "zh" ? 0.9 : 0.85,
   }));
 
+  const termsPages: MetadataRoute.Sitemap = INTRO_LANGUAGES.map((lang) => ({
+    url: `${SITE_URL}/${lang}/terms`,
+    lastModified: now,
+    changeFrequency: "yearly",
+    priority: 0.5,
+  }));
+
   const seoGuidePages: MetadataRoute.Sitemap = SEO_LANGS.flatMap((lang) =>
     getSeoPageSlugs(lang).map((slug) => ({
       url: `${SITE_URL}/${lang}/${slug}`,
@@ -31,5 +38,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     })),
   );
 
-  return [...home, ...introductionPages, ...seoGuidePages];
+  return [...home, ...introductionPages, ...termsPages, ...seoGuidePages];
 }

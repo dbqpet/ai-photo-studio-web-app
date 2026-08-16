@@ -250,7 +250,8 @@
 
   "footer": {
     "privacyNote": "AI Images Studio · Photos are processed securely and never stored on our servers.",
-    "support": "Support: {email}"
+    "support": "Support: {email}",
+    "terms": "Terms & Conditions"
   },
 
   "pricing": {

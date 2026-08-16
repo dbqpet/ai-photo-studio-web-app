@@ -250,7 +250,8 @@
 
   "footer": {
     "privacyNote": "AI Images Studio · 相片經安全處理，絕不儲存於我們的伺服器。",
-    "support": "支援：{email}"
+    "support": "支援：{email}",
+    "terms": "條款及細則"
   },
 
   "pricing": {

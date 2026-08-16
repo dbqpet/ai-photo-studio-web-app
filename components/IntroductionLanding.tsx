@@ -269,6 +269,14 @@ export default function IntroductionLanding({ lang, dict }: IntroductionLandingP
           <div className="text-center text-xs text-slate-400">
             <p>{dict.footer.privacy}</p>
             <p className="mt-1.5">
+              <Link
+                href={`/${lang}/terms`}
+                className="text-slate-500 hover:text-slate-700 hover:underline"
+              >
+                {dict.footer.terms}
+              </Link>
+            </p>
+            <p className="mt-1.5">
               {dict.footer.supportLabel}
               <a
                 href={`mailto:${SUPPORT_EMAIL}`}
