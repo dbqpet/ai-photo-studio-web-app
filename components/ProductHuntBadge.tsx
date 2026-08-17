@@ -1,4 +1,4 @@
-const PRODUCT_HUNT_URL =
+export const PRODUCT_HUNT_URL =
   "https://www.producthunt.com/products/ai-images-studio?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-ai-images-studio";
 
 const PRODUCT_HUNT_BADGE_SRC =

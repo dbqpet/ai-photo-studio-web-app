@@ -26,14 +26,17 @@
   },
 
   "hero": {
-    "title": "Turn Any Selfie Into a Professional ID Photo in 3 Seconds",
-    "subtitle": "Create passport, visa and ID photos with AI-powered sizing, background removal and 300 DPI output.",
-    "subtitle_savings": "Save $15+ compared with a photo studio.",
+    "title": "Your Perfect ID Photo, Without Going to a Photo Studio",
+    "subtitle": "Upload a normal photo and let AI turn it into a professional ID, passport or visa photo — ready to download and print in 4R.",
     "badge_ai": "⚡ Automatic Size & Background Removal",
     "badge_print": "🖨 Ready-to-Print 4R Photo Sheet",
     "badge_privacy": "📱 Works With Any Normal Selfie",
     "cta_button": "✨ Create My Free Preview",
-    "cta_note": "Free preview • No credit card required"
+    "trust": {
+      "stripe": "Stripe Secure Payment",
+      "product_hunt": "Product Hunt Listed",
+      "techbase": "TechBaseDirectory Listed"
+    }
   },
 
   "common": {

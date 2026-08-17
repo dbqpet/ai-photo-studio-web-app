@@ -26,14 +26,17 @@
   },
 
   "hero": {
-    "title": "3 秒将自拍变成专业证件照",
-    "subtitle": "以 AI 自动调整尺寸、去除背景，输出 300 DPI 护照、签证及证件照。",
-    "subtitle_savings": "比影楼节省 $15 以上。",
+    "title": "不用去照相馆，也能做出专业证件照",
+    "subtitle": "上传一张普通照片，AI 即时帮你制作专业证件照、护照照或签证照，更可下载并以 4R 尺寸打印。",
     "badge_ai": "⚡ 自动调整尺寸及去背",
     "badge_print": "🖨️ 可直接打印的 4R 照片排版",
     "badge_privacy": "📱 任何日常自拍都适用",
     "cta_button": "✨ 创建我的免费预览",
-    "cta_note": "免费预览 · 无需信用卡"
+    "trust": {
+      "stripe": "Stripe 安全支付",
+      "product_hunt": "Product Hunt 已上架",
+      "techbase": "TechBaseDirectory 已上架"
+    }
   },
 
   "common": {

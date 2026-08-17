@@ -935,7 +935,7 @@ function StudioPageContent() {
   return (
     <div className="flex flex-1 flex-col bg-slate-50">
       <header className="border-b border-slate-200 bg-white/80 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-3 px-5 py-4">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3 px-4 py-4 md:px-8">
           <h1 className="font-sans text-xl font-extrabold tracking-tighter text-slate-900">
             {t("brand.name")}
           </h1>
@@ -976,12 +976,12 @@ function StudioPageContent() {
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-5 py-6">
-        <nav aria-label={t("nav.progressLabel")} className="flex items-center gap-2">
+      <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-6 md:px-8">
+        <nav aria-label={t("nav.progressLabel")} className="flex w-full items-center gap-2">
           {STEPS.map((s, i) => (
-            <div key={s.id} className="flex flex-1 items-center gap-2">
+            <div key={s.id} className="flex min-w-0 items-center gap-2 last:flex-none last:justify-end not-last:flex-1">
               <div
-                className={`flex items-center gap-2 ${
+                className={`flex shrink-0 items-center gap-2 ${
                   step === s.id ? "" : "opacity-50"
                 }`}
                 aria-current={step === s.id ? "step" : undefined}
@@ -1000,7 +1000,7 @@ function StudioPageContent() {
                 </span>
               </div>
               {i < STEPS.length - 1 && (
-                <span className="h-px flex-1 bg-slate-300" aria-hidden />
+                <span className="h-px min-w-4 flex-1 bg-slate-300" aria-hidden />
               )}
             </div>
           ))}
@@ -1032,22 +1032,19 @@ function StudioPageContent() {
           <>
             <HeroSection uploadTargetId="photo-upload" />
 
-            <section className="rounded-3xl bg-white p-5 shadow-sm sm:p-7">
-            <h2 className="mb-1 text-xl font-bold text-slate-900">
+            <section className="rounded-3xl bg-white p-5 shadow-sm sm:p-7 md:text-center">
+            <h2 className="mb-1 text-xl font-bold text-slate-900 md:text-[2.5rem] md:leading-tight">
               {t("step1.title")}
             </h2>
-            <p className="mb-5 text-sm text-slate-500">
+            <p className="mb-5 text-sm text-slate-500 md:mb-4">
               {t("step1.description")}
             </p>
 
-            <div className="mb-5">
-              <h3 className="mb-2.5 text-sm font-semibold text-slate-700">
-                {t("common.photoDimensions")}
-              </h3>
+            <div className="mb-5 md:mx-auto md:mb-4">
               <select
                 value={presetId}
                 onChange={(e) => setPresetId(e.target.value)}
-                className="mb-3 w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-sky-500"
+                className="mb-3 w-full rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-sky-500 md:mx-auto md:mb-2 md:block md:w-1/2"
               >
                 {PHOTO_SIZE_PRESETS.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -1056,7 +1053,7 @@ function StudioPageContent() {
                 ))}
               </select>
               {presetId === "custom" && (
-                <div className="mb-3 grid grid-cols-2 gap-3">
+                <div className="mb-3 grid grid-cols-2 gap-3 md:mx-auto md:mb-2 md:w-1/2">
                   <label className="flex flex-col gap-1">
                     <span className="text-xs font-semibold text-slate-600">
                       {t("common.widthMm")}
@@ -1100,7 +1097,7 @@ function StudioPageContent() {
               </p>
             </div>
 
-            <div id="photo-upload" tabIndex={-1} className="scroll-mt-6 outline-none">
+            <div id="photo-upload" tabIndex={-1} className="scroll-mt-6 outline-none md:mx-auto md:max-w-[560px]">
               <PhotoInput
                 onPhotoSelected={handlePhotoSelected}
                 aspectRatio={preset.aspectRatio}
@@ -1285,7 +1282,7 @@ function StudioPageContent() {
       )}
 
       <footer className="border-t border-slate-200 bg-white py-4">
-        <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-4 px-5">
+        <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-4 px-4 md:px-8">
           <div className="flex w-full flex-col items-center justify-between gap-4 sm:flex-row sm:items-end">
             <div className="text-center sm:text-left">
               <p className="text-xs text-slate-400">

@@ -26,14 +26,17 @@
   },
 
   "hero": {
-    "title": "3秒で自撮りをプロの証明写真に",
-    "subtitle": "AIによるサイズ調整・背景除去・300 DPI出力で、パスポート・ビザ・ID写真を作成。",
-    "subtitle_savings": "写真館より$15以上お得。",
+    "title": "写真館に行かずに、きれいな証明写真を",
+    "subtitle": "普通の写真をアップロードするだけで、AIがパスポート・ビザ・証明写真に仕上げます。ダウンロードして4Rサイズでプリントできます。",
     "badge_ai": "⚡ 自動サイズ調整＆背景除去",
     "badge_print": "🖨️ 印刷可能な4R写真シート",
     "badge_privacy": "📱 普通の自撮りで使える",
     "cta_button": "✨ 無料プレビューを作成",
-    "cta_note": "無料プレビュー · クレジットカード不要"
+    "trust": {
+      "stripe": "Stripe 安全な決済",
+      "product_hunt": "Product Hunt 掲載",
+      "techbase": "TechBaseDirectory 掲載"
+    }
   },
 
   "common": {

@@ -10,6 +10,7 @@ import { compressPreviewForDisplay } from "@/lib/imageUtils";
 import { presetDescription, presetLabel } from "@/lib/i18n/presetLabels";
 import { PRICING, formatUsd } from "@/lib/pricing";
 import { SUPPORT_EMAIL } from "@/lib/site";
+import StripePaymentReassurance from "@/components/StripePaymentReassurance";
 import type { PurchaseSummary } from "@/lib/purchaseStore";
 import type { SheetLayout } from "@/lib/printLayout";
 
@@ -186,6 +187,7 @@ export default function PreviewPanel({
                 <>{t("preview.unlockButton", { price: formatUsd(PRICING.saleUsd) })}</>
               )}
             </button>
+            <StripePaymentReassurance className="mt-1" />
             <p className="text-center text-[11px] text-slate-500">
               {t("preview.supportQuestion", { email: "" })}
               <a

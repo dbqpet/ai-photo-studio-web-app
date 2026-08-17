@@ -26,14 +26,17 @@
   },
 
   "hero": {
-    "title": "3 秒將自拍變成專業證件相",
-    "subtitle": "以 AI 自動調整尺寸、去除背景，輸出 300 DPI 護照、簽證及證件相。",
-    "subtitle_savings": "比影樓節省 $15 以上。",
+    "title": "唔使去影相舖，都可以整出專業證件相",
+    "subtitle": "上載一張普通相片，AI 即時幫你製作專業證件相、護照相或簽證相，更可下載並以 4R 尺寸列印。",
     "badge_ai": "⚡ 自動調整尺寸及去背",
     "badge_print": "🖨️ 可直接列印的 4R 相片排版",
     "badge_privacy": "📱 任何日常自拍都適用",
     "cta_button": "✨ 建立我的免費預覽",
-    "cta_note": "免費預覽 · 無需信用卡"
+    "trust": {
+      "stripe": "Stripe 安全付款",
+      "product_hunt": "Product Hunt 已上架",
+      "techbase": "TechBaseDirectory 已上架"
+    }
   },
 
   "common": {

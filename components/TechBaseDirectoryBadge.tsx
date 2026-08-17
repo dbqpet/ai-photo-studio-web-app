@@ -1,4 +1,4 @@
-const TECH_BASE_DIRECTORY_URL =
+export const TECH_BASE_DIRECTORY_URL =
   "https://techbasedirectory.com/product/ai-images-studio";
 
 interface TechBaseDirectoryBadgeProps {

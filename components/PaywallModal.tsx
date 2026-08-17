@@ -3,6 +3,7 @@
 import { Trans, useTranslation } from "react-i18next";
 import { PRICING, formatUsd } from "@/lib/pricing";
 import { SUPPORT_EMAIL } from "@/lib/site";
+import StripePaymentReassurance from "@/components/StripePaymentReassurance";
 
 interface PaywallModalProps {
   open: boolean;
@@ -110,6 +111,7 @@ export default function PaywallModal({
             <>{ctaLabel}</>
           )}
         </button>
+        <StripePaymentReassurance className="mt-2" />
 
         {/* Secondary — clearly clickable but de-emphasised */}
         <button

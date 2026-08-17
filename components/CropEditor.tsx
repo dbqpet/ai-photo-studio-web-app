@@ -51,7 +51,7 @@ export default function CropEditor({
   }, [croppedAreaPixels, imageSrc, onConfirm, t]);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 md:text-center">
       <div>
         <h3 className="text-base font-bold text-slate-900">
           {t("cropEditor.title")}
@@ -59,24 +59,26 @@ export default function CropEditor({
         <p className="text-sm text-slate-500">{t("cropEditor.description")}</p>
       </div>
 
-      <div
-        className="relative w-full overflow-hidden rounded-2xl bg-slate-900"
-        style={{ aspectRatio: String(aspectRatio) }}
-      >
-        <Cropper
-          image={imageSrc}
-          crop={crop}
-          zoom={zoom}
-          aspect={aspectRatio}
-          showGrid
-          onCropChange={setCrop}
-          onZoomChange={setZoom}
-          onCropComplete={onCropComplete}
-          objectFit="contain"
-        />
+      <div className="mx-auto w-full max-w-[480px]">
+        <div
+          className="relative w-full overflow-hidden rounded-2xl bg-slate-900"
+          style={{ aspectRatio: String(aspectRatio) }}
+        >
+          <Cropper
+            image={imageSrc}
+            crop={crop}
+            zoom={zoom}
+            aspect={aspectRatio}
+            showGrid
+            onCropChange={setCrop}
+            onZoomChange={setZoom}
+            onCropComplete={onCropComplete}
+            objectFit="contain"
+          />
+        </div>
       </div>
 
-      <label className="flex flex-col gap-1.5">
+      <label className="mx-auto flex w-full max-w-[480px] flex-col gap-1.5">
         <span className="text-xs font-semibold text-slate-600">
           {t("cropEditor.zoomLabel", { level: zoom.toFixed(1) })}
         </span>
@@ -93,12 +95,12 @@ export default function CropEditor({
       </label>
 
       {error && (
-        <p className="rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">
+        <p className="mx-auto w-full max-w-[480px] rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">
           {error}
         </p>
       )}
 
-      <div className="flex flex-col gap-2 sm:flex-row">
+      <div className="mx-auto flex w-full max-w-[480px] flex-col gap-2 sm:flex-row">
         <button
           type="button"
           onClick={confirm}
