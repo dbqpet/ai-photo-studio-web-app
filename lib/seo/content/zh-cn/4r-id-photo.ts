@@ -31,6 +31,12 @@ export const fourRIdPhotoZhCn: SeoPageContent = {
     {
       type: "prose",
       title: "什么是4R证件照排版？",
+      image: {
+        src: "/images/4r_layout_illustration_1.png",
+        alt: "4R 相纸上排版六张证件照的示意图",
+        caption: "一张 4R 相纸排版 6 张证件照，方便裁剪",
+        layout: "aside",
+      },
       paragraphs: [
         "4R 是常见的冲印尺寸，约 4×6 英寸（102×152 mm），便利店自助打印机、照相馆及网上冲印大多支持此规格。",
         "与单张证件照文件不同，4R 排版会将同一尺寸的多张证件照排列在一张相纸上，打印后再沿边裁剪，比逐张冲印更划算。",
@@ -97,6 +103,12 @@ export const fourRIdPhotoZhCn: SeoPageContent = {
     {
       type: "prose",
       title: "在家打印 vs 照相馆冲印",
+      image: {
+        src: "/images/4r_layout_illustration_2.png",
+        alt: "手机即时预览 4R 排版并轻松打印的示意图",
+        caption: "手机即时预览排版效果，下载后即可在家或便利店轻松打印",
+        layout: "below",
+      },
       subsections: [
         {
           title: "在家打印",

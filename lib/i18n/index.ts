@@ -9,12 +9,20 @@ import ko from "@/locales/ko.json";
 
 import { DEFAULT_LOCALE } from "./config";
 
+const localeBundles = {
+  en,
+  zh,
+  "zh-CN": zhCN,
+  ja,
+  ko,
+} as const;
+
 // All resources are bundled at build time (no async loading / Suspense),
 // so the same i18n instance works identically on the server render pass
 // and after client hydration — only the active `lng` differs, and that is
 // switched client-side once we know the visitor's locale.
 if (!i18n.isInitialized) {
-  void i18n.use(initReactI18next).init({
+  i18n.use(initReactI18next).init({
     resources: {
       en: { translation: en },
       zh: { translation: zh },
@@ -30,7 +38,14 @@ if (!i18n.isInitialized) {
     // literal "{count}" text (e.g. the header's Preview Tokens badge).
     interpolation: { escapeValue: false, prefix: "{", suffix: "}" },
     returnEmptyString: false,
+    initImmediate: false,
   });
+}
+
+// Re-merge locale JSON on every module evaluation so newly added keys are
+// picked up after HMR / Fast Refresh (init is skipped once the singleton exists).
+for (const [lng, bundle] of Object.entries(localeBundles)) {
+  i18n.addResourceBundle(lng, "translation", bundle, true, true);
 }
 
 export default i18n;

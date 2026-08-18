@@ -16,7 +16,8 @@
     "previewTokens": "{count} 次預覽點數",
     "signIn": "登入",
     "signOut": "登出",
-    "progressLabel": "進度"
+    "progressLabel": "進度",
+    "faq": "常見問題"
   },
 
   "steps": {
@@ -32,6 +33,8 @@
     "badge_print": "🖨️ 可直接列印的 4R 相片排版",
     "badge_privacy": "📱 任何日常自拍都適用",
     "cta_button": "✨ 建立我的免費預覽",
+    "pricing_reassurance": "滿意先至要收費",
+    "pricing_note": "免費預覽 · 無需訂閱",
     "trust": {
       "stripe": "Stripe 安全付款",
       "product_hunt": "Product Hunt 已上架",
@@ -87,6 +90,8 @@
     "tapToChoose": "點擊選擇相片",
     "orDragDrop": " 或拖放檔案至此",
     "fileFormats": "JPEG / PNG / WebP · 建議解像度 ≥ 600×600px",
+    "privacyTitle": "🔒 私隱安全",
+    "privacyNote": "相片只用於製作您的證件相。",
     "errorInvalidImage": "檔案格式無效，請選擇其他相片。",
     "errorWrongFileType": "請選擇圖片檔案（JPEG、PNG 或 WebP）。",
     "errorFileTooLarge": "檔案大小超過 10 MB，請選擇較小的相片。"
@@ -254,7 +259,10 @@
   "footer": {
     "privacyNote": "AI Images Studio · 相片經安全處理，絕不儲存於我們的伺服器。",
     "support": "支援：{email}",
-    "terms": "條款及細則"
+    "terms": "條款及細則",
+    "privacyPolicy": "私隱政策",
+    "contact": "聯絡我們",
+    "legalNavLabel": "法律資訊"
   },
 
   "pricing": {

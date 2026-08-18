@@ -33,6 +33,11 @@ export function termsPathForAppLocale(locale: string): string {
   return "/en/terms";
 }
 
+/** Existing Terms page privacy section — there is no separate privacy-policy route. */
+export function privacyPolicyPathForAppLocale(locale: string): string {
+  return `${termsPathForAppLocale(locale)}#privacy`;
+}
+
 export function isTermsLang(value: string): value is TermsLang {
   return isIntroLang(value);
 }

@@ -18,19 +18,28 @@ export const fourRIdPhotoZhTw: SeoPageContent = {
     htmlLang: "zh-Hant",
     locale: "zh_TW",
   },
-  nav: { headerCta: "免費預覽證件相" },
+  nav: { headerCta: "⚡ 立即免費製作4R證件相" },
   hero: {
     title: "4R證件相：自己製作4R證件相打印排版",
     subtitle:
       "不少申請仍需要實體證件相，一次申請往往要準備多張相同尺寸。從手機自拍出發，AI 幫你處理背景與尺寸，再自動排版至標準 4R 相紙，一次列印多張，省時又省錢。",
-    primaryCta: "免費預覽證件相",
+    primaryCta: "⚡ 立即免費製作4R證件相",
     secondaryCta: "了解4R排版流程",
     secondaryTargetId: "workflow",
   },
+  ctaHref: "/",
+  ctaLocale: "zh",
+  prominentCta: true,
   sections: [
     {
       type: "prose",
       title: "什麼是4R證件相排版？",
+      image: {
+        src: "/images/4r_layout_illustration_1.png",
+        alt: "4R 相紙上排版六張證件相的示意圖",
+        caption: "一張 4R 相紙排版 6 張證件相，方便裁剪",
+        layout: "aside",
+      },
       paragraphs: [
         "4R 是常見的沖曬尺寸，約 4×6 英寸（102×152 mm），便利店自助影印機、相舖及網上沖印大多支援此規格。",
         "與單張證件相檔案不同，4R 排版會將同一尺寸的多張證件相排列在一張相紙上，列印後再沿邊裁剪，比逐張沖印更划算。",
@@ -97,6 +106,12 @@ export const fourRIdPhotoZhTw: SeoPageContent = {
     {
       type: "prose",
       title: "在家列印 vs 相舖沖印",
+      image: {
+        src: "/images/4r_layout_illustration_2.png",
+        alt: "手機即時預覽 4R 排版並輕鬆列印的示意圖",
+        caption: "手機即時預覽排版效果，下載後即可在家或便利店輕鬆列印",
+        layout: "below",
+      },
       subsections: [
         {
           title: "在家列印",
@@ -157,7 +172,7 @@ export const fourRIdPhotoZhTw: SeoPageContent = {
   bottomCta: {
     title: "準備好製作 4R 證件相排版？",
     subtitle: "上傳自拍，預覽 4R 多張排版效果，滿意後再下載沖印。",
-    button: "免費預覽證件相",
+    button: "⚡ 立即免費製作4R證件相",
   },
   relatedPages: [
     { slug: "id-photo-print", label: "證件相打印／列印" },

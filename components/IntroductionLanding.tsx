@@ -174,7 +174,7 @@ export default function IntroductionLanding({ lang, dict }: IntroductionLandingP
         <section
           id="faq"
           aria-labelledby="faq-title"
-          className="border-b border-slate-200 py-14 sm:py-20"
+          className="scroll-mt-6 border-b border-slate-200 py-14 sm:py-20"
         >
           <div className="mx-auto max-w-3xl px-5">
             <h2

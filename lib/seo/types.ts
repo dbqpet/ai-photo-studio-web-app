@@ -35,6 +35,14 @@ export interface SeoExternalLink {
   label: string;
 }
 
+export interface SeoSectionImage {
+  src: string;
+  alt: string;
+  caption?: string;
+  /** Desktop: text + image side by side. Mobile: stacked. Default: below text. */
+  layout?: "aside" | "below";
+}
+
 export type SeoSection =
   | {
       type: "prose";
@@ -43,6 +51,7 @@ export type SeoSection =
       paragraphs?: string[];
       bullets?: string[];
       subsections?: SeoProseSubsection[];
+      image?: SeoSectionImage;
     }
   | {
       type: "features";
@@ -96,6 +105,12 @@ export interface SeoPageContent {
     secondaryCta?: string;
     secondaryTargetId?: string;
   };
+  /** Primary CTA destination. Defaults to `/`. */
+  ctaHref?: string;
+  /** Persist locale when a primary CTA is clicked (e.g. `zh` from `/zh/...`). */
+  ctaLocale?: import("@/lib/i18n/config").Locale;
+  /** Stronger hover scale and shadow on primary CTAs for this page. */
+  prominentCta?: boolean;
   sections: SeoSection[];
   faq: {
     title: string;

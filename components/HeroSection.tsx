@@ -5,14 +5,21 @@ import Image from "next/image";
 import { useTranslation } from "react-i18next";
 import { track } from "@vercel/analytics";
 import { trackGAEvent } from "@/lib/ga";
+import { PRICING, formatUsd } from "@/lib/pricing";
 
 const BADGE_KEYS = ["badge_ai", "badge_print", "badge_privacy"] as const;
 
 const TRUST_KEYS = ["stripe", "product_hunt", "techbase"] as const;
 
 const HERO_SLIDES = [
-  "/images/kv/hero_banner_1_0817.png",
-  "/images/kv/hero_banner_2_0817.png",
+  {
+    src: "/images/kv/hero_banner_v1_43_text.png",
+    alt: "AI passport photo generator showing before and after comparison of biometric ID photo creation",
+  },
+  {
+    src: "/images/kv/hero_banner_2_0817.png",
+    alt: "Smartphone app interface showing AI ID photo and a 4R print sheet with a 2x3 grid layout",
+  },
 ] as const;
 
 const CAROUSEL_INTERVAL_MS = 5000;
@@ -79,6 +86,18 @@ export default function HeroSection({ uploadTargetId = "photo-upload" }: HeroSec
             {t("subtitle")}
           </p>
 
+          <div className="mt-4 max-w-xl text-pretty lg:text-left">
+            <p className="text-sm leading-snug text-slate-600 sm:text-base">
+              <span className="font-extrabold tabular-nums text-slate-900">
+                {formatUsd(PRICING.saleUsd)}
+              </span>
+              <span className="text-slate-500"> — {t("pricing_reassurance")}</span>
+            </p>
+            <p className="mt-1 text-xs leading-relaxed text-slate-400 sm:text-[13px]">
+              {t("pricing_note")}
+            </p>
+          </div>
+
           <ul className="mt-6 grid w-full max-w-2xl grid-cols-1 gap-2.5 sm:grid-cols-3 sm:gap-3">
             {BADGE_KEYS.map((key) => (
               <li
@@ -119,17 +138,17 @@ export default function HeroSection({ uploadTargetId = "photo-upload" }: HeroSec
             aria-roledescription="carousel"
             aria-label="Hero showcase"
           >
-            {HERO_SLIDES.map((src, index) => (
+            {HERO_SLIDES.map((slide, index) => (
               <div
-                key={src}
+                key={slide.src}
                 aria-hidden={index !== activeSlide}
                 className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
                   index === activeSlide ? "opacity-100" : "opacity-0"
                 }`}
               >
                 <Image
-                  src={src}
-                  alt=""
+                  src={slide.src}
+                  alt={slide.alt}
                   fill
                   sizes="(max-width: 1024px) 100vw, 50vw"
                   priority={index === 0}
@@ -140,9 +159,9 @@ export default function HeroSection({ uploadTargetId = "photo-upload" }: HeroSec
           </div>
 
           <div className="mt-3 flex items-center justify-center gap-2">
-            {HERO_SLIDES.map((src, index) => (
+            {HERO_SLIDES.map((slide, index) => (
               <button
-                key={src}
+                key={slide.src}
                 type="button"
                 aria-label={`Show slide ${index + 1}`}
                 aria-current={index === activeSlide ? "true" : undefined}

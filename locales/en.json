@@ -16,7 +16,8 @@
     "previewTokens": "{count} Preview Tokens",
     "signIn": "Sign in",
     "signOut": "Sign out",
-    "progressLabel": "Progress"
+    "progressLabel": "Progress",
+    "faq": "FAQ"
   },
 
   "steps": {
@@ -32,6 +33,8 @@
     "badge_print": "🖨 Ready-to-Print 4R Photo Sheet",
     "badge_privacy": "📱 Works With Any Normal Selfie",
     "cta_button": "✨ Create My Free Preview",
+    "pricing_reassurance": "Pay only when you're happy",
+    "pricing_note": "Free preview · No subscription",
     "trust": {
       "stripe": "Stripe Secure Payment",
       "product_hunt": "Product Hunt Listed",
@@ -87,6 +90,8 @@
     "tapToChoose": "Tap to choose a photo",
     "orDragDrop": " or drag & drop",
     "fileFormats": "JPEG / PNG / WebP · Recommended ≥ 600×600px",
+    "privacyTitle": "🔒 Private & secure",
+    "privacyNote": "Used only to create your ID photo.",
     "errorInvalidImage": "That file does not look like a valid image. Please try another.",
     "errorWrongFileType": "Please choose an image file (JPEG, PNG or WebP).",
     "errorFileTooLarge": "Image is larger than 10 MB. Please choose a smaller file."
@@ -254,7 +259,10 @@
   "footer": {
     "privacyNote": "AI Images Studio · Photos are processed securely and never stored on our servers.",
     "support": "Support: {email}",
-    "terms": "Terms & Conditions"
+    "terms": "Terms & Conditions",
+    "privacyPolicy": "Privacy Policy",
+    "contact": "Contact",
+    "legalNavLabel": "Legal"
   },
 
   "pricing": {

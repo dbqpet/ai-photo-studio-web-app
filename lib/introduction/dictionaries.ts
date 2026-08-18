@@ -30,3 +30,9 @@ export function introHtmlLang(lang: IntroLang): string {
 export function introOpenGraphLocale(lang: IntroLang): string {
   return dictionaries[lang].meta.locale;
 }
+
+/** Map runtime app locale to the closest introduction FAQ section. */
+export function introFaqPathForAppLocale(locale: string): string {
+  if (locale === "zh" || locale === "zh-CN") return "/zh/introduction#faq";
+  return "/en/introduction#faq";
+}

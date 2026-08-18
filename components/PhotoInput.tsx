@@ -92,6 +92,10 @@ export default function PhotoInput({
       >
         {t("photoInput.uploadPhoto")}
       </button>
+      <p className="max-w-sm text-pretty text-xs leading-relaxed text-slate-500 md:mx-auto md:text-center">
+        {t("photoInput.privacyTitle")}
+        <span className="mt-0.5 block text-slate-400">{t("photoInput.privacyNote")}</span>
+      </p>
       <p className="text-xs text-slate-400 md:text-center">{t("photoInput.fileFormats")}</p>
       <input
         ref={fileInputRef}

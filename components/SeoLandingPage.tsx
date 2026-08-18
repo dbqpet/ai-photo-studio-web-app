@@ -1,11 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import ProductHuntBadge from "@/components/ProductHuntBadge";
 import SocialMediaLinks from "@/components/SocialMediaLinks";
 import TechBaseDirectoryBadge from "@/components/TechBaseDirectoryBadge";
 import { trackGAEvent } from "@/lib/ga";
-import type { SeoLang, SeoPageContent, SeoSection } from "@/lib/seo/types";
+import { LOCALE_STORAGE_KEY, type Locale } from "@/lib/i18n/config";
+import type { SeoLang, SeoPageContent, SeoSection, SeoSectionImage } from "@/lib/seo/types";
 import { SUPPORT_EMAIL } from "@/lib/site";
 
 interface SeoLandingPageProps {
@@ -13,24 +15,94 @@ interface SeoLandingPageProps {
   page: SeoPageContent;
 }
 
+const SEO_ILLUSTRATION_CLASS =
+  "my-6 w-full rounded-xl border border-gray-100 shadow-lg";
+
+function SeoSectionIllustration({ image }: { image: SeoSectionImage }) {
+  return (
+    <figure className="min-w-0">
+      <Image
+        src={image.src}
+        alt={image.alt}
+        width={1200}
+        height={900}
+        sizes="(max-width: 1024px) 100vw, 560px"
+        className={SEO_ILLUSTRATION_CLASS}
+      />
+      {image.caption && (
+        <figcaption className="mt-2 text-center text-sm leading-relaxed text-slate-600">
+          {image.caption}
+        </figcaption>
+      )}
+    </figure>
+  );
+}
+
+function ProseBody({
+  paragraphs,
+  bullets,
+}: {
+  paragraphs?: string[];
+  bullets?: string[];
+}) {
+  return (
+    <>
+      {paragraphs?.map((paragraph) => (
+        <p key={paragraph.slice(0, 40)} className="mt-4 text-sm leading-relaxed text-slate-600 sm:text-base">
+          {paragraph}
+        </p>
+      ))}
+      {bullets && bullets.length > 0 && (
+        <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-relaxed text-slate-600 sm:text-base">
+          {bullets.map((item) => (
+            <li key={item.slice(0, 48)}>{item}</li>
+          ))}
+        </ul>
+      )}
+    </>
+  );
+}
+
 function scrollToId(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function persistCtaLocale(locale?: Locale) {
+  if (!locale) return;
+  try {
+    window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
+  } catch {
+    // localStorage may be unavailable in private browsing.
+  }
 }
 
 function PrimaryCta({
   label,
   slug,
+  href = "/",
+  locale,
+  prominent = false,
   className = "",
 }: {
   label: string;
   slug: string;
+  href?: string;
+  locale?: Locale;
+  prominent?: boolean;
   className?: string;
 }) {
   return (
     <Link
-      href="/"
-      onClick={() => trackGAEvent("click_seo_cta", { label, page: slug })}
-      className={`inline-flex items-center justify-center rounded-2xl bg-sky-600 px-6 py-3.5 text-sm font-bold text-white shadow-md shadow-sky-600/25 transition hover:bg-sky-700 hover:shadow-lg hover:shadow-sky-600/30 active:scale-[0.98] sm:px-8 sm:text-base ${className}`}
+      href={href}
+      onClick={() => {
+        persistCtaLocale(locale);
+        trackGAEvent("click_seo_cta", { label, page: slug });
+      }}
+      className={`inline-flex items-center justify-center rounded-2xl bg-sky-600 px-6 py-3.5 text-sm font-bold text-white shadow-md shadow-sky-600/25 transition hover:bg-sky-700 hover:shadow-lg hover:shadow-sky-600/30 active:scale-[0.98] sm:px-8 sm:text-base ${
+        prominent
+          ? "shadow-lg shadow-sky-600/30 hover:scale-105 hover:shadow-xl hover:shadow-sky-600/40"
+          : ""
+      } ${className}`}
     >
       {label}
     </Link>
@@ -45,24 +117,27 @@ function SeoSectionBlock({ section }: { section: SeoSection }) {
   const sectionId = section.id;
 
   if (section.type === "prose") {
+    const asideLayout = section.image?.layout === "aside";
+
     return (
       <section
         id={sectionId}
         className={`${sectionId ? "scroll-mt-6" : ""} border-b border-slate-200 py-14 sm:py-16`}
       >
-        <div className="mx-auto max-w-3xl px-5">
+        <div className={`mx-auto px-5 ${asideLayout ? "max-w-5xl" : "max-w-3xl"}`}>
           <h2 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">{section.title}</h2>
-          {section.paragraphs?.map((paragraph) => (
-            <p key={paragraph.slice(0, 40)} className="mt-4 text-sm leading-relaxed text-slate-600 sm:text-base">
-              {paragraph}
-            </p>
-          ))}
-          {section.bullets && section.bullets.length > 0 && (
-            <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-relaxed text-slate-600 sm:text-base">
-              {section.bullets.map((item) => (
-                <li key={item.slice(0, 48)}>{item}</li>
-              ))}
-            </ul>
+          {asideLayout && section.image ? (
+            <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-center">
+              <div className="min-w-0">
+                <ProseBody paragraphs={section.paragraphs} bullets={section.bullets} />
+              </div>
+              <SeoSectionIllustration image={section.image} />
+            </div>
+          ) : (
+            <>
+              <ProseBody paragraphs={section.paragraphs} bullets={section.bullets} />
+              {section.image && <SeoSectionIllustration image={section.image} />}
+            </>
           )}
           {section.subsections?.map((sub) => (
             <div key={sub.title} className="mt-8">
@@ -277,6 +352,9 @@ function termsLinkForLang(lang: SeoLang): { href: string; label: string } {
 export default function SeoLandingPage({ lang, page }: SeoLandingPageProps) {
   const introLink = introLinkForLang(lang);
   const termsLink = termsLinkForLang(lang);
+  const ctaHref = page.ctaHref ?? "/";
+  const prominentCta = page.prominentCta ?? false;
+
   return (
     <div lang={page.meta.htmlLang} className="flex min-h-full flex-col bg-slate-50">
       <header className="border-b border-slate-200 bg-white/80 backdrop-blur">
@@ -287,7 +365,14 @@ export default function SeoLandingPage({ lang, page }: SeoLandingPageProps) {
           >
             AI Images Studio
           </Link>
-          <PrimaryCta label={page.nav.headerCta} slug={page.slug} className="px-5 py-2.5 text-sm" />
+          <PrimaryCta
+            label={page.nav.headerCta}
+            slug={page.slug}
+            href={ctaHref}
+            locale={page.ctaLocale}
+            prominent={prominentCta}
+            className="px-5 py-2.5 text-sm"
+          />
         </div>
       </header>
 
@@ -317,7 +402,13 @@ export default function SeoLandingPage({ lang, page }: SeoLandingPageProps) {
                 {page.hero.subtitle}
               </p>
               <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-                <PrimaryCta label={page.hero.primaryCta} slug={page.slug} />
+                <PrimaryCta
+                  label={page.hero.primaryCta}
+                  slug={page.slug}
+                  href={ctaHref}
+                  locale={page.ctaLocale}
+                  prominent={prominentCta}
+                />
                 {page.hero.secondaryCta && page.hero.secondaryTargetId && (
                   <button
                     type="button"
@@ -393,11 +484,16 @@ export default function SeoLandingPage({ lang, page }: SeoLandingPageProps) {
             <p className="mt-3 text-base text-sky-100 sm:text-lg">{page.bottomCta.subtitle}</p>
             <div className="mt-8">
               <Link
-                href="/"
-                onClick={() =>
-                  trackGAEvent("click_seo_cta", { label: "bottom", page: page.slug })
-                }
-                className="inline-flex items-center justify-center rounded-2xl bg-white px-8 py-3.5 text-base font-bold text-sky-700 shadow-lg transition hover:bg-sky-50 active:scale-[0.98]"
+                href={ctaHref}
+                onClick={() => {
+                  persistCtaLocale(page.ctaLocale);
+                  trackGAEvent("click_seo_cta", { label: "bottom", page: page.slug });
+                }}
+                className={`inline-flex items-center justify-center rounded-2xl px-8 py-3.5 text-base font-bold shadow-lg transition active:scale-[0.98] ${
+                  prominentCta
+                    ? "bg-sky-600 text-white shadow-sky-900/30 hover:scale-105 hover:bg-sky-500 hover:shadow-xl"
+                    : "bg-white text-sky-700 hover:bg-sky-50"
+                }`}
               >
                 {page.bottomCta.button}
               </Link>

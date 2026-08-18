@@ -16,7 +16,8 @@
     "previewTokens": "プレビュー残り {count} 回",
     "signIn": "ログイン",
     "signOut": "ログアウト",
-    "progressLabel": "進行状況"
+    "progressLabel": "進行状況",
+    "faq": "よくある質問"
   },
 
   "steps": {
@@ -32,6 +33,8 @@
     "badge_print": "🖨️ 印刷可能な4R写真シート",
     "badge_privacy": "📱 普通の自撮りで使える",
     "cta_button": "✨ 無料プレビューを作成",
+    "pricing_reassurance": "気に入ってからお支払い",
+    "pricing_note": "無料プレビュー · サブスクなし",
     "trust": {
       "stripe": "Stripe 安全な決済",
       "product_hunt": "Product Hunt 掲載",
@@ -87,6 +90,8 @@
     "tapToChoose": "タップして写真を選択",
     "orDragDrop": " またはドラッグ＆ドロップ",
     "fileFormats": "JPEG / PNG / WebP · 推奨解像度 600×600px 以上",
+    "privacyTitle": "🔒 プライベート＆安全",
+    "privacyNote": "写真は証明写真の作成にのみ使用します。",
     "errorInvalidImage": "有効な画像ファイルではないようです。別のファイルをお試しください。",
     "errorWrongFileType": "画像ファイル（JPEG、PNG、WebP）を選択してください。",
     "errorFileTooLarge": "画像サイズが 10MB を超えています。より小さいファイルを選択してください。"
@@ -254,7 +259,10 @@
   "footer": {
     "privacyNote": "AI Images Studio · 写真は安全に処理され、サーバーに保存されることはありません。",
     "support": "サポート：{email}",
-    "terms": "Terms & Conditions"
+    "terms": "利用規約",
+    "privacyPolicy": "プライバシーポリシー",
+    "contact": "お問い合わせ",
+    "legalNavLabel": "法的情報"
   },
 
   "pricing": {

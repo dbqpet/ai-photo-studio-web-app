@@ -65,7 +65,12 @@ export default function TermsLanding({ lang, content }: TermsLandingProps) {
 
           <div className="space-y-10">
             {content.sections.map((section) => (
-              <section key={section.id} aria-labelledby={`terms-${section.id}`}>
+              <section
+                key={section.id}
+                id={section.id}
+                className="scroll-mt-6"
+                aria-labelledby={`terms-${section.id}`}
+              >
                 <h2
                   id={`terms-${section.id}`}
                   className="text-lg font-bold text-slate-900 sm:text-xl"

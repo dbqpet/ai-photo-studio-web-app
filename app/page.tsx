@@ -36,7 +36,11 @@ import {
 } from "@/lib/i18n/presetLabels";
 import { PRICING, formatUsd } from "@/lib/pricing";
 import { SUPPORT_EMAIL } from "@/lib/site";
-import { termsPathForAppLocale } from "@/lib/terms/dictionaries";
+import {
+  privacyPolicyPathForAppLocale,
+  termsPathForAppLocale,
+} from "@/lib/terms/dictionaries";
+import { introFaqPathForAppLocale } from "@/lib/introduction/dictionaries";
 import { trackGAEvent } from "@/lib/ga";
 import {
   clearActivePhotoSession,
@@ -936,10 +940,16 @@ function StudioPageContent() {
     <div className="flex flex-1 flex-col bg-slate-50">
       <header className="border-b border-slate-200 bg-white/80 backdrop-blur">
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3 px-4 py-4 md:px-8">
-          <h1 className="font-sans text-xl font-extrabold tracking-tighter text-slate-900">
+          <h1 className="min-w-0 font-sans text-xl font-extrabold tracking-tighter text-slate-900">
             {t("brand.name")}
           </h1>
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <Link
+              href={introFaqPathForAppLocale(i18n.language)}
+              className="hidden rounded-full px-2 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 sm:inline-flex sm:px-3"
+            >
+              {t("nav.faq")}
+            </Link>
             {!authLoading && user && (
               <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
                 {t("nav.previewTokens", { count: previewCredits ?? 0 })}
@@ -1288,14 +1298,46 @@ function StudioPageContent() {
               <p className="text-xs text-slate-400">
                 {t("footer.privacyNote")}
               </p>
-              <p className="mt-1.5 text-xs text-slate-400">
-                <Link
-                  href={termsPathForAppLocale(i18n.language)}
-                  className="text-slate-500 hover:text-slate-700 hover:underline"
+              <div className="mt-3">
+                <nav
+                  aria-label={t("footer.legalNavLabel")}
+                  className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm sm:justify-start"
                 >
-                  {t("footer.terms")}
-                </Link>
-              </p>
+                  <Link
+                    href={introFaqPathForAppLocale(i18n.language)}
+                    className="inline-flex min-h-11 items-center text-slate-500 hover:text-slate-700 hover:underline sm:min-h-0"
+                  >
+                    {t("nav.faq")}
+                  </Link>
+                  <span className="hidden text-slate-300 sm:inline" aria-hidden>
+                    ·
+                  </span>
+                  <Link
+                    href={privacyPolicyPathForAppLocale(i18n.language)}
+                    className="inline-flex min-h-11 items-center text-slate-500 hover:text-slate-700 hover:underline sm:min-h-0"
+                  >
+                    {t("footer.privacyPolicy")}
+                  </Link>
+                  <span className="hidden text-slate-300 sm:inline" aria-hidden>
+                    ·
+                  </span>
+                  <Link
+                    href={termsPathForAppLocale(i18n.language)}
+                    className="inline-flex min-h-11 items-center text-slate-500 hover:text-slate-700 hover:underline sm:min-h-0"
+                  >
+                    {t("footer.terms")}
+                  </Link>
+                  <span className="hidden text-slate-300 sm:inline" aria-hidden>
+                    ·
+                  </span>
+                  <a
+                    href={`mailto:${SUPPORT_EMAIL}`}
+                    className="inline-flex min-h-11 items-center text-slate-500 hover:text-slate-700 hover:underline sm:min-h-0"
+                  >
+                    {t("footer.contact")}
+                  </a>
+                </nav>
+              </div>
               <p className="mt-1.5 text-xs text-slate-400">
                 {t("footer.support", { email: "" })}
                 <a
