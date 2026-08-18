@@ -22,7 +22,7 @@ const localeBundles = {
 // and after client hydration — only the active `lng` differs, and that is
 // switched client-side once we know the visitor's locale.
 if (!i18n.isInitialized) {
-  i18n.use(initReactI18next).init({
+  void i18n.use(initReactI18next).init({
     resources: {
       en: { translation: en },
       zh: { translation: zh },
@@ -38,7 +38,6 @@ if (!i18n.isInitialized) {
     // literal "{count}" text (e.g. the header's Preview Tokens badge).
     interpolation: { escapeValue: false, prefix: "{", suffix: "}" },
     returnEmptyString: false,
-    initImmediate: false,
   });
 }
 
