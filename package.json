@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint"
   },
@@ -23,7 +23,7 @@
     "react-dom": "19.2.4",
     "react-easy-crop": "^6.2.3",
     "react-i18next": "^17.0.11",
-    "sharp": "^0.35.3",
+    "sharp": "0.34.5",
     "stripe": "^22.3.2"
   },
   "devDependencies": {
@@ -37,5 +37,8 @@
     "eslint-config-next": "16.2.11",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "overrides": {
+    "sharp": "0.34.5"
   }
 }

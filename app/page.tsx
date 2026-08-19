@@ -753,11 +753,9 @@ function StudioPageContent() {
           }
           if (
             res.status === 408 ||
-            res.status === 500 ||
             res.status === 502 ||
             res.status === 503 ||
-            res.status === 504 ||
-            res.status === 0
+            res.status === 504
           ) {
             setHighDemand(true);
             throw new Error(t("errors.generationTimeout"));

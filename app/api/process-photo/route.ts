@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { processPhoto } from "@/lib/server/aiProviders";
 import {
   requirePreviewCredit,
   spendPreviewCredit,
 } from "@/lib/server/credits";
-import { isGeminiImageConfigured } from "@/lib/server/geminiImage";
 import { createClient } from "@/lib/supabase/server";
 import {
   AI_SERVICE_UNAVAILABLE_MESSAGE,
@@ -16,6 +14,7 @@ import {
 } from "@/lib/types";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 /** Gemini Nano Banana 2 Lite image edits (single attempt) can take a while. */
 export const maxDuration = 180;
 
@@ -65,8 +64,15 @@ export async function POST(req: NextRequest) {
     // Unhandled throws otherwise become an HTML error document in production,
     // which the client then fails to parse (`Unexpected token '<'`).
     console.error("[process-photo] unhandled:", err);
+    const detail = err instanceof Error ? err.message : String(err);
+    const sharpFailed = /sharp|libvips|dlopen/i.test(detail);
     return NextResponse.json(
-      { error: AI_FAILURE_MESSAGE, highDemand: false },
+      {
+        error: sharpFailed
+          ? "Image engine failed to start. Please try again in a moment."
+          : AI_FAILURE_MESSAGE,
+        highDemand: false,
+      },
       { status: 500 },
     );
   }
@@ -100,6 +106,11 @@ async function handleProcessPhoto(req: NextRequest) {
       );
     }
   }
+
+  const [{ processPhoto }, { isGeminiImageConfigured }] = await Promise.all([
+    import("@/lib/server/aiProviders"),
+    import("@/lib/server/geminiImage"),
+  ]);
 
   if (!isGeminiImageConfigured()) {
     return NextResponse.json(
@@ -171,7 +182,6 @@ async function handleProcessPhoto(req: NextRequest) {
       backgroundColor ?? "#FFFFFF",
       targetWidth,
       targetHeight,
-      req.signal,
     );
     image = result.image;
     provider = result.provider;
