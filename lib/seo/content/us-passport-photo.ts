@@ -162,10 +162,11 @@ export const usPassportPhotoPage: SeoPageContent = {
     button: "Start US Photo Prep",
   },
   relatedPages: [
+    { slug: "passport-photo-size", label: "Photo size chart" },
+    { slug: "passport-photo-requirements", label: "Photo requirements" },
     { slug: "passport-photo", label: "Passport photo maker" },
     { slug: "passport-photo-at-home", label: "Photo at home guide" },
-    { slug: "passport-photo-printing", label: "Print passport photos" },
-    { slug: "passport-photo-with-phone", label: "Phone photo guide" },
+    { slug: "passport-photo-printing", label: "4R print sheet" },
   ],
   footer,
 };

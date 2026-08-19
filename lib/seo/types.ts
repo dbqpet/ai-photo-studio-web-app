@@ -24,6 +24,16 @@ export interface SeoStepItem {
   description: string;
 }
 
+export interface SeoTableSection {
+  type: "table";
+  id?: string;
+  title: string;
+  caption?: string;
+  columns: string[];
+  rows: string[][];
+  footnotes?: string[];
+}
+
 export interface SeoProseSubsection {
   title: string;
   paragraphs?: string[];
@@ -64,7 +74,11 @@ export type SeoSection =
       id?: string;
       title: string;
       items: SeoStepItem[];
+      /** Emit Schema.org HowTo JSON-LD for this numbered guide. */
+      howTo?: boolean;
+      howToDescription?: string;
     }
+  | SeoTableSection
   | {
       type: "beforeAfter";
       id?: string;

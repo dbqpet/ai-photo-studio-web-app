@@ -167,9 +167,10 @@ export const idPhotoPage: SeoPageContent = {
   },
   relatedPages: [
     { slug: "passport-photo-background", label: "Photo background remover" },
-    { slug: "passport-photo-printing", label: "Printable photo sheets" },
+    { slug: "passport-photo-printing", label: "4R ID photo sheet" },
+    { slug: "philippines-id-photo", label: "Philippines ID photos" },
     { slug: "passport-photo", label: "Passport photo maker" },
-    { slug: "passport-photo-at-home", label: "Take photos at home" },
+    { slug: "passport-photo-size", label: "Photo size chart" },
   ],
   footer,
 };

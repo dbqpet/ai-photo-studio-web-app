@@ -39,7 +39,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     alternates: {
       canonical: pageUrl,
       languages: {
+        "zh-Hant": `${SITE_URL}/zh/terms`,
         "zh-HK": `${SITE_URL}/zh/terms`,
+        "zh-TW": `${SITE_URL}/zh/terms`,
         en: `${SITE_URL}/en/terms`,
         "x-default": `${SITE_URL}/en/terms`,
       },

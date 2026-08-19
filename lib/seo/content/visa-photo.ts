@@ -158,8 +158,9 @@ export const visaPhotoPage: SeoPageContent = {
   relatedPages: [
     { slug: "passport-photo-background", label: "Photo background guide" },
     { slug: "passport-photo", label: "Passport photo maker" },
-    { slug: "us-passport-photo", label: "US photo requirements" },
-    { slug: "passport-photo-printing", label: "Print photo sheets" },
+    { slug: "passport-photo-size", label: "Photo size chart" },
+    { slug: "passport-photo-requirements", label: "Photo requirements" },
+    { slug: "passport-photo-printing", label: "4R print sheet" },
   ],
   footer,
 };

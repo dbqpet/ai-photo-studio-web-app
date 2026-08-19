@@ -1,10 +1,16 @@
 import type { SeoLang, SeoPageContent } from "@/lib/seo/types";
+import { canadaPassportPhotoPage } from "@/lib/seo/content/canada-passport-photo";
 import { idPhotoPage } from "@/lib/seo/content/id-photo";
+import { indiaPassportPhotoPage } from "@/lib/seo/content/india-passport-photo";
 import { passportPhotoPage } from "@/lib/seo/content/passport-photo";
 import { passportPhotoAtHomePage } from "@/lib/seo/content/passport-photo-at-home";
 import { passportPhotoBackgroundPage } from "@/lib/seo/content/passport-photo-background";
 import { passportPhotoPrintingPage } from "@/lib/seo/content/passport-photo-printing";
+import { passportPhotoRequirementsPage } from "@/lib/seo/content/passport-photo-requirements";
+import { passportPhotoSizePage } from "@/lib/seo/content/passport-photo-size";
 import { passportPhotoWithPhonePage } from "@/lib/seo/content/passport-photo-with-phone";
+import { philippinesIdPhotoPage } from "@/lib/seo/content/philippines-id-photo";
+import { ukPassportPhotoPage } from "@/lib/seo/content/uk-passport-photo";
 import { usPassportPhotoPage } from "@/lib/seo/content/us-passport-photo";
 import { visaPhotoPage } from "@/lib/seo/content/visa-photo";
 import { ZH_TW_SEO_PAGES } from "@/lib/seo/content/zh-tw";
@@ -19,8 +25,14 @@ const EN_SEO_PAGES: SeoPageContent[] = [
   visaPhotoPage,
   passportPhotoWithPhonePage,
   usPassportPhotoPage,
+  ukPassportPhotoPage,
+  canadaPassportPhotoPage,
+  indiaPassportPhotoPage,
+  philippinesIdPhotoPage,
   passportPhotoPrintingPage,
   passportPhotoBackgroundPage,
+  passportPhotoSizePage,
+  passportPhotoRequirementsPage,
 ];
 
 export const SEO_PAGES_BY_LANG: Record<SeoLang, SeoPageContent[]> = {

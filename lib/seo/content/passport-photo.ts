@@ -161,8 +161,9 @@ export const passportPhotoPage: SeoPageContent = {
   relatedPages: [
     { slug: "passport-photo-at-home", label: "Passport photo at home" },
     { slug: "passport-photo-with-phone", label: "Passport photo with phone" },
-    { slug: "us-passport-photo", label: "US passport photo guide" },
-    { slug: "passport-photo-printing", label: "Passport photo printing" },
+    { slug: "passport-photo-size", label: "Photo size chart" },
+    { slug: "passport-photo-requirements", label: "Photo requirements" },
+    { slug: "passport-photo-printing", label: "4R print sheet" },
   ],
   footer,
 };

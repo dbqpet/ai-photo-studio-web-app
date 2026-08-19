@@ -17,8 +17,16 @@ export const SEO_HREFLANG_GROUPS: SeoHreflangEntry[] = [
     zh: "passport-photo-at-home",
     "zh-cn": "passport-photo-at-home",
   },
-  { zh: "passport-photo-size", "zh-cn": "passport-photo-size" },
-  { zh: "passport-photo-requirements", "zh-cn": "passport-photo-requirements" },
+  {
+    en: "passport-photo-size",
+    zh: "passport-photo-size",
+    "zh-cn": "passport-photo-size",
+  },
+  {
+    en: "passport-photo-requirements",
+    zh: "passport-photo-requirements",
+    "zh-cn": "passport-photo-requirements",
+  },
   {
     en: "passport-photo-with-phone",
     zh: "passport-photo-with-phone",
@@ -32,11 +40,15 @@ export const SEO_HREFLANG_GROUPS: SeoHreflangEntry[] = [
   },
 ];
 
-/** English-only SEO pages (no Chinese equivalent in phase 1). */
+/** English-only SEO pages (no Chinese equivalent). */
 export const EN_ONLY_SEO_SLUGS = [
   "passport-photo",
   "us-passport-photo",
   "passport-photo-background",
+  "uk-passport-photo",
+  "canada-passport-photo",
+  "india-passport-photo",
+  "philippines-id-photo",
 ] as const;
 
 export function findHreflangGroup(
@@ -56,7 +68,11 @@ export function buildHreflangAlternates(
 
   if (group) {
     if (group.en) alternates.en = `${SITE_URL}/en/${group.en}`;
+    alternates["zh-Hant"] = `${SITE_URL}/zh/${group.zh}`;
+    alternates["zh-Hans"] = `${SITE_URL}/zh-cn/${group["zh-cn"]}`;
+    // Regional aliases for the same Traditional / Simplified URLs.
     alternates["zh-HK"] = `${SITE_URL}/zh/${group.zh}`;
+    alternates["zh-TW"] = `${SITE_URL}/zh/${group.zh}`;
     alternates["zh-CN"] = `${SITE_URL}/zh-cn/${group["zh-cn"]}`;
     alternates["x-default"] = group.en
       ? `${SITE_URL}/en/${group.en}`

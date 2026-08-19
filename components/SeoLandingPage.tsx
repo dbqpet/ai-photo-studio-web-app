@@ -223,6 +223,61 @@ function SeoSectionBlock({ section }: { section: SeoSection }) {
     );
   }
 
+  if (section.type === "table") {
+    return (
+      <section
+        id={sectionId}
+        className={`${sectionId ? "scroll-mt-6" : ""} border-b border-slate-200 py-14 sm:py-16`}
+      >
+        <div className="mx-auto max-w-5xl px-5">
+          <h2 className="text-2xl font-extrabold text-slate-900 sm:text-3xl">{section.title}</h2>
+          {section.caption && (
+            <p className="mt-4 text-sm leading-relaxed text-slate-600 sm:text-base">{section.caption}</p>
+          )}
+          <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+            <table className="min-w-full border-collapse text-left text-sm">
+              <caption className="sr-only">{section.title}</caption>
+              <thead className="bg-slate-50">
+                <tr>
+                  {section.columns.map((column) => (
+                    <th
+                      key={column}
+                      scope="col"
+                      className="whitespace-nowrap border-b border-slate-200 px-4 py-3 font-bold text-slate-900"
+                    >
+                      {column}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {section.rows.map((row) => (
+                  <tr key={row.join("|")} className="odd:bg-white even:bg-slate-50/70">
+                    {row.map((cell, cellIndex) => (
+                      <td
+                        key={`${row[0]}-${section.columns[cellIndex]}`}
+                        className="border-b border-slate-100 px-4 py-3 text-slate-700"
+                      >
+                        {cell}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {section.footnotes && section.footnotes.length > 0 && (
+            <ul className="mt-4 list-disc space-y-1 pl-5 text-xs leading-relaxed text-slate-500 sm:text-sm">
+              {section.footnotes.map((note) => (
+                <li key={note.slice(0, 48)}>{note}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </section>
+    );
+  }
+
   if (section.type === "beforeAfter") {
     return (
       <section

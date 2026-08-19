@@ -50,6 +50,36 @@ export function buildBreadcrumbSchema(
   };
 }
 
+export function buildHowToSchema(
+  lang: SeoLang,
+  page: SeoPageContent,
+): Record<string, unknown> | null {
+  const howToSection = page.sections.find(
+    (section) => section.type === "steps" && section.howTo,
+  );
+  if (!howToSection || howToSection.type !== "steps" || howToSection.items.length === 0) {
+    return null;
+  }
+
+  const pageUrl = `${SITE_URL}/${lang}/${page.slug}`;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: howToSection.title,
+    description: howToSection.howToDescription ?? page.meta.description,
+    inLanguage: page.meta.htmlLang,
+    url: pageUrl,
+    step: howToSection.items.map((item, index) => ({
+      "@type": "HowToStep",
+      position: index + 1,
+      name: item.title,
+      text: item.description,
+      url: howToSection.id ? `${pageUrl}#${howToSection.id}` : pageUrl,
+    })),
+  };
+}
+
 export function buildFaqSchema(page: SeoPageContent): Record<string, unknown> | null {
   if (page.faq.items.length === 0) return null;
 
@@ -79,6 +109,9 @@ export function buildPageSchemas(
 
   const faq = buildFaqSchema(page);
   if (faq) schemas.push(faq);
+
+  const howTo = buildHowToSchema(lang, page);
+  if (howTo) schemas.push(howTo);
 
   return schemas;
 }

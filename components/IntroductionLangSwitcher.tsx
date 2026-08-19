@@ -33,7 +33,7 @@ export default function IntroductionLangSwitcher({
       </span>
       <Link
         href={`/${otherLang}/introduction`}
-        hrefLang={otherLang === "zh" ? "zh-HK" : "en"}
+        hrefLang={otherLang === "zh" ? "zh-Hant" : "en"}
         className="text-slate-600 transition hover:text-sky-700 hover:underline"
       >
         {dict.langSwitcher.switchTo}

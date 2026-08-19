@@ -1,23 +1,19 @@
 import type { SeoPageContent } from "@/lib/seo/types";
-
-const footer = {
-  privacy:
-    "AI Images Studio · Photos are processed securely and never stored long-term on our servers.",
-  supportLabel: "Support: ",
-};
+import { enSeoFooter } from "@/lib/seo/content/en-shared";
 
 export const passportPhotoAtHomePage: SeoPageContent = {
   slug: "passport-photo-at-home",
   meta: {
-    title: "How to Take a Passport Photo at Home – AI Passport Photo Maker",
+    title: "How to Take a Passport Photo at Home – Lighting, Background & Setup",
     description:
-      "Need a passport photo at home? Learn how to take a suitable portrait with your phone and turn it into a professional passport-style photo online.",
+      "Take a passport photo at home: lighting, background, distance from the wall, clothing, and simple equipment. Then prepare a printable photo online — camera app settings are covered in the phone guide.",
     keywords: [
       "passport photo at home",
       "take passport photo at home",
       "DIY passport photo",
-      "passport photo without studio",
-      "home passport photo guide",
+      "passport photo lighting",
+      "passport photo background at home",
+      "home passport photo setup",
     ],
     htmlLang: "en",
     locale: "en_US",
@@ -26,98 +22,120 @@ export const passportPhotoAtHomePage: SeoPageContent = {
   hero: {
     title: "How to Take a Passport Photo at Home",
     subtitle:
-      "You do not always need a photo booth. With the right setup at home and a few practical steps, you can capture a suitable portrait and prepare a clean passport-style photo online — saving time and avoiding a trip to the studio.",
+      "You do not need a photo booth. This guide is about the room: lighting, background, positioning, and simple equipment. For iPhone and Android camera menus, use the companion phone guide — then upload the portrait to prepare a printable passport-style photo.",
     primaryCta: "Upload Your Home Photo",
-    secondaryCta: "Step-by-step guide",
-    secondaryTargetId: "steps",
+    secondaryCta: "Room setup steps",
+    secondaryTargetId: "setup",
   },
   sections: [
     {
       type: "prose",
-      title: "Why take a passport photo at home?",
+      title: "What “at home” really means",
       paragraphs: [
-        "Photo studios can be convenient, but they are not always nearby, fast, or affordable — especially when you need photos for multiple family members or a last-minute application.",
-        "Taking the original portrait at home gives you control over timing, retakes, and comfort. The key is separating two tasks: first capture a good source photo, then use a dedicated tool to prepare the final passport-style image.",
+        "A studio visit is optional if you can control three things: even light on the face, a plain backdrop, and a steady camera at eye level. The original portrait can be taken in a living room or hallway; sizing, background cleanup, and print layout happen afterwards.",
+        "This page does not cover Camera app toggles (grid, timer, Portrait Mode). Those live on the phone passport photo guide so each page stays focused.",
       ],
     },
     {
       type: "prose",
-      title: "Before you start — choose the right spot",
+      id: "setup",
+      title: "Lighting setup at home",
+      paragraphs: [
+        "Even light is more important than an expensive camera. Harsh overhead bulbs and windows behind you are the two most common home-lighting failures.",
+      ],
       bullets: [
-        "Stand in front of a plain wall if possible — white, off-white, or light grey works best",
-        "Face a window for soft natural light, or use two lamps at 45° angles to reduce shadows",
-        "Avoid backlighting (bright window behind you) which silhouettes your face",
-        "Clear clutter from the frame so background removal is easier later",
-        "Wear plain clothing that contrasts gently with the wall — avoid busy patterns",
+        "Face a large window in daytime — this is the simplest “softbox” you already own",
+        "If you shoot at night, put two lamps in front of you at about 45° left and right",
+        "Turn off mixed-colour ceiling lights that add a yellow or green cast",
+        "Never stand with a bright window behind you; it silhouettes the face",
+        "Stand slightly away from the wall so your body does not cast a shadow on the backdrop",
+      ],
+    },
+    {
+      type: "prose",
+      title: "Background and positioning",
+      bullets: [
+        "Use a plain wall — white, off-white, or light grey. Remove posters, switches in frame, and hanging clothes",
+        "Stand about one arm’s length from the wall to reduce shadow on the backdrop",
+        "Keep the camera (or the person holding it) at your eye height so you are not looking up or down",
+        "Frame head and the tops of the shoulders; leave a little space above the hair",
+        "Distance to camera is typically 1–1.5 meters (3–5 feet) for a natural head-and-shoulders crop",
+      ],
+    },
+    {
+      type: "prose",
+      title: "Simple equipment (no studio kit required)",
+      subsections: [
+        {
+          title: "What helps",
+          bullets: [
+            "A stack of books, a shelf, or a cheap phone tripod so the camera stays still",
+            "A helper who can hold the phone at eye level if you have no tripod",
+            "Plain clothing that contrasts gently with the wall — avoid busy logos and white-on-white",
+            "A second lamp if one side of the face is darker than the other",
+          ],
+        },
+        {
+          title: "What you can skip",
+          bullets: [
+            "Professional backdrops — a clean painted wall is enough",
+            "Ring lights pressed close to the face (they often create hotspots and glasses glare)",
+            "DSLR cameras — a modern phone is enough for the source portrait",
+          ],
+        },
       ],
     },
     {
       type: "steps",
       id: "steps",
-      title: "Step-by-step: from home portrait to printable passport photo",
+      title: "From home setup to a printable photo",
       items: [
         {
-          title: "Set up lighting and background",
+          title: "Pick the wall and the light",
           description:
-            "Pick a wall with even light on your face. Turn off mixed-color overhead lights if they cast a yellow tint. Stand about one arm's length from the wall to reduce shadows.",
+            "Choose a blank wall and put daylight (or two front lamps) on your face. Clear clutter from the frame.",
         },
         {
-          title: "Position your phone or camera",
+          title: "Set height and distance",
           description:
-            "Hold the phone at eye level using a tripod, shelf, or helper. Frame your head and the tops of your shoulders. Leave a little space above your head.",
+            "Place the camera at eye level, stand a little off the wall, and leave space above the head in the frame.",
         },
         {
-          title: "Take multiple shots with a neutral expression",
+          title: "Take several neutral-expression shots",
           description:
-            "Look straight at the lens, keep both eyes open, and relax your face. Take 10–15 photos so you can pick the sharpest one with the least shadow.",
+            "Look straight ahead, both eyes open, mouth closed. Take 10–15 photos so you can pick the sharpest one.",
         },
         {
-          title: "Upload the best portrait to AI Images Studio",
+          title: "Upload the best portrait",
           description:
-            "Choose the clearest image. The tool removes the background, balances lighting, and lets you crop to a passport size preset.",
+            "In AI Images Studio, choose a passport size preset, crop, and let AI clean the background and lighting.",
         },
         {
-          title: "Review, download, and print",
+          title: "Download or print",
           description:
-            "Check the preview carefully. Download a high-resolution file or a 4R sheet, then print at home on photo paper or at a local print shop.",
+            "Save a high-resolution file or a 4R sheet, then print on photo paper at home or at a shop.",
         },
       ],
     },
     {
       type: "prose",
-      title: "Tips that make a real difference",
-      subsections: [
-        {
-          title: "Facial expression and posture",
-          paragraphs: [
-            "Keep your mouth closed and maintain a natural expression. Face the camera directly — turning even slightly can cause issues with automated cropping.",
-          ],
-        },
-        {
-          title: "Clothing and accessories",
-          bullets: [
-            "Remove hats unless required for religious purposes",
-            "Tuck hair behind ears if your application requires ears to be visible",
-            "Avoid heavy filters or beauty modes on your phone",
-          ],
-        },
-        {
-          title: "Printing at home",
-          paragraphs: [
-            "Use glossy or matte photo paper and your printer's highest quality setting. If home printing looks soft, a pharmacy or photo kiosk often produces sharper results from your digital file.",
-          ],
-        },
+      title: "Clothing, hair, and expression",
+      bullets: [
+        "Keep a natural, closed-mouth expression unless your authority allows a slight smile",
+        "Remove hats unless worn daily for religious reasons",
+        "Tuck hair behind the ears if your application requires ears to be visible",
+        "Avoid heavy makeup looks that change your everyday appearance",
       ],
     },
     {
       type: "solution",
       title: "Where AI Images Studio fits in",
       paragraphs: [
-        "Your phone captures the original portrait. AI Images Studio handles the preparation work that is difficult to do manually:",
+        "You control the room. The tool handles preparation that is awkward to do in a phone gallery:",
       ],
       bullets: [
         "Clean background replacement",
-        "Exposure and lighting balance",
+        "Exposure and shadow balance",
         "Size-aware cropping for common passport presets",
         "High-resolution download and 4R multi-photo layouts",
       ],
@@ -126,11 +144,12 @@ export const passportPhotoAtHomePage: SeoPageContent = {
       type: "disclaimer",
       title: "Verify requirements before submitting",
       paragraphs: [
-        "Home capture is flexible, but every country sets its own passport photo rules. Check the official guidance for your application before submitting a photo.",
+        "Home capture is flexible, but every country sets its own rules. Check official guidance for your application before you submit.",
       ],
       links: [
-        { href: "/en/us-passport-photo", label: "US passport photo requirements" },
-        { href: "/en/passport-photo", label: "AI passport photo maker overview" },
+        { href: "/en/passport-photo-with-phone", label: "How to take a passport photo with your phone" },
+        { href: "/en/passport-photo-requirements", label: "Passport photo requirements" },
+        { href: "/en/passport-photo-size", label: "Passport photo size by country" },
       ],
     },
   ],
@@ -140,30 +159,36 @@ export const passportPhotoAtHomePage: SeoPageContent = {
       {
         question: "Is a home photo good enough quality?",
         answer:
-          "Often yes. Modern phone cameras exceed the resolution needed for the source portrait. Good lighting and a steady camera matter more than an expensive device.",
+          "Often yes. Lighting and a steady, eye-level camera matter more than a studio visit. Use a plain wall and window light, then prepare the official size online.",
       },
       {
         question: "What background should I use at home?",
         answer:
-          "A plain light-colored wall is ideal. If your wall has texture or color, AI background removal can still help — but a simple backdrop makes the best starting point.",
+          "A plain light-coloured wall is ideal. Texture or colour can still be cleaned up later, but a simple backdrop is the best starting point.",
+      },
+      {
+        question: "Where do I find iPhone or Android camera settings?",
+        answer:
+          "See the dedicated guide on how to take a passport photo with your phone — grid, timer, Portrait Mode off, and Android equivalents are covered there so this page can stay focused on the room.",
       },
       {
         question: "Can I wear glasses in the photo?",
         answer:
-          "Rules vary. Some countries allow glasses if there is no glare; others discourage them. Check your official requirements before relying on a glasses photo.",
+          "Rules vary. Some countries allow glasses with no glare; others do not. Check your official requirements before relying on a glasses photo.",
       },
     ],
   },
   bottomCta: {
-    title: "Already took your photo at home?",
-    subtitle: "Upload it now and prepare a clean passport-style image in minutes.",
+    title: "Already set up the room?",
+    subtitle: "Upload your home portrait and prepare a clean passport-style image in minutes.",
     button: "Upload & Prepare Photo",
   },
   relatedPages: [
     { slug: "passport-photo-with-phone", label: "Passport photo with phone" },
-    { slug: "passport-photo-background", label: "Passport photo background" },
-    { slug: "passport-photo-printing", label: "Print passport photos" },
+    { slug: "passport-photo-requirements", label: "Photo requirements" },
+    { slug: "passport-photo-size", label: "Photo size chart" },
+    { slug: "passport-photo-printing", label: "4R print sheet" },
     { slug: "passport-photo", label: "Passport photo maker" },
   ],
-  footer,
+  footer: enSeoFooter,
 };

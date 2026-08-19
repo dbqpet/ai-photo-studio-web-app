@@ -163,8 +163,9 @@ export const passportPhotoBackgroundPage: SeoPageContent = {
   },
   relatedPages: [
     { slug: "id-photo", label: "ID photo maker" },
-    { slug: "passport-photo-printing", label: "Print photo sheets" },
+    { slug: "passport-photo-printing", label: "4R print sheet" },
     { slug: "passport-photo-at-home", label: "Better home backgrounds" },
+    { slug: "passport-photo-requirements", label: "Photo requirements" },
     { slug: "visa-photo", label: "Visa photo guide" },
   ],
   footer,
