@@ -288,6 +288,7 @@
     "aiServiceUnavailable": "AI 相片服務暫時無法使用。點數未被扣除 — 請稍後再試，或如問題持續請聯絡支援。",
     "generationFailed": "AI 生成失敗，點數未被扣除。",
     "generationTimeout": "生成逾時。AI 伺服器可能較為繁忙 — 請再試一次。",
+    "generationPayloadTooLarge": "相片檔案過大，無法傳送。請改用較小或較壓縮的相片再試。",
     "networkError": "無法連接伺服器。請檢查您的網路連線後再試。",
     "signInRequired": "請先登入以生成相片。",
     "noPreviewCredits": "預覽點數已用完。請購買套餐。",

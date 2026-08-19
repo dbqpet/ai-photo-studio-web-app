@@ -27,6 +27,7 @@ import {
   resolvePhotoPreset,
 } from "@/constants/photoSizes";
 import { useAuth } from "@/hooks/useAuth";
+import { isNonJsonApiError, readApiJson } from "@/lib/apiJson";
 import { cropToAspect } from "@/lib/imageUtils";
 import {
   backgroundLabel as translateBackgroundLabel,
@@ -740,11 +741,26 @@ function StudioPageContent() {
         }
         throw new Error(t("errors.networkError"));
       }
-      const json = (await res.json()) as ProcessPhotoResponse & {
+      let json: ProcessPhotoResponse & {
         error?: string;
         highDemand?: boolean;
         code?: string;
       };
+      try {
+        json = await readApiJson(res);
+      } catch (parseErr) {
+        if (isNonJsonApiError(parseErr)) {
+          if (res.status === 413) {
+            throw new Error(t("errors.generationPayloadTooLarge"));
+          }
+          if (res.status === 408 || res.status === 502 || res.status === 504) {
+            setHighDemand(true);
+            throw new Error(t("errors.generationTimeout"));
+          }
+          throw new Error(t("errors.processingFailedRetry"));
+        }
+        throw parseErr;
+      }
 
       if (!res.ok) {
         if (res.status === 401 || json.code === "NOT_AUTHENTICATED") {

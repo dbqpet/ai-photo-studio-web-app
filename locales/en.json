@@ -288,6 +288,7 @@
     "aiServiceUnavailable": "Our AI photo service is temporarily unavailable. No credits were deducted — please try again later or contact support if this continues.",
     "generationFailed": "AI generation failed, no credits were deducted.",
     "generationTimeout": "Generation timed out. Our AI servers may be busy — please try again.",
+    "generationPayloadTooLarge": "The photo was too large to send. Please try a smaller or more compressed image.",
     "networkError": "Could not reach the server. Please check your connection and try again.",
     "signInRequired": "Please sign in to generate.",
     "noPreviewCredits": "No preview credits left. Please purchase a pack.",

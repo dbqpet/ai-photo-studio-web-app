@@ -59,6 +59,20 @@ function isSupabaseConfigured(): boolean {
 }
 
 export async function POST(req: NextRequest) {
+  try {
+    return await handleProcessPhoto(req);
+  } catch (err) {
+    // Unhandled throws otherwise become an HTML error document in production,
+    // which the client then fails to parse (`Unexpected token '<'`).
+    console.error("[process-photo] unhandled:", err);
+    return NextResponse.json(
+      { error: AI_FAILURE_MESSAGE, highDemand: false },
+      { status: 500 },
+    );
+  }
+}
+
+async function handleProcessPhoto(req: NextRequest) {
   let body: ProcessPhotoRequest;
   try {
     body = (await req.json()) as ProcessPhotoRequest;
