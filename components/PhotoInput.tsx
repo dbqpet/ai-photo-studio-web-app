@@ -61,13 +61,12 @@ export default function PhotoInput({
     [beginCrop, t],
   );
 
-  /** Scroll mobile users back to the "Add your photo" heading once crop UI mounts. */
+  /** Scroll to the "Create your ID photo" heading once crop UI mounts. */
   useEffect(() => {
     if (!rawImage) return;
-    if (!window.matchMedia("(max-width: 767px)").matches) return;
     const id = window.setTimeout(() => {
       document
-        .getElementById("add-your-photo")
+        .getElementById("create-your-id-photo")
         ?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 80);
     return () => window.clearTimeout(id);

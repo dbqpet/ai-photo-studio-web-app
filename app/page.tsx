@@ -1062,7 +1062,7 @@ function StudioPageContent() {
 
             <section className="rounded-3xl bg-white p-5 shadow-sm sm:p-7 md:text-center">
             <h2
-              id="add-your-photo"
+              id="create-your-id-photo"
               tabIndex={-1}
               className="mb-1 scroll-mt-6 text-xl font-bold text-slate-900 outline-none md:text-[2.5rem] md:leading-tight"
             >
