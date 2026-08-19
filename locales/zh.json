@@ -78,7 +78,7 @@
   },
 
   "step3": {
-    "title": "您的證件相已準備好",
+    "title": "🎉 您的證件相已準備好",
     "unlockedDescription": "相片已解鎖 — 您可以隨時下載無水印高清 ZIP 包，無需額外付費。",
     "tokenAvailableDescription": "帶水印的預覽圖已完成 — 使用 1 個高清代幣即可解鎖並永久下載此相片。",
     "lockedDescription": "預覽圖帶有水印 — 一次性購買即可即時解鎖高清下載。"
@@ -186,13 +186,14 @@
   "preview": {
     "singlePhotoAlt": "已處理的 {preset} 帶水印預覽相片",
     "sheetAlt": "4R 排版列印紙帶水印預覽",
-    "aiModeBadge": "⚡ 真 AI 模式",
     "unlockedBadge": "已解鎖",
     "freePreviewBadge": "免費水印預覽",
     "singleCaption": "單張相片 · {description} @ 300 DPI",
-    "sheetCaption": "4R 列印排版紙 (4×6吋, 300 DPI) · {count} 張相片 ({columns}×{rows}) 含裁切線",
-    "unlockButton": "🔓 解鎖高清檔 & 4R 列印排版 — {price}",
-    "unlockNote": "⚡ 高清下載 · 300 DPI · 無水印 · 4R 沖印排版圖",
+    "sheetCaption": "一張 4R 相紙上有 {count} 張可列印相片",
+    "sheetCaptionDetail": "4×6 吋 · 300 DPI · 含裁切線",
+    "unlockButton": "✨ 取得我的相片 — {price}",
+    "unlockNote": "✓ 高清 300 DPI 下載 · ✓ 無水印 · ✓ 一張 4R 相紙上有 {count} 張可列印相片",
+    "purchaseReassurance": "免費預覽 · 無需訂閱",
     "downloadButton": "📦 下載高清相片 (.zip)",
     "downloadedButton": "✅ 已下載 — 再次下載",
     "preparingDownload": "正在準備高清相片...",

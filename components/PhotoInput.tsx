@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { track } from "@vercel/analytics";
 import { useTranslation } from "react-i18next";
 import CropEditor from "./CropEditor";
@@ -60,6 +60,18 @@ export default function PhotoInput({
     },
     [beginCrop, t],
   );
+
+  /** Scroll mobile users back to the "Add your photo" heading once crop UI mounts. */
+  useEffect(() => {
+    if (!rawImage) return;
+    if (!window.matchMedia("(max-width: 767px)").matches) return;
+    const id = window.setTimeout(() => {
+      document
+        .getElementById("add-your-photo")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 80);
+    return () => window.clearTimeout(id);
+  }, [rawImage]);
 
   if (rawImage) {
     return (

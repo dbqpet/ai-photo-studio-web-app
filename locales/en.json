@@ -78,7 +78,7 @@
   },
 
   "step3": {
-    "title": "Your ID photo is ready",
+    "title": "🎉 Your ID Photo Is Ready",
     "unlockedDescription": "Your photo is unlocked — download the clean HD ZIP anytime with no extra charge.",
     "tokenAvailableDescription": "Your watermarked preview is ready — use an HD token to unlock and download this photo forever.",
     "lockedDescription": "Previews are watermarked — purchase once to unlock instant HD download for this photo."
@@ -186,13 +186,14 @@
   "preview": {
     "singlePhotoAlt": "Watermarked preview of the processed {preset} photo",
     "sheetAlt": "Watermarked preview of the 4R print sheet",
-    "aiModeBadge": "⚡ Real AI Mode",
     "unlockedBadge": "Unlocked",
     "freePreviewBadge": "Free Watermarked Preview",
     "singleCaption": "Single photo · {description} @ 300 DPI",
-    "sheetCaption": "4R print sheet (4×6in, 300 DPI) · {count} photos ({columns}×{rows}) with cut guides",
-    "unlockButton": "🔓 Unlock HD & 4R Print Sheet — {price}",
-    "unlockNote": "⚡ HD Download · 300 DPI · Watermark-Free · 4R Print Sheet",
+    "sheetCaption": "{count} print-ready photos on one 4R sheet",
+    "sheetCaptionDetail": "4×6 in · 300 DPI · with cut guides",
+    "unlockButton": "✨ Get My Photos — {price}",
+    "unlockNote": "✓ HD 300 DPI download · ✓ No watermark · ✓ {count} print-ready photos on one 4R sheet",
+    "purchaseReassurance": "Free preview · No subscription",
     "downloadButton": "📦 Download HD Photos (.zip)",
     "downloadedButton": "✅ Downloaded — Download Again",
     "preparingDownload": "Preparing HD Photo...",

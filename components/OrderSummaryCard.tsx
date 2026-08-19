@@ -16,7 +16,7 @@ export default function OrderSummaryCard({
   const { t } = useTranslation();
   return (
     <div
-      className={`rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left ${className}`}
+      className={`rounded-xl border border-slate-100 bg-white px-4 py-3 text-left ${className}`}
     >
       <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
         {t("orderSummary.heading")}

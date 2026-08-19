@@ -78,7 +78,7 @@
   },
 
   "step3": {
-    "title": "証明写真の準備が完了しました",
+    "title": "🎉 証明写真の準備ができました",
     "unlockedDescription": "写真はロック解除されています — 追加料金なしで、いつでもクリーンな高画質 ZIP をダウンロードできます。",
     "tokenAvailableDescription": "透かし入りプレビューの準備ができました — 高画質トークンを1つ使用すると、この写真を永久にロック解除してダウンロードできます。",
     "lockedDescription": "プレビューには透かしが入っています — 一度購入すると、即座に高画質ダウンロードが解除されます。"
@@ -186,13 +186,14 @@
   "preview": {
     "singlePhotoAlt": "加工済みの {preset} 透かし入りプレビュー写真",
     "sheetAlt": "4R 印刷シートの透かし入りプレビュー",
-    "aiModeBadge": "⚡ リアル AI モード",
     "unlockedBadge": "ロック解除済み",
     "freePreviewBadge": "無料透かし入りプレビュー",
     "singleCaption": "写真1枚 · {description} @ 300 DPI",
-    "sheetCaption": "4R 印刷シート (4×6インチ, 300 DPI) · {count} 枚 ({columns}×{rows}) カットガイド付き",
-    "unlockButton": "🔓 高画質写真 & 4R 印刷シートを解除 — {price}",
-    "unlockNote": "⚡ HD ダウンロード · 300 DPI · 透かしなし · 4R 印刷シート",
+    "sheetCaption": "4Rシート1枚に印刷できる写真 {count} 枚",
+    "sheetCaptionDetail": "4×6インチ · 300 DPI · カットガイド付き",
+    "unlockButton": "✨ 写真を入手 — {price}",
+    "unlockNote": "✓ HD 300 DPI ダウンロード · ✓ 透かしなし · ✓ 4Rシート1枚に印刷できる写真 {count} 枚",
+    "purchaseReassurance": "無料プレビュー · サブスクなし",
     "downloadButton": "📦 高画質写真をダウンロード (.zip)",
     "downloadedButton": "✅ ダウンロード済み — もう一度ダウンロード",
     "preparingDownload": "高画質写真を準備中...",

@@ -41,7 +41,7 @@ import {
   termsPathForAppLocale,
 } from "@/lib/terms/dictionaries";
 import { introFaqPathForAppLocale } from "@/lib/introduction/dictionaries";
-import { trackGAEvent } from "@/lib/ga";
+import { navigateAfterAnalytics, trackGAEvent } from "@/lib/ga";
 import {
   clearActivePhotoSession,
   createGenerationId,
@@ -545,6 +545,8 @@ function StudioPageContent() {
 
   const checkout = useCallback(
     async (intent: "topup" | "unlock_photo" = "unlock_photo") => {
+      track("click_checkout", { intent });
+      trackGAEvent("click_checkout", { intent }, { beacon: true });
       setCheckoutLoading(true);
       try {
         if (intent === "unlock_photo" && result) {
@@ -581,7 +583,7 @@ function StudioPageContent() {
         const json = (await res.json()) as CheckoutResponse & { error?: string };
         if (!res.ok) throw new Error(json.error ?? "Checkout failed.");
 
-        window.location.href = json.url;
+        navigateAfterAnalytics(json.url);
       } catch (err) {
         console.error("Checkout failed:", err);
         setProcessError(
@@ -1043,7 +1045,11 @@ function StudioPageContent() {
             <HeroSection uploadTargetId="photo-upload" />
 
             <section className="rounded-3xl bg-white p-5 shadow-sm sm:p-7 md:text-center">
-            <h2 className="mb-1 text-xl font-bold text-slate-900 md:text-[2.5rem] md:leading-tight">
+            <h2
+              id="add-your-photo"
+              tabIndex={-1}
+              className="mb-1 scroll-mt-6 text-xl font-bold text-slate-900 outline-none md:text-[2.5rem] md:leading-tight"
+            >
               {t("step1.title")}
             </h2>
             <p className="mb-5 text-sm text-slate-500 md:mb-4">
@@ -1258,8 +1264,6 @@ function StudioPageContent() {
               checkoutLoading={checkoutLoading}
               downloadLoading={downloadLoading}
               onCheckout={() => {
-                track("click_checkout", { intent: "unlock_photo" });
-                trackGAEvent("click_checkout", { intent: "unlock_photo" });
                 void checkout("unlock_photo");
               }}
               onDownloadHd={() => {
@@ -1381,8 +1385,6 @@ function StudioPageContent() {
         open={paywallOpen}
         onClose={() => setPaywallOpen(false)}
         onCheckout={() => {
-          track("click_checkout", { intent: "topup" });
-          trackGAEvent("click_checkout", { intent: "topup" });
           void checkout("topup");
         }}
         checkoutLoading={checkoutLoading}

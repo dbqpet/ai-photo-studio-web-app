@@ -78,7 +78,7 @@
   },
 
   "step3": {
-    "title": "증명사진이 준비되었습니다",
+    "title": "🎉 증명사진이 준비되었습니다",
     "unlockedDescription": "사진이 잠금 해제되었습니다 — 추가 비용 없이 언제든지 깨끗한 고화질 ZIP 파일을 다운로드할 수 있습니다.",
     "tokenAvailableDescription": "워터마크가 있는 미리보기가 준비되었습니다 — 고화질 토큰 1개를 사용하면 이 사진을 영구적으로 잠금 해제하고 다운로드할 수 있습니다.",
     "lockedDescription": "미리보기에는 워터마크가 있습니다 — 한 번 구매하면 즉시 고화질 다운로드가 해제됩니다."
@@ -186,13 +186,14 @@
   "preview": {
     "singlePhotoAlt": "처리된 {preset} 워터마크 미리보기 사진",
     "sheetAlt": "4R 인화 시트 워터마크 미리보기",
-    "aiModeBadge": "⚡ 리얼 AI 모드",
     "unlockedBadge": "잠금 해제됨",
     "freePreviewBadge": "무료 워터마크 미리보기",
     "singleCaption": "사진 1장 · {description} @ 300 DPI",
-    "sheetCaption": "4R 인화 시트 (4×6인치, 300 DPI) · {count}장 ({columns}×{rows}) 절취선 포함",
-    "unlockButton": "🔓 고화질 사진 & 4R 인화 시트 잠금 해제 — {price}",
-    "unlockNote": "⚡ HD 다운로드 · 300 DPI · 워터마크 없음 · 4R 인화 시트",
+    "sheetCaption": "4R 용지 한 장에 인쇄 가능한 사진 {count}장",
+    "sheetCaptionDetail": "4×6인치 · 300 DPI · 절취선 포함",
+    "unlockButton": "✨ 내 사진 받기 — {price}",
+    "unlockNote": "✓ HD 300 DPI 다운로드 · ✓ 워터마크 없음 · ✓ 4R 용지 한 장에 인쇄 가능한 사진 {count}장",
+    "purchaseReassurance": "무료 미리보기 · 구독 없음",
     "downloadButton": "📦 고화질 사진 다운로드 (.zip)",
     "downloadedButton": "✅ 다운로드 완료 — 다시 다운로드",
     "preparingDownload": "고화질 사진 준비 중...",

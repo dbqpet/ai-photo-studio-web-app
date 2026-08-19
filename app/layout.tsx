@@ -91,8 +91,8 @@ export default function RootLayout({
         <I18nProvider>{children}</I18nProvider>
         <Analytics />
         <SpeedInsights />
+        {GA_MEASUREMENT_ID && <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />}
       </body>
-      {GA_MEASUREMENT_ID && <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />}
     </html>
   );
 }

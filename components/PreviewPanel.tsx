@@ -32,7 +32,7 @@ interface PreviewPanelProps {
 }
 
 const UNLOCK_BTN =
-  "flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 via-rose-500 to-fuchsia-600 px-6 py-4 text-base font-bold text-white shadow-lg shadow-rose-500/30 transition-all duration-200 hover:scale-[1.02] hover:from-orange-400 hover:via-rose-400 hover:to-fuchsia-500 hover:shadow-xl hover:shadow-rose-500/40 active:scale-[0.98] disabled:scale-100 disabled:opacity-60 disabled:shadow-lg";
+  "flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 via-rose-500 to-fuchsia-600 px-6 py-4 text-center text-base font-bold leading-snug text-white shadow-lg shadow-rose-500/30 transition-all duration-200 hover:scale-[1.02] hover:from-orange-400 hover:via-rose-400 hover:to-fuchsia-500 hover:shadow-xl hover:shadow-rose-500/40 active:scale-[0.98] disabled:scale-100 disabled:opacity-60 disabled:shadow-lg";
 
 const DOWNLOAD_BTN =
   "flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 px-6 py-4 text-base font-bold text-white shadow-lg shadow-emerald-500/25 transition-all duration-200 hover:scale-[1.02] hover:from-emerald-500 hover:via-teal-500 hover:to-cyan-500 hover:shadow-xl hover:shadow-emerald-500/35 active:scale-[0.98] disabled:scale-100 disabled:opacity-60 disabled:shadow-lg";
@@ -128,12 +128,6 @@ export default function PreviewPanel({
               displayUrl={displaySingleUrl}
               alt={t("preview.singlePhotoAlt", { preset: presetLabel(t, preset) })}
             />
-            <span
-              data-testid="ai-mode-badge"
-              className="absolute left-2 top-2 rounded-full bg-emerald-600 px-2.5 py-1 text-[11px] font-bold text-white shadow"
-            >
-              {t("preview.aiModeBadge")}
-            </span>
             {unlocked ? (
               <span className="absolute right-2 top-2 rounded-full bg-sky-600 px-2.5 py-1 text-[11px] font-bold text-white shadow">
                 {t("preview.unlockedBadge")}
@@ -153,12 +147,11 @@ export default function PreviewPanel({
             displayUrl={displaySheetUrl}
             alt={t("preview.sheetAlt")}
           />
-          <figcaption className="text-xs text-slate-500">
-            {t("preview.sheetCaption", {
-              count: layout.count,
-              columns: layout.columns,
-              rows: layout.rows,
-            })}
+          <figcaption className="text-center text-sm leading-snug text-slate-600">
+            {t("preview.sheetCaption", { count: layout.count })}
+            <span className="mt-0.5 block text-xs text-slate-400">
+              {t("preview.sheetCaptionDetail")}
+            </span>
           </figcaption>
         </figure>
       </div>
@@ -168,9 +161,8 @@ export default function PreviewPanel({
       <div className="flex flex-col gap-3">
         {showUnlock && (
           <>
-            {/* Divider + value-prop header before the CTA */}
-            <div className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 text-center text-xs text-slate-500">
-              {t("preview.unlockNote")}
+            <div className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 text-center text-sm leading-relaxed text-pretty text-slate-600">
+              {t("preview.unlockNote", { count: layout.count })}
             </div>
             <button
               type="button"
@@ -187,7 +179,10 @@ export default function PreviewPanel({
                 <>{t("preview.unlockButton", { price: formatUsd(PRICING.saleUsd) })}</>
               )}
             </button>
-            <StripePaymentReassurance className="mt-1" />
+            <p className="text-center text-xs leading-relaxed text-slate-400">
+              {t("preview.purchaseReassurance")}
+            </p>
+            <StripePaymentReassurance />
             <p className="text-center text-[11px] text-slate-500">
               {t("preview.supportQuestion", { email: "" })}
               <a
