@@ -7,9 +7,6 @@ import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 
-/** Launch-special price for the Single Photo Unlock Package. */
-export const PRICE_USD_CENTS = PRICING.stripeUnitAmount;
-
 export async function POST(req: NextRequest) {
   let body: CheckoutRequest;
   try {
@@ -90,7 +87,7 @@ export async function POST(req: NextRequest) {
           quantity: 1,
           price_data: {
             currency: PRICING.currency,
-            unit_amount: PRICE_USD_CENTS,
+            unit_amount: PRICING.stripeUnitAmount,
             product_data: {
               name:
                 intent === "topup"
