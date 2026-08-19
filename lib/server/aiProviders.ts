@@ -34,6 +34,7 @@ export async function processPhoto(
   backgroundColor: string,
   targetWidth: number,
   targetHeight: number,
+  abortSignal?: AbortSignal,
 ): Promise<ProcessResult> {
   if (!isGeminiImageConfigured()) {
     throw new Error(
@@ -48,6 +49,7 @@ export async function processPhoto(
     targetHeight,
     backgroundMode,
     backgroundColor,
+    abortSignal,
   );
 
   const resized = sharp(styled).resize(targetWidth, targetHeight, {

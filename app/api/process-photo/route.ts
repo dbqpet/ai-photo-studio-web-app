@@ -171,6 +171,7 @@ async function handleProcessPhoto(req: NextRequest) {
       backgroundColor ?? "#FFFFFF",
       targetWidth,
       targetHeight,
+      req.signal,
     );
     image = result.image;
     provider = result.provider;

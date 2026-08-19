@@ -36,9 +36,17 @@ const IMAGE_SIZE = "1K";
  */
 const MAX_RETRIES = 1;
 const BASE_DELAY_MS = 1200;
-/** Bound a single Gemini attempt so a hung upstream call can't stall the
- * whole request past the serverless function's max duration. */
-const ATTEMPT_TIMEOUT_MS = 35_000;
+/**
+ * Bound a single Gemini attempt so a hung upstream call can't stall the
+ * whole request past the serverless function's max duration.
+ *
+ * Image edits often take 10–25s; 35s was cutting off slow-but-valid calls.
+ * The wrapper MUST abort the SDK fetch (not just reject a wrapper promise),
+ * otherwise Next.js can keep the route open until the client/platform timeout.
+ */
+const ATTEMPT_TIMEOUT_MS = 90_000;
+/** Longest edge sent to the 1K image model — smaller payload, faster edits. */
+const GEMINI_INPUT_MAX_EDGE = 1024;
 
 const ASPECT_RATIOS: Array<{ label: string; value: number }> = [
   { label: "1:1", value: 1 },
@@ -70,33 +78,37 @@ export function closestAspectRatio(width: number, height: number): string {
   return best.label;
 }
 
-function detectMime(buffer: Buffer): string {
-  if (buffer[0] === 0xff && buffer[1] === 0xd8) return "image/jpeg";
-  if (buffer[0] === 0x89 && buffer[1] === 0x50) return "image/png";
-  return "image/jpeg";
-}
-
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-/** Reject with a retryable "timeout" error if the promise never settles. */
-function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
-    const timer = setTimeout(() => {
-      reject(new Error(`Gemini request timeout after ${ms}ms`));
-    }, ms);
-    promise.then(
-      (value) => {
-        clearTimeout(timer);
-        resolve(value);
-      },
-      (err) => {
-        clearTimeout(timer);
-        reject(err);
-      },
-    );
-  });
+/**
+ * Run `fn` with an AbortSignal that fires after `ms`, also chaining any
+ * parent signal (e.g. the incoming Next.js request aborting).
+ */
+async function withTimeout<T>(
+  fn: (signal: AbortSignal) => Promise<T>,
+  ms: number,
+  parentSignal?: AbortSignal,
+): Promise<T> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  const onParentAbort = () => controller.abort();
+  if (parentSignal) {
+    if (parentSignal.aborted) controller.abort();
+    else parentSignal.addEventListener("abort", onParentAbort, { once: true });
+  }
+  try {
+    return await fn(controller.signal);
+  } catch (err) {
+    if (controller.signal.aborted && !parentSignal?.aborted) {
+      throw new Error(`Gemini request timeout after ${ms}ms`);
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+    parentSignal?.removeEventListener("abort", onParentAbort);
+  }
 }
 
 /**
@@ -143,6 +155,7 @@ async function callGeminiOnce(
   base64: string,
   prompt: string,
   aspectRatio: string,
+  signal: AbortSignal,
 ): Promise<Buffer> {
   const ai = new GoogleGenAI({ apiKey });
   const response = await ai.models.generateContent({
@@ -157,6 +170,7 @@ async function callGeminiOnce(
       },
     ],
     config: {
+      abortSignal: signal,
       responseModalities: [Modality.TEXT, Modality.IMAGE],
       imageConfig: {
         aspectRatio,
@@ -187,6 +201,7 @@ export async function generateStyledPortraitWithNanoBanana(
   targetHeight: number,
   backgroundMode: BackgroundMode,
   backgroundColor: string,
+  abortSignal?: AbortSignal,
 ): Promise<Buffer> {
   const apiKey = process.env.GEMINI_API_KEY?.trim();
   if (!apiKey) {
@@ -195,8 +210,16 @@ export async function generateStyledPortraitWithNanoBanana(
     );
   }
 
-  const mimeType = detectMime(input);
-  const base64 = input.toString("base64");
+  const prepared = await sharp(input)
+    .rotate()
+    .resize(GEMINI_INPUT_MAX_EDGE, GEMINI_INPUT_MAX_EDGE, {
+      fit: "inside",
+      withoutEnlargement: true,
+    })
+    .jpeg({ quality: 90 })
+    .toBuffer();
+  const mimeType = "image/jpeg";
+  const base64 = prepared.toString("base64");
   const aspectRatio = closestAspectRatio(targetWidth, targetHeight);
   const prompt = buildStylePrompt(mode, backgroundMode, backgroundColor);
 
@@ -204,8 +227,17 @@ export async function generateStyledPortraitWithNanoBanana(
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
       return await withTimeout(
-        callGeminiOnce(apiKey, mimeType, base64, prompt, aspectRatio),
+        (signal) =>
+          callGeminiOnce(
+            apiKey,
+            mimeType,
+            base64,
+            prompt,
+            aspectRatio,
+            signal,
+          ),
         ATTEMPT_TIMEOUT_MS,
+        abortSignal,
       );
     } catch (err) {
       lastError = err;

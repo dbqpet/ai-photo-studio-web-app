@@ -697,11 +697,9 @@ function StudioPageContent() {
     setHighDemand(false);
 
     // Guarantee the button can never get stuck: abort the request if the
-    // server hangs instead of responding (network issue, platform timeout,
-    // or a stuck upstream AI call). Kept just under the API route's
-    // `maxDuration` (180s) so we never abort a request the server would
-    // have completed anyway.
-    const CLIENT_TIMEOUT_MS = 175_000;
+    // server hangs instead of responding. Kept just above the Gemini attempt
+    // timeout (90s) so a slow-but-valid generation can still finish.
+    const CLIENT_TIMEOUT_MS = 110_000;
     const controller = new AbortController();
     const timeoutId = window.setTimeout(
       () => controller.abort(),
@@ -753,7 +751,14 @@ function StudioPageContent() {
           if (res.status === 413) {
             throw new Error(t("errors.generationPayloadTooLarge"));
           }
-          if (res.status === 408 || res.status === 502 || res.status === 504) {
+          if (
+            res.status === 408 ||
+            res.status === 500 ||
+            res.status === 502 ||
+            res.status === 503 ||
+            res.status === 504 ||
+            res.status === 0
+          ) {
             setHighDemand(true);
             throw new Error(t("errors.generationTimeout"));
           }
