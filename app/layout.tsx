@@ -5,7 +5,12 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import I18nProvider from "@/components/I18nProvider";
 import { buildPinterestArticleOpenGraph } from "@/lib/seo/pinterestOpenGraph";
-import { SITE_NAME, SITE_URL } from "@/lib/site";
+import {
+  HOME_PAGE_DESCRIPTION,
+  HOME_PAGE_TITLE,
+  SITE_NAME,
+  SITE_URL,
+} from "@/lib/site";
 import "./globals.css";
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
@@ -20,11 +25,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const SITE_TITLE =
-  "AI Images Studio — Professional Passport & Visa Photos in Seconds";
+const SITE_TITLE = HOME_PAGE_TITLE;
 
-const SITE_DESCRIPTION =
-  "Create official, high-resolution 300 DPI passport, visa, and ID photos instantly with AI Images Studio. Features automatic background removal, official size compliance (Hong Kong, UK, US, Schengen, etc.), Korean studio style enhancement, and printable 4R sheet layouts. Trusted worldwide for fast, compliant ID photo creation.";
+const SITE_DESCRIPTION = HOME_PAGE_DESCRIPTION;
 
 const OG_DESCRIPTION =
   "Turn any selfie into official 300 DPI passport & visa photos instantly with AI Images Studio. Automatic background removal & official spec compliance.";

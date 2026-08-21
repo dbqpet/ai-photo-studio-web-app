@@ -9,6 +9,7 @@ import {
 } from "@/lib/terms/dictionaries";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { buildPinterestArticleOpenGraph } from "@/lib/seo/pinterestOpenGraph";
+import { buildArticleSchema } from "@/lib/seo/schema";
 
 type PageProps = {
   params: Promise<{ lang: string }>;
@@ -59,6 +60,24 @@ export default async function TermsPage({ params }: PageProps) {
 
   const lang = rawLang as TermsLang;
   const content = getTermsDictionary(lang);
+  const pageUrl = `${SITE_URL}/${lang}/terms`;
 
-  return <TermsLanding lang={lang} content={content} />;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            buildArticleSchema({
+              title: content.meta.title,
+              description: content.meta.description,
+              url: pageUrl,
+              htmlLang: content.meta.htmlLang,
+            }),
+          ),
+        }}
+      />
+      <TermsLanding lang={lang} content={content} />
+    </>
+  );
 }

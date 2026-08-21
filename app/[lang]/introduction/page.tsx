@@ -10,6 +10,7 @@ import {
 } from "@/lib/introduction/dictionaries";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { buildPinterestArticleOpenGraph } from "@/lib/seo/pinterestOpenGraph";
+import { buildArticleSchema } from "@/lib/seo/schema";
 
 type PageProps = {
   params: Promise<{ lang: string }>;
@@ -83,9 +84,23 @@ export default async function IntroductionPage({ params }: PageProps) {
 
   const lang = rawLang as IntroLang;
   const dict = getIntroductionDictionary(lang);
+  const pageUrl = `${SITE_URL}/${lang}/introduction`;
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            buildArticleSchema({
+              title: dict.meta.title,
+              description: dict.meta.description,
+              url: pageUrl,
+              htmlLang: dict.meta.htmlLang,
+            }),
+          ),
+        }}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

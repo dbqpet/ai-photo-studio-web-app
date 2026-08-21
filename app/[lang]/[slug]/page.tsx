@@ -37,9 +37,9 @@ export default async function SeoGuidePage({ params }: PageProps) {
 
   return (
     <>
-      {schemas.map((schema) => (
+      {schemas.map((schema, index) => (
         <script
-          key={schema["@type"] as string}
+          key={`${String(schema["@type"])}-${index}`}
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
         />
