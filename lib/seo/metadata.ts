@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { buildHreflangAlternates } from "@/lib/seo/hreflang";
+import { buildPinterestArticleOpenGraph } from "@/lib/seo/pinterestOpenGraph";
 import type { SeoLang, SeoPageContent } from "@/lib/seo/types";
 
 export function buildSeoMetadata(lang: SeoLang, page: SeoPageContent): Metadata {
@@ -11,14 +12,13 @@ export function buildSeoMetadata(lang: SeoLang, page: SeoPageContent): Metadata 
     title: page.meta.title,
     description: page.meta.description,
     keywords: page.meta.keywords,
-    openGraph: {
+    authors: [{ name: SITE_NAME }],
+    openGraph: buildPinterestArticleOpenGraph({
       title: page.meta.title,
       description: page.meta.description,
       url: pageUrl,
-      siteName: SITE_NAME,
       locale: page.meta.locale,
-      type: "website",
-    },
+    }),
     twitter: {
       card: "summary_large_image",
       title: page.meta.title,

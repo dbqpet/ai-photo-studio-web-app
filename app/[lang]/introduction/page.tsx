@@ -9,6 +9,7 @@ import {
   type IntroLang,
 } from "@/lib/introduction/dictionaries";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { buildPinterestArticleOpenGraph } from "@/lib/seo/pinterestOpenGraph";
 
 type PageProps = {
   params: Promise<{ lang: string }>;
@@ -30,14 +31,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: dict.meta.title,
     description: dict.meta.description,
     keywords: dict.meta.keywords,
-    openGraph: {
+    authors: [{ name: SITE_NAME }],
+    openGraph: buildPinterestArticleOpenGraph({
       title: dict.meta.title,
       description: dict.meta.description,
       url: pageUrl,
-      siteName: SITE_NAME,
       locale: introOpenGraphLocale(lang),
-      type: "website",
-    },
+    }),
     twitter: {
       card: "summary_large_image",
       title: dict.meta.title,

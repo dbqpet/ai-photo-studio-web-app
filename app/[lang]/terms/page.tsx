@@ -8,6 +8,7 @@ import {
   type TermsLang,
 } from "@/lib/terms/dictionaries";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { buildPinterestArticleOpenGraph } from "@/lib/seo/pinterestOpenGraph";
 
 type PageProps = {
   params: Promise<{ lang: string }>;
@@ -28,14 +29,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: content.meta.title,
     description: content.meta.description,
-    openGraph: {
+    authors: [{ name: SITE_NAME }],
+    openGraph: buildPinterestArticleOpenGraph({
       title: content.meta.title,
       description: content.meta.description,
       url: pageUrl,
-      siteName: SITE_NAME,
       locale: content.meta.locale,
-      type: "website",
-    },
+    }),
     alternates: {
       canonical: pageUrl,
       languages: {

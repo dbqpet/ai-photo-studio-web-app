@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import I18nProvider from "@/components/I18nProvider";
+import { buildPinterestArticleOpenGraph } from "@/lib/seo/pinterestOpenGraph";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
@@ -19,6 +20,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const SITE_TITLE =
+  "AI Images Studio — Professional Passport & Visa Photos in Seconds";
+
 const SITE_DESCRIPTION =
   "Create official, high-resolution 300 DPI passport, visa, and ID photos instantly with AI Images Studio. Features automatic background removal, official size compliance (Hong Kong, UK, US, Schengen, etc.), Korean studio style enhancement, and printable 4R sheet layouts. Trusted worldwide for fast, compliant ID photo creation.";
 
@@ -28,8 +32,7 @@ const OG_DESCRIPTION =
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default:
-      "AI Images Studio — Professional Passport & Visa Photos in Seconds",
+    default: SITE_TITLE,
     template: "%s | AI Images Studio",
   },
   description: SITE_DESCRIPTION,
@@ -48,14 +51,12 @@ export const metadata: Metadata = {
   creator: SITE_NAME,
   publisher: SITE_NAME,
   category: "Photography",
-  openGraph: {
-    type: "website",
-    locale: "en_US",
+  openGraph: buildPinterestArticleOpenGraph({
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
     url: SITE_URL,
-    siteName: SITE_NAME,
-    title: "AI Images Studio — Instant Professional ID & Passport Photos",
-    description: OG_DESCRIPTION,
-  },
+    locale: "en_US",
+  }),
   twitter: {
     card: "summary_large_image",
     title: "AI Images Studio — Instant Professional ID & Passport Photos",
