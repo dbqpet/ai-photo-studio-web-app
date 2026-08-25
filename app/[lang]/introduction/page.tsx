@@ -9,7 +9,7 @@ import {
   type IntroLang,
 } from "@/lib/introduction/dictionaries";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
-import { buildPinterestArticleOpenGraph } from "@/lib/seo/pinterestOpenGraph";
+import { buildPinterestArticleOpenGraph, OPEN_GRAPH_IMAGE } from "@/lib/seo/pinterestOpenGraph";
 import { buildArticleSchema } from "@/lib/seo/schema";
 
 type PageProps = {
@@ -43,6 +43,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       card: "summary_large_image",
       title: dict.meta.title,
       description: dict.meta.description,
+      images: [OPEN_GRAPH_IMAGE.url],
     },
     alternates: {
       canonical: pageUrl,

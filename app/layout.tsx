@@ -4,7 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import I18nProvider from "@/components/I18nProvider";
-import { buildPinterestArticleOpenGraph } from "@/lib/seo/pinterestOpenGraph";
+import { buildPinterestArticleOpenGraph, OPEN_GRAPH_IMAGE } from "@/lib/seo/pinterestOpenGraph";
 import {
   HOME_PAGE_DESCRIPTION,
   HOME_PAGE_TITLE,
@@ -64,6 +64,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "AI Images Studio — Instant Professional ID & Passport Photos",
     description: OG_DESCRIPTION,
+    images: [OPEN_GRAPH_IMAGE.url],
   },
   robots: {
     index: true,
