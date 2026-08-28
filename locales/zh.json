@@ -207,14 +207,11 @@
   },
 
   "loginModal": {
-    "title": "✨ 獲取 3 次免費預覽點數",
-    "subtitle": "使用 Google 登入，即可建立您的第一張 AI 證件相預覽。",
-    "benefit1": "3 次免費 AI 相片預覽",
-    "benefit2": "先試後付",
-    "benefit3": "您的相片會安全處理並自動刪除",
-    "continueWithGoogle": "使用 Google 帳號繼續",
-    "privacyNote": "🔒 您的相片會安全處理，並在處理完成後自動刪除。",
-    "notNow": "暫不登入"
+    "title": "✨ 您的證件相已準備好！",
+    "subtitle": "登入即可即時預覽專業成果。",
+    "continueWithGoogle": "使用 Google 繼續",
+    "trustNote": "預覽 100% 免費 • 滿意才付款",
+    "notNow": "暫不需要"
   },
 
   "paywallModal": {

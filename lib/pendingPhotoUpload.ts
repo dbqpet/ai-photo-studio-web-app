@@ -19,6 +19,12 @@ export interface PendingPhotoUpload {
   mode: ProcessingMode;
   /** Wizard step to restore (usually 2 = Specs). */
   step: 1 | 2 | 3;
+  /**
+   * When true, the user clicked Generate while logged out. After Google
+   * OAuth returns, resume generation automatically (do not require a
+   * second CTA click). Never used for checkout / payment redirects.
+   */
+  resumeGenerate?: boolean;
   savedAt: number;
 }
 

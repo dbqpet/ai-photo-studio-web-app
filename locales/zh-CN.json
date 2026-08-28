@@ -207,14 +207,11 @@
   },
 
   "loginModal": {
-    "title": "✨ 获取 3 次免费预览点数",
-    "subtitle": "使用 Google 登录，即可创建您的第一张 AI 证件照预览。",
-    "benefit1": "3 次免费 AI 照片预览",
-    "benefit2": "先试后付",
-    "benefit3": "您的照片会安全处理并自动删除",
-    "continueWithGoogle": "使用 Google 账号继续",
-    "privacyNote": "🔒 您的照片会安全处理，并在处理完成后自动删除。",
-    "notNow": "暂不登录"
+    "title": "✨ 您的证件照已准备好！",
+    "subtitle": "登录即可即时预览专业成果。",
+    "continueWithGoogle": "使用 Google 继续",
+    "trustNote": "预览 100% 免费 • 满意才付款",
+    "notNow": "暂不需要"
   },
 
   "paywallModal": {

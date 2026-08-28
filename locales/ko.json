@@ -207,13 +207,10 @@
   },
 
   "loginModal": {
-    "title": "✨ 무료 미리보기 3회 받기",
-    "subtitle": "Google로 로그인하고 첫 AI 증명사진 미리보기를 만들어 보세요.",
-    "benefit1": "무료 AI 사진 미리보기 3회",
-    "benefit2": "먼저 체험하고 결제하기",
-    "benefit3": "사진은 안전하게 처리되며 자동으로 삭제됩니다",
-    "continueWithGoogle": "Google 계정으로 계속하기",
-    "privacyNote": "🔒 사진은 안전하게 처리되며, 처리 후 자동으로 삭제됩니다.",
+    "title": "✨ 증명사진이 준비되었습니다!",
+    "subtitle": "로그인하면 전문 결과를 바로 미리볼 수 있습니다.",
+    "continueWithGoogle": "Google로 계속하기",
+    "trustNote": "미리보기 100% 무료 • 마음에 들 때만 결제",
     "notNow": "나중에 하기"
   },
 

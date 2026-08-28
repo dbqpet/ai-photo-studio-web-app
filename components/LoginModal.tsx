@@ -26,50 +26,39 @@ export default function LoginModal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl sm:p-8"
+        className="w-full max-w-sm rounded-3xl bg-white px-5 py-6 shadow-2xl sm:px-7 sm:py-8"
         onClick={(e) => e.stopPropagation()}
       >
         <h2
           id="login-modal-title"
-          className="text-xl font-bold text-slate-900"
+          className="text-center text-[1.35rem] font-bold leading-snug text-slate-900 sm:text-2xl"
         >
           {t("loginModal.title")}
         </h2>
-        <p className="mt-2 text-sm text-slate-600">{t("loginModal.subtitle")}</p>
-
-        <ul className="mt-5 space-y-2.5">
-          <li className="flex items-start gap-2.5 text-sm text-slate-700">
-            <span aria-hidden>🎁</span>
-            <span>{t("loginModal.benefit1")}</span>
-          </li>
-          <li className="flex items-start gap-2.5 text-sm text-slate-700">
-            <span aria-hidden>✨</span>
-            <span>{t("loginModal.benefit2")}</span>
-          </li>
-          <li className="flex items-start gap-2.5 text-sm text-slate-700">
-            <span aria-hidden>🔒</span>
-            <span>{t("loginModal.benefit3")}</span>
-          </li>
-        </ul>
+        <p className="mt-2 text-center text-sm leading-relaxed text-gray-500">
+          {t("loginModal.subtitle")}
+        </p>
 
         <button
           type="button"
           onClick={() => void onSignIn()}
           aria-label={t("loginModal.continueWithGoogle")}
-          className="mt-6 flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-slate-200 bg-white px-5 py-3.5 text-sm font-bold text-slate-800 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:shadow"
+          className="mt-6 flex w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-sky-600 to-indigo-600 px-5 py-4 text-base font-bold text-white shadow-lg transition hover:from-sky-500 hover:to-indigo-500"
         >
-          <GoogleIcon />
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white">
+            <GoogleIcon />
+          </span>
           {t("loginModal.continueWithGoogle")}
         </button>
 
-        <p className="mt-3 text-center text-[11px] leading-relaxed text-slate-500">
-          {t("loginModal.privacyNote")}
+        <p className="mt-3 text-center text-xs text-gray-500">
+          {t("loginModal.trustNote")}
         </p>
 
         <button
           type="button"
           onClick={onClose}
-          className="mt-3 w-full py-2 text-sm text-slate-400 transition hover:text-slate-600"
+          className="mt-2 w-full py-2 text-sm text-slate-400 transition hover:text-slate-600"
         >
           {t("loginModal.notNow")}
         </button>
@@ -80,7 +69,7 @@ export default function LoginModal({
 
 function GoogleIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden>
+    <svg width="14" height="14" viewBox="0 0 48 48" aria-hidden>
       <path
         fill="#FFC107"
         d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 8 3.1l5.7-5.7C34.2 6.1 29.4 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.3-.4-3.5z"

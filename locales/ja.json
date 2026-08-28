@@ -207,13 +207,10 @@
   },
 
   "loginModal": {
-    "title": "✨ 無料プレビュー 3 回分を取得",
-    "subtitle": "Google でサインインして、最初の AI 証明写真プレビューを作成しましょう。",
-    "benefit1": "無料 AI 写真プレビュー 3 回",
-    "benefit2": "お試ししてからお支払い",
-    "benefit3": "写真は安全に処理され、自動的に削除されます",
-    "continueWithGoogle": "Google アカウントで続ける",
-    "privacyNote": "🔒 写真は安全に処理され、処理後に自動的に削除されます。",
+    "title": "✨ 証明写真の準備ができました！",
+    "subtitle": "サインインして、プロ仕様の仕上がりをすぐにプレビュー。",
+    "continueWithGoogle": "Google で続ける",
+    "trustNote": "プレビューは100%無料 • 気に入ったときだけお支払い",
     "notNow": "今はしない"
   },
 

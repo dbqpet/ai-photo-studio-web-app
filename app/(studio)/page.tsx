@@ -198,6 +198,8 @@ function StudioPageContent() {
   const pendingExitRef = useRef<(() => void) | null>(null);
   /** Blocks duplicate GA / API calls before `processing` state disables the button. */
   const generateLockedRef = useRef(false);
+  /** After Google OAuth, run generate() once the restored photo + session are ready. */
+  const resumeGenerateAfterAuthRef = useRef(false);
 
   /** Ref attached to the step-3 preview section for auto-scroll after generation. */
   const previewSectionRef = useRef<HTMLElement>(null);
@@ -260,21 +262,24 @@ function StudioPageContent() {
    * Snapshot photo + specs so an external redirect (Google OAuth sign-in or
    * a Stripe top-up checkout) does not lose the in-progress upload.
    */
-  const persistPendingUploadForLogin = useCallback(() => {
-    if (!sourcePhoto) return;
-    savePendingPhotoUpload({
-      sourcePhoto,
-      uploadSessionId,
-      resolutionWarning,
-      presetId,
-      customWidthMm: clampMm(customWidthMm),
-      customHeightMm: clampMm(customHeightMm),
-      backgroundId,
-      backgroundMode,
-      mode,
-      step: step === 1 ? 2 : step,
-    });
-  }, [
+  const persistPendingUploadForLogin = useCallback(
+    (options?: { resumeGenerate?: boolean }) => {
+      if (!sourcePhoto) return;
+      const existing = readPendingPhotoUpload();
+      savePendingPhotoUpload({
+        sourcePhoto,
+        uploadSessionId,
+        resolutionWarning,
+        presetId,
+        customWidthMm: clampMm(customWidthMm),
+        customHeightMm: clampMm(customHeightMm),
+        backgroundId,
+        backgroundMode,
+        mode,
+        step: step === 1 ? 2 : step,
+        resumeGenerate: options?.resumeGenerate ?? existing?.resumeGenerate,
+      });
+    }, [
     sourcePhoto,
     uploadSessionId,
     resolutionWarning,
@@ -318,8 +323,15 @@ function StudioPageContent() {
     const pending = readPendingPhotoUpload();
     if (!pending?.sourcePhoto) return;
 
+    const resumeGenerate =
+      pending.resumeGenerate === true &&
+      Date.now() - (pending.savedAt ?? 0) < 30 * 60 * 1000;
     applyPendingPhotoUpload(pending);
-    showToast(t("toasts.photoRestored"));
+    if (resumeGenerate) {
+      resumeGenerateAfterAuthRef.current = true;
+    } else {
+      showToast(t("toasts.photoRestored"));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- restore once on mount
   }, []);
 
@@ -563,8 +575,8 @@ function StudioPageContent() {
           await clearPendingPurchase();
           // Save the in-progress photo/specs so returning from Stripe
           // resumes exactly where the user left off (no-ops if no photo
-          // has been uploaded yet).
-          persistPendingUploadForLogin();
+          // has been uploaded yet). Never resume generate after payment.
+          persistPendingUploadForLogin({ resumeGenerate: false });
         }
 
         const body: CheckoutRequest = {
@@ -678,6 +690,7 @@ function StudioPageContent() {
     if (!sourcePhoto) return;
 
     if (!user) {
+      persistPendingUploadForLogin({ resumeGenerate: true });
       setLoginOpen(true);
       return;
     }
@@ -888,8 +901,21 @@ function StudioPageContent() {
     backgroundId,
     orderSummary,
     showToast,
+    persistPendingUploadForLogin,
     t,
   ]);
+
+  useEffect(() => {
+    if (!resumeGenerateAfterAuthRef.current) return;
+    if (authLoading || !user || !sourcePhoto) return;
+    if (processing || generateLockedRef.current) return;
+
+    resumeGenerateAfterAuthRef.current = false;
+    generateLockedRef.current = true;
+    void generate().finally(() => {
+      generateLockedRef.current = false;
+    });
+  }, [authLoading, user, sourcePhoto, processing, generate]);
 
   const backToSpecs = useCallback(() => {
     setProcessError(null);

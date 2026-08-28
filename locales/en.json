@@ -207,13 +207,10 @@
   },
 
   "loginModal": {
-    "title": "✨ Get 3 Free Preview Tokens",
-    "subtitle": "Sign in with Google to create your first AI ID photo preview.",
-    "benefit1": "3 free AI photo previews",
-    "benefit2": "Try before you pay",
-    "benefit3": "Your photos are securely processed and automatically deleted",
+    "title": "✨ Your ID Photo is Ready!",
+    "subtitle": "Sign in to preview your professional result instantly.",
     "continueWithGoogle": "Continue with Google",
-    "privacyNote": "🔒 Your photos are processed securely and automatically deleted after processing.",
+    "trustNote": "100% Free to preview • Pay only if you love it",
     "notNow": "Not now"
   },
 
