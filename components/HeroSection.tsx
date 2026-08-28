@@ -80,28 +80,41 @@ export default function HeroSection({ uploadTargetId = "photo-upload" }: HeroSec
       <div className="relative flex flex-col items-center gap-3 text-center lg:grid lg:grid-cols-12 lg:items-center lg:gap-x-10 lg:gap-y-2 lg:text-left">
         <h2
           id="hero-title"
-          className="order-1 max-w-2xl text-balance bg-gradient-to-r from-slate-900 via-sky-800 to-slate-900 bg-clip-text text-2xl font-extrabold leading-tight tracking-tight text-transparent sm:text-3xl md:text-4xl lg:col-span-6 lg:col-start-1 lg:order-none"
+          className="order-1 max-w-2xl text-balance bg-gradient-to-r from-slate-900 via-sky-800 to-slate-900 bg-clip-text text-2xl font-extrabold leading-tight tracking-tight text-transparent sm:text-3xl md:text-4xl lg:col-span-6 lg:col-start-1 lg:row-start-1 lg:order-none"
         >
           {t("title")}
         </h2>
 
-        <p className="order-2 max-w-xl text-balance text-sm leading-snug text-gray-500 sm:text-base lg:col-span-6 lg:col-start-1 lg:order-none">
+        <p className="order-2 max-w-xl text-balance text-sm leading-snug text-gray-500 sm:text-base lg:col-span-6 lg:col-start-1 lg:row-start-2 lg:order-none">
           {t("subtitle")}
         </p>
 
-        <ul className="order-3 mx-auto flex w-fit flex-col items-start gap-1 lg:col-span-6 lg:col-start-1 lg:mx-0 lg:order-none">
-          {BADGE_KEYS.map((key) => {
-            const { icon, label } = splitBadge(t(key));
-            return (
-              <li key={key} className="flex items-center gap-2 text-sm text-gray-700">
-                {icon ? <span aria-hidden>{icon}</span> : null}
-                <span>{label}</span>
-              </li>
-            );
-          })}
-        </ul>
+        <div className="order-3 flex w-full max-w-sm flex-col items-center lg:col-span-6 lg:col-start-1 lg:row-start-4 lg:mt-2 lg:max-w-none lg:items-start lg:order-none">
+          <button
+            type="button"
+            onClick={scrollToUpload}
+            className="w-full rounded-2xl bg-sky-600 px-6 py-3.5 text-sm font-bold text-white shadow-md shadow-sky-600/25 transition hover:bg-sky-700 hover:shadow-lg hover:shadow-sky-600/30 active:scale-[0.98] sm:w-auto sm:min-w-[240px]"
+          >
+            {t("cta_button")}
+          </button>
 
-        <div className="order-4 w-full lg:col-span-6 lg:col-start-7 lg:row-span-5 lg:row-start-1 lg:order-none">
+          <p className="mt-2 text-xs text-gray-500">
+            {formatUsd(PRICING.saleUsd)} — {t("pricing_reassurance")}
+          </p>
+          <p className="text-xs text-gray-500">{t("pricing_note")}</p>
+
+          {trustReady && (
+            <p
+              key={i18n.language}
+              className="mt-1.5 text-[11px] leading-snug text-gray-400"
+              aria-label="Trust indicators"
+            >
+              {TRUST_KEYS.map((key) => `✓ ${t(`trust.${key}`)}`).join(" · ")}
+            </p>
+          )}
+        </div>
+
+        <div className="order-4 w-full lg:col-span-6 lg:col-start-7 lg:row-span-4 lg:row-start-1 lg:order-none">
           <div
             className="relative aspect-[4/3] max-h-[240px] w-full overflow-hidden rounded-2xl shadow-lg sm:max-h-none"
             aria-roledescription="carousel"
@@ -143,30 +156,17 @@ export default function HeroSection({ uploadTargetId = "photo-upload" }: HeroSec
           </div>
         </div>
 
-        <div className="order-5 flex w-full max-w-sm flex-col items-center lg:col-span-6 lg:col-start-1 lg:mt-3 lg:max-w-none lg:items-start lg:order-none">
-          <button
-            type="button"
-            onClick={scrollToUpload}
-            className="w-full rounded-2xl bg-sky-600 px-6 py-3.5 text-sm font-bold text-white shadow-md shadow-sky-600/25 transition hover:bg-sky-700 hover:shadow-lg hover:shadow-sky-600/30 active:scale-[0.98] sm:w-auto sm:min-w-[240px]"
-          >
-            {t("cta_button")}
-          </button>
-
-          <p className="mt-2 text-xs text-gray-500">
-            {formatUsd(PRICING.saleUsd)} — {t("pricing_reassurance")}
-          </p>
-          <p className="text-xs text-gray-500">{t("pricing_note")}</p>
-
-          {trustReady && (
-            <p
-              key={i18n.language}
-              className="mt-1.5 text-[11px] leading-snug text-gray-400"
-              aria-label="Trust indicators"
-            >
-              {TRUST_KEYS.map((key) => `✓ ${t(`trust.${key}`)}`).join(" · ")}
-            </p>
-          )}
-        </div>
+        <ul className="order-5 mx-auto flex w-fit flex-col items-start gap-1.5 pt-1 lg:col-span-6 lg:col-start-1 lg:row-start-3 lg:mx-0 lg:pt-0 lg:order-none">
+          {BADGE_KEYS.map((key) => {
+            const { icon, label } = splitBadge(t(key));
+            return (
+              <li key={key} className="flex items-center gap-2 text-sm text-gray-700">
+                {icon ? <span aria-hidden>{icon}</span> : null}
+                <span>{label}</span>
+              </li>
+            );
+          })}
+        </ul>
       </div>
     </section>
   );
