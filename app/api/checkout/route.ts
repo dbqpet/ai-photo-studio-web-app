@@ -122,6 +122,10 @@ export async function POST(req: NextRequest) {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items: [lineItem],
+      // Price IDs in Dashboard may not have a product tax_code. Managed
+      // Payments requires one; disable it on this session so Checkout can
+      // start. Set tax_code on the Stripe Product to re-enable later.
+      managed_payments: { enabled: false },
       metadata: {
         presetId,
         mode: body.mode,
@@ -144,7 +148,7 @@ export async function POST(req: NextRequest) {
           ? `&generation_id=${encodeURIComponent(generationId)}`
           : ""
       }`,
-    });
+    } as Stripe.Checkout.SessionCreateParams);
     if (!session.url) throw new Error("Stripe session has no URL.");
     const response: CheckoutResponse = { url: session.url, mock: false };
     return NextResponse.json(response);
