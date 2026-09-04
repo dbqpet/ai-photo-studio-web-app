@@ -76,12 +76,3 @@ export function formatUnlockPrice(market: PricingMarket = "usd"): string {
 export function formatUsd(amount: number): string {
   return `$${amount.toFixed(2)}`;
 }
-
-/** Server-only. Reads Price IDs from env, then the hardcoded fallback. */
-export function stripePriceIdForMarket(market: PricingMarket): string {
-  const fromEnv =
-    market === "hk"
-      ? process.env.STRIPE_PRICE_ID_HKD
-      : process.env.STRIPE_PRICE_ID_USD;
-  return fromEnv?.trim() || UNLOCK_PRICES[market].stripePriceId;
-}

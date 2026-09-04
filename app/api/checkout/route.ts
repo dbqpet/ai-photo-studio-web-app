@@ -1,11 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { PRICING, UNLOCK_PRICES, stripePriceIdForMarket, type PricingMarket } from "@/lib/pricing";
+import { PRICING, UNLOCK_PRICES, type PricingMarket } from "@/lib/pricing";
 import type { CheckoutRequest, CheckoutResponse } from "@/lib/types";
 import { getPresetById } from "@/constants/photoSizes";
 import { createClient } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
+
+function priceIdFromEnv(market: PricingMarket): string {
+  const raw =
+    market === "hk"
+      ? process.env.STRIPE_PRICE_ID_HKD
+      : process.env.STRIPE_PRICE_ID_USD;
+  return raw?.trim() || UNLOCK_PRICES[market].stripePriceId.trim();
+}
+
+function stripeMessage(err: unknown): string {
+  if (err && typeof err === "object" && "message" in err) {
+    const message = (err as { message: unknown }).message;
+    if (typeof message === "string" && message.trim()) return message;
+  }
+  return "Could not start checkout. Please try again.";
+}
 
 export async function POST(req: NextRequest) {
   let body: CheckoutRequest;
@@ -18,7 +34,7 @@ export async function POST(req: NextRequest) {
   const intent = body.intent === "topup" ? "topup" : "unlock_photo";
   const market: PricingMarket = body.market === "hk" ? "hk" : "usd";
   const unlockPrice = UNLOCK_PRICES[market];
-  const stripePriceId = stripePriceIdForMarket(market);
+  const stripePriceId = priceIdFromEnv(market);
   const generationId =
     body.generationId?.trim() || body.photoId?.trim() || undefined;
 
@@ -81,31 +97,31 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(response);
   }
 
+  const productName =
+    intent === "topup"
+      ? "AI Images Studio — Preview Top-up Pack"
+      : PRICING.productName;
+
+  const lineItem: Stripe.Checkout.SessionCreateParams.LineItem = stripePriceId
+    ? { quantity: 1, price: stripePriceId }
+    : {
+        quantity: 1,
+        price_data: {
+          currency: unlockPrice.currency,
+          unit_amount: unlockPrice.stripeUnitAmount,
+          product_data: {
+            name: productName,
+            description: `${dimensionLabel} · ${packLabel} · ${body.mode} style · ${PRICING.badge}`,
+            tax_code: PRICING.stripeTaxCode,
+          },
+        },
+      };
+
   try {
     const stripe = new Stripe(secretKey);
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      line_items: [
-        {
-          quantity: 1,
-          ...(stripePriceId
-            ? { price: stripePriceId }
-            : {
-                price_data: {
-                  currency: unlockPrice.currency,
-                  unit_amount: unlockPrice.stripeUnitAmount,
-                  product_data: {
-                    name:
-                      intent === "topup"
-                        ? "AI Images Studio — Preview Top-up Pack"
-                        : PRICING.productName,
-                    description: `${dimensionLabel} · ${packLabel} · ${body.mode} style · ${PRICING.badge}`,
-                    tax_code: PRICING.stripeTaxCode,
-                  },
-                },
-              }),
-        },
-      ],
+      line_items: [lineItem],
       metadata: {
         presetId,
         mode: body.mode,
@@ -133,10 +149,11 @@ export async function POST(req: NextRequest) {
     const response: CheckoutResponse = { url: session.url, mock: false };
     return NextResponse.json(response);
   } catch (err) {
-    console.error("[checkout] Stripe session creation failed:", err);
-    return NextResponse.json(
-      { error: "Could not start checkout. Please try again." },
-      { status: 502 },
-    );
+    console.error("[checkout] Stripe session creation failed:", {
+      market,
+      stripePriceId: stripePriceId || "(price_data fallback)",
+      err,
+    });
+    return NextResponse.json({ error: stripeMessage(err) }, { status: 502 });
   }
 }

@@ -560,19 +560,28 @@ function StudioPageContent() {
 
   const checkout = useCallback(
     async (intent: "topup" | "unlock_photo" = "unlock_photo") => {
-      track("click_checkout", { intent });
+      try {
+        track("click_checkout", { intent });
+      } catch {
+        // Analytics must never block checkout.
+      }
       trackGAEvent("click_checkout", { intent }, { beacon: true });
+      setProcessError(null);
       setCheckoutLoading(true);
       try {
         if (intent === "unlock_photo" && result) {
-          await persistCurrentSession(result);
-          await storePendingPurchase({
-            singleDataUrl: result.cleanSingle,
-            sheetDataUrl: result.cleanSheet,
-            presetLabel: preset.label,
-            style: mode,
-            summary: orderSummary,
-          });
+          try {
+            await persistCurrentSession(result);
+            await storePendingPurchase({
+              singleDataUrl: result.cleanSingle,
+              sheetDataUrl: result.cleanSheet,
+              presetLabel: preset.label,
+              style: mode,
+              summary: orderSummary,
+            });
+          } catch (persistErr) {
+            console.error("[studio] checkout persist failed:", persistErr);
+          }
         } else if (intent === "topup") {
           await clearPendingPurchase();
           // Save the in-progress photo/specs so returning from Stripe
@@ -598,6 +607,7 @@ function StudioPageContent() {
         });
         const json = (await res.json()) as CheckoutResponse & { error?: string };
         if (!res.ok) throw new Error(json.error ?? "Checkout failed.");
+        if (!json.url) throw new Error("Checkout did not return a payment URL.");
 
         navigateAfterAnalytics(json.url);
       } catch (err) {
