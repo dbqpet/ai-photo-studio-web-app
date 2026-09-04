@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useTranslation } from "react-i18next";
 import { track } from "@vercel/analytics";
 import { trackGAEvent } from "@/lib/ga";
-import { PRICING, formatUsd } from "@/lib/pricing";
+import { useUnlockPrice } from "@/hooks/useUnlockPrice";
 
 const BADGE_KEYS = ["badge_ai", "badge_print", "badge_privacy"] as const;
 
@@ -37,6 +37,7 @@ function splitBadge(text: string) {
 
 export default function HeroSection({ uploadTargetId = "photo-upload" }: HeroSectionProps) {
   const { t, i18n } = useTranslation(undefined, { keyPrefix: "hero" });
+  const unlockPrice = useUnlockPrice();
   const [trustReady, setTrustReady] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
 
@@ -99,7 +100,7 @@ export default function HeroSection({ uploadTargetId = "photo-upload" }: HeroSec
           </button>
 
           <p className="mt-2 text-xs text-gray-500">
-            {formatUsd(PRICING.saleUsd)} — {t("pricing_reassurance")}
+            {unlockPrice} — {t("pricing_reassurance")}
           </p>
           <p className="text-xs text-gray-500">{t("pricing_note")}</p>
 

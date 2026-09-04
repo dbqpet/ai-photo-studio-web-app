@@ -8,9 +8,9 @@ import OrderSummaryCard from "@/components/OrderSummaryCard";
 import type { PhotoSizePreset } from "@/constants/photoSizes";
 import { compressPreviewForDisplay } from "@/lib/imageUtils";
 import { presetDescription, presetLabel } from "@/lib/i18n/presetLabels";
-import { PRICING, formatUsd } from "@/lib/pricing";
 import { SUPPORT_EMAIL } from "@/lib/site";
 import StripePaymentReassurance from "@/components/StripePaymentReassurance";
+import { useUnlockPrice } from "@/hooks/useUnlockPrice";
 import type { PurchaseSummary } from "@/lib/purchaseStore";
 import type { SheetLayout } from "@/lib/printLayout";
 
@@ -110,6 +110,7 @@ export default function PreviewPanel({
   onStartOver,
 }: PreviewPanelProps) {
   const { t } = useTranslation();
+  const unlockPrice = useUnlockPrice();
   const displaySingleUrl = useCompressedPreviewDisplayUrl(singlePreviewUrl);
   const displaySheetUrl = useCompressedPreviewDisplayUrl(sheetPreviewUrl);
   const showUnlock = !unlocked && hdUnlocks <= 0;
@@ -176,7 +177,7 @@ export default function PreviewPanel({
                   {t("preview.redirectingCheckout")}
                 </>
               ) : (
-                <>{t("preview.unlockButton", { price: formatUsd(PRICING.saleUsd) })}</>
+                <>{t("preview.unlockButton", { price: unlockPrice })}</>
               )}
             </button>
             <p className="text-center text-xs leading-relaxed text-slate-400">

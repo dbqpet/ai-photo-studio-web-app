@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 /**
  * Stripe webhook — durable record of successful payments.
  *
- * Every purchase ($4.99) grants: +{PRICING.previewCreditsBonus} preview_credits
+ * Every purchase grants: +{PRICING.previewCreditsBonus} preview_credits
  * and +{PRICING.hdUnlocksPerPurchase} hd_unlocks (banked for future downloads).
  * unlock_photo additionally marks the specific generation_id unlocked instantly.
  *

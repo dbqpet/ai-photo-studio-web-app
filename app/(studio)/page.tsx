@@ -35,7 +35,8 @@ import {
   modeLabel as translateModeLabel,
   presetLabel as translatePresetLabel,
 } from "@/lib/i18n/presetLabels";
-import { PRICING, formatUsd } from "@/lib/pricing";
+import { PRICING, detectPricingMarket } from "@/lib/pricing";
+import { useUnlockPrice } from "@/hooks/useUnlockPrice";
 import { SUPPORT_EMAIL } from "@/lib/site";
 import {
   privacyPolicyPathForAppLocale,
@@ -158,6 +159,7 @@ function StudioLoadingFallback() {
 
 function StudioPageContent() {
   const { t, i18n } = useTranslation();
+  const unlockPrice = useUnlockPrice();
   const searchParams = useSearchParams();
   const {
     user,
@@ -584,6 +586,7 @@ function StudioPageContent() {
           mode,
           dimensionLabel: orderSummary.dimensionLabel,
           intent,
+          market: detectPricingMarket(i18n.language),
           ...(intent === "unlock_photo" && result
             ? { generationId: result.generationId }
             : {}),
@@ -612,6 +615,7 @@ function StudioPageContent() {
       orderSummary,
       persistCurrentSession,
       persistPendingUploadForLogin,
+      i18n.language,
       t,
     ],
   );
@@ -1275,7 +1279,7 @@ function StudioPageContent() {
               )}
             </button>
             <p className="mt-2 text-center text-xs text-slate-500">
-              {t("step2.previewNote", { price: formatUsd(PRICING.saleUsd) })}
+              {t("step2.previewNote", { price: unlockPrice })}
             </p>
           </section>
         )}

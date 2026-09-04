@@ -436,7 +436,7 @@ export async function grantUnlockPackOnceForSession(
 
 /**
  * Grant purchase pack via service role (webhook / mock verify).
- * Every purchase ($4.99) grants +{PRICING.previewCreditsBonus} preview_credits
+ * Every purchase grants +{PRICING.previewCreditsBonus} preview_credits
  * and +{PRICING.hdUnlocksPerPurchase} banked hd_unlocks, regardless of intent.
  *
  * For a `unlock_photo` purchase, /api/mark-photo-unlocked immediately spends

@@ -13,7 +13,7 @@ function sleep(ms: number): Promise<void> {
  * Mark a generation unlocked after a successful Stripe payment.
  * Used when returning from checkout with ?payment=success&generation_id=...
  *
- * The $4.99 "Unlock HD & 4R Print Sheet" purchase grants +1 banked
+ * The unlock purchase grants +1 banked
  * hd_unlock (via /api/verify-payment, called by the client right before
  * this route) and this call immediately spends that same token to unlock
  * THIS generation. Net effect of the purchase: 0 change to the hd_unlocks

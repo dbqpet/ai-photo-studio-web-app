@@ -96,6 +96,8 @@ export interface CheckoutRequest {
   generationId?: string;
   /** @deprecated Use generationId */
   photoId?: string;
+  /** Unlock currency to charge. Omit to default to USD. */
+  market?: "hk" | "usd";
 }
 
 export interface CheckoutResponse {

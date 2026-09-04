@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { PRICING } from "@/lib/pricing";
+import { PRICING, UNLOCK_PRICES, stripePriceIdForMarket, type PricingMarket } from "@/lib/pricing";
 import type { CheckoutRequest, CheckoutResponse } from "@/lib/types";
 import { getPresetById } from "@/constants/photoSizes";
 import { createClient } from "@/lib/supabase/server";
@@ -16,6 +16,9 @@ export async function POST(req: NextRequest) {
   }
 
   const intent = body.intent === "topup" ? "topup" : "unlock_photo";
+  const market: PricingMarket = body.market === "hk" ? "hk" : "usd";
+  const unlockPrice = UNLOCK_PRICES[market];
+  const stripePriceId = stripePriceIdForMarket(market);
   const generationId =
     body.generationId?.trim() || body.photoId?.trim() || undefined;
 
@@ -85,18 +88,22 @@ export async function POST(req: NextRequest) {
       line_items: [
         {
           quantity: 1,
-          price_data: {
-            currency: PRICING.currency,
-            unit_amount: PRICING.stripeUnitAmount,
-            product_data: {
-              name:
-                intent === "topup"
-                  ? "AI Images Studio — Preview Top-up Pack"
-                  : PRICING.productName,
-              description: `${dimensionLabel} · ${packLabel} · ${body.mode} style · ${PRICING.badge}`,
-              tax_code: PRICING.stripeTaxCode,
-            },
-          },
+          ...(stripePriceId
+            ? { price: stripePriceId }
+            : {
+                price_data: {
+                  currency: unlockPrice.currency,
+                  unit_amount: unlockPrice.stripeUnitAmount,
+                  product_data: {
+                    name:
+                      intent === "topup"
+                        ? "AI Images Studio — Preview Top-up Pack"
+                        : PRICING.productName,
+                    description: `${dimensionLabel} · ${packLabel} · ${body.mode} style · ${PRICING.badge}`,
+                    tax_code: PRICING.stripeTaxCode,
+                  },
+                },
+              }),
         },
       ],
       metadata: {
@@ -110,6 +117,7 @@ export async function POST(req: NextRequest) {
           intent === "topup" ? "preview_topup_pack" : "single_photo_unlock_pack",
         previewCreditsBonus: String(PRICING.previewCreditsBonus),
         hdUnlocksBonus: String(PRICING.hdUnlocksPerPurchase),
+        market,
         ...(generationId ? { generationId, photoId: generationId } : {}),
         // `user_id` mirrors `userId` — the webhook accepts either key.
         ...(userId ? { userId, user_id: userId } : {}),

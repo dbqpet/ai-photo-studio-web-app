@@ -2,6 +2,7 @@
 
 import { Trans, useTranslation } from "react-i18next";
 import { PRICING, formatUsd } from "@/lib/pricing";
+import { usePricingMarket, useUnlockPrice } from "@/hooks/useUnlockPrice";
 import { SUPPORT_EMAIL } from "@/lib/site";
 import StripePaymentReassurance from "@/components/StripePaymentReassurance";
 
@@ -12,7 +13,7 @@ interface PaywallModalProps {
   checkoutLoading?: boolean;
 }
 
-/** Out-of-tokens modal: communicates clearly what $4.99 unlocks. */
+/** Out-of-tokens modal: communicates what the unlock purchase includes. */
 export default function PaywallModal({
   open,
   onClose,
@@ -20,9 +21,9 @@ export default function PaywallModal({
   checkoutLoading = false,
 }: PaywallModalProps) {
   const { t } = useTranslation();
+  const market = usePricingMarket();
+  const salePrice = useUnlockPrice();
   if (!open) return null;
-
-  const salePrice = formatUsd(PRICING.saleUsd);
   const ctaLabel = t("paywallModal.unlockForPrice", { price: salePrice });
 
   return (
@@ -53,9 +54,11 @@ export default function PaywallModal({
         {/* Pricing + benefits */}
         <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-4">
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-            <del className="text-sm text-slate-400">
-              {formatUsd(PRICING.originalUsd)}
-            </del>
+            {market === "usd" ? (
+              <del className="text-sm text-slate-400">
+                {formatUsd(PRICING.originalUsd)}
+              </del>
+            ) : null}
             <span className="text-4xl font-extrabold tracking-tight text-slate-900">
               {salePrice}
             </span>
